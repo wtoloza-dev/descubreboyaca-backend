@@ -1,0 +1,94 @@
+---
+alwaysApply: false
+---
+
+# Cursor Rules for Descubre Boyacá Backend
+
+## Git Commit Convention
+
+All git commit messages MUST follow this format:
+
+```
+[VERB]: Message
+```
+
+### Allowed Verbs:
+- `[ADD]`: Adding new features, files, or functionality
+- `[UPDATE]`: Updating existing code, dependencies, or configurations
+- `[FIX]`: Bug fixes
+- `[REMOVE]`: Removing code, files, or features
+- `[REFACTOR]`: Code refactoring without changing functionality
+- `[DOCS]`: Documentation changes
+- `[TEST]`: Adding or updating tests
+- `[STYLE]`: Code style changes (formatting, missing semi-colons, etc.)
+- `[PERF]`: Performance improvements
+- `[CHORE]`: Maintenance tasks, dependency updates, etc.
+- `[SECURITY]`: Security-related changes
+- `[CONFIG]`: Configuration changes
+
+### Examples:
+- `[ADD]: User authentication endpoint`
+- `[FIX]: Resolve database connection timeout issue`
+- `[UPDATE]: Migrate to FastAPI 0.100.0`
+- `[REFACTOR]: Improve error handling in user service`
+- `[DOCS]: Add API documentation for auth endpoints`
+- `[REMOVE]: Delete deprecated legacy endpoints`
+
+### Rules:
+1. The verb MUST be in UPPERCASE and enclosed in square brackets
+2. There MUST be a colon and space after the closing bracket: `]: `
+3. The message should be clear, concise, and descriptive
+4. Use imperative mood in the message (e.g., "Add feature" not "Added feature")
+5. Keep the entire commit message under 72 characters when possible
+6. For multi-line commits, keep the first line as the summary following the format
+
+## Code Quality
+- Always follow the Python coding standards defined in the project
+- Run linters and formatters before committing
+- Ensure all tests pass before pushing changes
+
+# Cursor Rules for Descubre Boyacá Backend
+
+## Git Commit Convention
+
+All git commit messages MUST follow this format:
+
+```
+[VERB]: Message
+```
+
+### Allowed Verbs:
+- `[ADD]`: Adding new features, files, or functionality
+- `[UPDATE]`: Updating existing code, dependencies, or configurations
+- `[FIX]`: Bug fixes
+- `[REMOVE]`: Removing code, files, or features
+- `[REFACTOR]`: Code refactoring without changing functionality
+- `[DOCS]`: Documentation changes
+- `[TEST]`: Adding or updating tests
+- `[STYLE]`: Code style changes (formatting, missing semi-colons, etc.)
+- `[PERF]`: Performance improvements
+- `[CHORE]`: Maintenance tasks, dependency updates, etc.
+- `[SECURITY]`: Security-related changes
+- `[CONFIG]`: Configuration changes
+
+### Examples:
+- `[ADD]: User authentication endpoint`
+- `[FIX]: Resolve database connection timeout issue`
+- `[UPDATE]: Migrate to FastAPI 0.100.0`
+- `[REFACTOR]: Improve error handling in user service`
+- `[DOCS]: Add API documentation for auth endpoints`
+- `[REMOVE]: Delete deprecated legacy endpoints`
+
+### Rules:
+1. The verb MUST be in UPPERCASE and enclosed in square brackets
+2. There MUST be a colon and space after the closing bracket: `]: `
+3. The message should be clear, concise, and descriptive
+4. Use imperative mood in the message (e.g., "Add feature" not "Added feature")
+5. Keep the entire commit message under 72 characters when possible
+6. For multi-line commits, keep the first line as the summary following the format
+
+## Code Quality
+- Always follow the Python coding standards defined in the project
+- Run linters and formatters before committing
+- Ensure all tests pass before pushing changes
+

@@ -1,0 +1,23 @@
+{
+  "recommendations": [
+    // Python development
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    
+    // Linting and formatting
+    "charliermarsh.ruff",
+    
+    // Icons
+    "pkief.material-icon-theme",
+    
+    // Additional helpful extensions
+    "ms-python.debugpy",
+    "njpwerner.autodocstring",
+    "tamasfe.even-better-toml"
+  ],
+  "unwantedRecommendations": [
+    "ms-python.pylint",
+    "ms-python.flake8"
+  ]
+}
+

@@ -1,0 +1,50 @@
+{
+  // File exclusion patterns
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
+    "**/.mypy_cache": true
+  },
+  // Search exclusion patterns
+  "search.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/node_modules": true,
+    "**/.venv": true,
+    "**/venv": true
+  },
+  // Spell checker settings
+  "cSpell.words": [
+    "Genai",
+    "melitk",
+    "restclient"
+  ],
+  // Pytest settings
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  // Ruff settings
+  "ruff.configurationPreference": "filesystemFirst",
+  // Python settings
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.rulers": [{"column": 88, "color": "#00ff002a"}]
+  },
+  // Material Icon Theme settings
+  "material-icon-theme.folders.associations": {
+    "entities": "connection",
+    "domains": "context",
+    "exceptions": "error",
+    "ports": "plugin",
+    "adapters": "middleware",
+    "schemas": "contract"
+  }
+}

@@ -1,0 +1,11 @@
+"""Shared database models and base classes.
+
+This module contains base models that provide common functionality across
+all domain models in the application.
+"""
+
+from app.shared.models.archive import ArchiveModel
+from app.shared.models.audit import AuditMixin, TimestampMixin, ULIDMixin
+
+
+__all__ = ["ArchiveModel", "AuditMixin", "TimestampMixin", "ULIDMixin"]
