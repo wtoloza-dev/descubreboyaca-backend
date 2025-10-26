@@ -1,0 +1,77 @@
+"""Create dish endpoint (Admin).
+
+This module provides an endpoint for administrators to create dishes.
+"""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, Path, status
+from ulid import ULID
+
+from app.domains.auth.dependencies.auth import require_admin_dependency
+from app.domains.auth.domain import User
+from app.domains.restaurants.dependencies import get_dish_service_dependency
+from app.domains.restaurants.domain import DishData
+from app.domains.restaurants.schemas.dish import (
+    CreateDishSchemaRequest,
+    CreateDishSchemaResponse,
+)
+from app.domains.restaurants.services.dish import DishService
+
+
+router = APIRouter()
+
+
+@router.post(
+    path="/restaurants/{restaurant_id}/dishes",
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new dish (Admin)",
+    description="Create a new dish for any restaurant. Admin only.",
+)
+async def handle_create_dish(
+    restaurant_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the restaurant",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
+    request: Annotated[
+        CreateDishSchemaRequest,
+        Body(description="Dish data to create"),
+    ],
+    dish_service: DishService = Depends(get_dish_service_dependency),
+    current_user: User = Depends(require_admin_dependency),
+) -> CreateDishSchemaResponse:
+    """Create a new dish for a restaurant.
+
+    **Authentication required**: Only users with ADMIN role can access.
+
+    This endpoint allows administrators to create dishes for any restaurant.
+    No ownership verification required.
+
+    Domain exceptions are allowed to propagate and will be handled by the
+    centralized exception handler in app.core.errors.
+
+    Args:
+        restaurant_id: ULID of the restaurant (validated automatically)
+        request: Dish data
+        dish_service: Dish service (injected)
+        current_user: Authenticated user (injected)
+
+    Returns:
+        CreateDishSchemaResponse: Created dish details
+
+    Raises:
+        RestaurantNotFoundException: If restaurant not found
+        HTTPException 422: If restaurant_id format is invalid (not a valid ULID)
+    """
+    # Create dish (admins can create for any restaurant)
+    dish_data = DishData(**request.model_dump())
+    created_dish = await dish_service.create_dish(
+        dish_data=dish_data,
+        restaurant_id=str(restaurant_id),
+        created_by=current_user.id,
+    )
+
+    return CreateDishSchemaResponse.model_validate(created_dish.model_dump(mode="json"))

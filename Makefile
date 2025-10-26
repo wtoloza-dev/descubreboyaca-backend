@@ -114,13 +114,17 @@ db-history: ## Show migration history
 # Development
 # =============================================================================
 
-run: ## Run the development server
+dev: ## Run the development server with FastAPI dev mode
+	@echo "$(BLUE)Starting development server (FastAPI dev mode)...$(NC)"
+	uv run fastapi dev app/main.py
+
+run: ## Run the development server (alias for dev)
 	@echo "$(BLUE)Starting development server...$(NC)"
-	uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	uv run fastapi dev app/main.py
 
 run-prod: ## Run the production server
 	@echo "$(BLUE)Starting production server...$(NC)"
-	uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+	uv run fastapi run app/main.py
 
 install: ## Install dependencies
 	@echo "$(BLUE)Installing dependencies...$(NC)"

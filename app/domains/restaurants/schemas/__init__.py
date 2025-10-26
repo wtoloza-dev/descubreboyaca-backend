@@ -3,22 +3,18 @@
 This package contains Data Transfer Objects for restaurant API endpoints.
 """
 
-from app.domains.restaurants.schemas.create import (
+from app.domains.restaurants.schemas.restaurant import (
+    AssignOwnerSchemaRequest,
     CreateRestaurantSchemaRequest,
     CreateRestaurantSchemaResponse,
-)
-from app.domains.restaurants.schemas.delete import DeleteRestaurantSchemaRequest
-from app.domains.restaurants.schemas.get import GetRestaurantSchemaResponse
-from app.domains.restaurants.schemas.list import (
+    DeleteRestaurantSchemaRequest,
+    GetRestaurantSchemaResponse,
     ListRestaurantsSchemaResponse,
-    RestaurantSchemaListItem,
-)
-from app.domains.restaurants.schemas.ownership import (
-    AssignOwnerSchemaRequest,
     MyRestaurantSchemaItem,
     MyRestaurantsSchemaResponse,
     OwnershipListSchemaResponse,
     OwnershipSchemaResponse,
+    RestaurantSchemaListItem,
     UpdateOwnerRoleSchemaRequest,
 )
 

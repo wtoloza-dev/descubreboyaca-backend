@@ -7,6 +7,9 @@ bounded context, representing violations of restaurant business rules.
 from app.domains.restaurants.domain.exceptions.cannot_remove_primary_owner import (
     CannotRemovePrimaryOwnerException,
 )
+from app.domains.restaurants.domain.exceptions.dish_not_found import (
+    DishNotFoundException,
+)
 from app.domains.restaurants.domain.exceptions.invalid_cuisine_type import (
     InvalidCuisineTypeException,
 )
@@ -39,6 +42,8 @@ __all__ = [
     "RestaurantAlreadyExistsException",
     "InvalidCuisineTypeException",
     "InvalidPriceLevelException",
+    # Dish exceptions
+    "DishNotFoundException",
     # Ownership exceptions
     "OwnershipNotFoundException",
     "OwnershipAlreadyExistsException",

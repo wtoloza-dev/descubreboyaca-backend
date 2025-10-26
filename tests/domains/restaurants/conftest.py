@@ -1,149 +1,29 @@
-"""Conftest for restaurant tests.
+"""Conftest for restaurant domain tests.
 
-This module provides domain-specific fixtures for restaurant testing.
+This module imports restaurant-specific fixtures from the centralized fixtures package.
+
+For fixture details, see:
+    - tests/fixtures/domains/restaurants.py (factories & sample data)
+    - tests/fixtures/domains/restaurant_services.py (service layer)
+    - tests/fixtures/domains/restaurant_repositories.py (repository layer)
 """
 
-import pytest
-from sqlmodel.ext.asyncio.session import AsyncSession
-
-from app.domains.restaurants.domain import RestaurantData
-from app.domains.restaurants.models import RestaurantModel, RestaurantOwnerModel
-from app.shared.domain.factories import generate_ulid
-
-
-@pytest.fixture(name="sample_restaurant_data")
-def fixture_sample_restaurant_data() -> RestaurantData:
-    """Create sample restaurant data for testing.
-
-    Returns:
-        RestaurantData: Complete restaurant data for testing
-
-    Example:
-        >>> def test_create(sample_restaurant_data):
-        ...     restaurant = service.create(sample_restaurant_data)
-        ...     assert restaurant.name == "La Casona Boyacense"
-    """
-    return RestaurantData(
-        name="La Casona Boyacense",
-        description="Traditional Colombian cuisine in the heart of Boyacá",
-        address="Calle 19 #9-45",
-        city="Tunja",
-        state="Boyacá",
-        country="Colombia",
-        phone="+57 300 123 4567",
-        email="info@lacasonaboyacense.com",
-        website="https://lacasonaboyacense.com",
-        location={"latitude": 5.5353, "longitude": -73.3678},
-        cuisine_types=["Colombian", "Traditional"],
-        price_level="$$",
-        features=["Outdoor Seating", "Takeout", "Reservations"],
-    )
-
-
-@pytest.fixture(name="create_test_restaurant")
-def fixture_create_test_restaurant(test_session: AsyncSession):
-    """Factory fixture to create test restaurants in the database.
-
-    This fixture returns a function that can be called multiple times
-    to create different restaurants in the test database.
-
-    Args:
-        test_session: Test database session
-
-    Returns:
-        Callable: Async function to create restaurants
-
-    Example:
-        >>> async def test_list(create_test_restaurant):
-        ...     restaurant1 = await create_test_restaurant(
-        ...         name="Restaurant 1", city="Tunja"
-        ...     )
-        ...     restaurant2 = await create_test_restaurant(
-        ...         name="Restaurant 2", city="Tunja"
-        ...     )
-        ...     # Now test listing
-    """
-
-    async def _create_restaurant(**kwargs) -> RestaurantModel:
-        """Create a restaurant with custom fields.
-
-        Args:
-            **kwargs: Fields to override in the restaurant
-
-        Returns:
-            RestaurantModel: Created restaurant model
-        """
-        # Default data
-        data = {
-            "id": generate_ulid(),  # Generate ULID for the restaurant
-            "name": "Test Restaurant",
-            "address": "Test Address 123",
-            "city": "Tunja",
-            "state": "Boyacá",
-            "country": "Colombia",
-            "phone": "+57 300 000 0000",
-            "cuisine_types": [],
-            "features": [],
-        }
-        # Override with provided kwargs
-        data.update(kwargs)
-
-        restaurant = RestaurantModel(**data)
-        test_session.add(restaurant)
-        await test_session.commit()  # Commit to persist to file DB
-        await test_session.refresh(restaurant)  # Refresh to get updated data
-
-        return restaurant
-
-    return _create_restaurant
-
-
-@pytest.fixture(name="create_test_ownership")
-def fixture_create_test_ownership(test_session: AsyncSession):
-    """Factory fixture to create test restaurant ownership relationships.
-
-    This fixture returns a function that can be called multiple times
-    to create ownership relationships between users and restaurants.
-
-    Args:
-        test_session: Test database session
-
-    Returns:
-        Callable: Async function to create ownerships
-
-    Example:
-        >>> async def test_owner_access(create_test_ownership):
-        ...     ownership = await create_test_ownership(
-        ...         owner_id=user.id,
-        ...         restaurant_id=restaurant.id,
-        ...         role="owner",
-        ...         is_primary=True,
-        ...     )
-    """
-
-    async def _create_ownership(**kwargs) -> RestaurantOwnerModel:
-        """Create an ownership relationship with custom fields.
-
-        Args:
-            **kwargs: Fields for the ownership (owner_id, restaurant_id, role, is_primary)
-
-        Returns:
-            RestaurantOwnerModel: Created ownership model
-        """
-        # Default data
-        data = {
-            "id": generate_ulid(),
-            "owner_id": kwargs.get("owner_id", generate_ulid()),
-            "restaurant_id": kwargs.get("restaurant_id", generate_ulid()),
-            "role": kwargs.get("role", "owner"),
-            "is_primary": kwargs.get("is_primary", False),
-        }
-
-        ownership = RestaurantOwnerModel(**data)
-        test_session.add(ownership)
-        await test_session.commit()
-        await test_session.refresh(ownership)
-
-        return ownership
-
-    return _create_ownership
+# Import restaurant domain fixtures
+# ruff: noqa: F401 (unused imports are intentional - they're fixtures)
+from tests.fixtures.domains.restaurant_repositories import (
+    fixture_dish_repository,
+    fixture_owner_repository,
+    fixture_restaurant_repository,
+)
+from tests.fixtures.domains.restaurant_services import (
+    fixture_dish_service,
+    fixture_owner_service,
+    fixture_restaurant_service,
+)
+from tests.fixtures.domains.restaurants import (
+    fixture_create_test_dish,
+    fixture_create_test_ownership,
+    fixture_create_test_restaurant,
+    fixture_sample_dish_data,
+    fixture_sample_restaurant_data,
+)

@@ -18,6 +18,7 @@ from app.domains.auth.domain.exceptions import (
 )
 from app.domains.restaurants.domain.exceptions import (
     CannotRemovePrimaryOwnerException,
+    DishNotFoundException,
     InvalidCuisineTypeException,
     InvalidOwnerRoleException,
     InvalidPriceLevelException,
@@ -63,6 +64,8 @@ class DomainExceptionMapper:
         RestaurantAlreadyExistsException: status.HTTP_409_CONFLICT,
         InvalidCuisineTypeException: status.HTTP_400_BAD_REQUEST,
         InvalidPriceLevelException: status.HTTP_400_BAD_REQUEST,
+        # Restaurants domain - Dish errors
+        DishNotFoundException: status.HTTP_404_NOT_FOUND,
         # Restaurants domain - Ownership errors
         OwnershipNotFoundException: status.HTTP_404_NOT_FOUND,
         OwnershipAlreadyExistsException: status.HTTP_409_CONFLICT,
