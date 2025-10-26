@@ -155,3 +155,6 @@ Thumbs.db
 logs/
 *.log
 
+# Project documentation (internal planning, TODOs, notes)
+project/
+
