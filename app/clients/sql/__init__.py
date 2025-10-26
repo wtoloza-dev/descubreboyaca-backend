@@ -11,15 +11,17 @@ Structure:
   - sqlite_client.py: SQLite sync + async clients
   - postgres_client.py: PostgreSQL sync + async clients
 
-- dependencies/: FACTORIES (Dependency Injection) - creates configured instances
-  - sqlite.py: SQLite client factories
+- dependencies/: GENERIC FACTORIES (app-agnostic) - creates client instances
+  - sqlite.py: Generic SQLite client factories that accept config as parameters
+
+For app-specific dependencies with concrete configuration, use app.shared.dependencies:
 
 Usage:
-    >>> from app.clients.sql import get_sqlite_session
+    >>> from app.shared.dependencies import get_sqlite_session_dependency
     >>> from fastapi import Depends
     >>>
     >>> @app.get("/restaurants")
-    >>> def get_restaurants(session: Session = Depends(get_sqlite_session)):
+    >>> def get_restaurants(session: Session = Depends(get_sqlite_session_dependency)):
     ...     return session.exec(select(Restaurant)).all()
 """
 
@@ -30,10 +32,10 @@ from app.clients.sql.adapters import (
     SQLiteClient,
 )
 from app.clients.sql.dependencies import (
-    get_async_sqlite_client,
-    get_async_sqlite_session,
-    get_sqlite_client,
-    get_sqlite_session,
+    create_async_sqlite_client,
+    create_async_sqlite_session_dependency,
+    create_sqlite_client,
+    create_sqlite_session_dependency,
 )
 from app.clients.sql.ports import AsyncSQLClientProtocol, SQLClientProtocol
 
@@ -47,9 +49,9 @@ __all__ = [
     "AsyncSQLiteClient",
     "PostgreSQLClient",
     "AsyncPostgreSQLClient",
-    # Dependencies (Factories)
-    "get_sqlite_client",
-    "get_async_sqlite_client",
-    "get_sqlite_session",
-    "get_async_sqlite_session",
+    # Generic Factories (app-agnostic)
+    "create_sqlite_client",
+    "create_async_sqlite_client",
+    "create_sqlite_session_dependency",
+    "create_async_sqlite_session_dependency",
 ]

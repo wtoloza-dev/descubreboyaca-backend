@@ -1,6 +1,21 @@
-"""Restaurant repositories.
+"""Restaurant repository implementations.
 
-This package contains repository implementations for data access
-in the restaurants domain, following the Repository pattern.
+This package exports the async restaurant repositories.
 """
 
+from .restaurant import (
+    RestaurantRepositoryPostgreSQL,
+    RestaurantRepositorySQLite,
+)
+from .restaurant_owner import (
+    RestaurantOwnerRepositoryPostgreSQL,
+    RestaurantOwnerRepositorySQLite,
+)
+
+
+__all__ = [
+    "RestaurantRepositorySQLite",
+    "RestaurantRepositoryPostgreSQL",
+    "RestaurantOwnerRepositorySQLite",
+    "RestaurantOwnerRepositoryPostgreSQL",
+]

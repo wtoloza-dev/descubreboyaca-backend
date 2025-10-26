@@ -20,7 +20,7 @@ class HealthStatusResponse(BaseModel):
 
 
 @router.get(
-    path="/health",
+    path="/health/",
     summary="Health check endpoint",
     description="Returns the current health status of the application",
     status_code=status.HTTP_200_OK,

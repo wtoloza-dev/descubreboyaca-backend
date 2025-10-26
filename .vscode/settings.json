@@ -17,9 +17,6 @@
   },
   // Spell checker settings
   "cSpell.words": [
-    "Genai",
-    "melitk",
-    "restclient"
   ],
   // Pytest settings
   "python.testing.pytestArgs": [
@@ -40,11 +37,26 @@
   },
   // Material Icon Theme settings
   "material-icon-theme.folders.associations": {
-    "entities": "connection",
+    // Domain-Driven Design
     "domains": "context",
-    "exceptions": "error",
+
+    // Hexagonal Architecture
     "ports": "plugin",
     "adapters": "middleware",
-    "schemas": "contract"
+
+    // Clean Architecture - Domain Layer
+    "domain": "core",
+    "entities": "class",
+    "interfaces": "interface",
+    "exceptions": "error",
+    "value_objects": "resource",
+    "enums": "constant",
+    "constants": "constant",
+
+    // Clean Architecture - Infrastructure Layer
+    "models": "database",
+
+    // Clean Architecture - Presentation Layer
+    "schemas": "contract",
   }
 }

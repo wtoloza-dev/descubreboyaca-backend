@@ -8,10 +8,11 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from app.shared.entities import Archive, ArchiveData
-from app.shared.interfaces import (
-    ArchiveRepositoryProtocol,
-    AsyncArchiveRepositoryProtocol,
+from app.shared.domain import (
+    Archive,
+    ArchiveData,
+    ArchiveRepositoryInterface,
+    AsyncArchiveRepositoryInterface,
 )
 
 
@@ -35,7 +36,7 @@ class ArchiveService:
         ... )
     """
 
-    def __init__(self, repository: ArchiveRepositoryProtocol) -> None:
+    def __init__(self, repository: ArchiveRepositoryInterface) -> None:
         """Initialize archive service.
 
         Args:
@@ -119,7 +120,7 @@ class AsyncArchiveService:
         ... )
     """
 
-    def __init__(self, repository: AsyncArchiveRepositoryProtocol) -> None:
+    def __init__(self, repository: AsyncArchiveRepositoryInterface) -> None:
         """Initialize async archive service.
 
         Args:

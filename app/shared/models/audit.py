@@ -4,10 +4,9 @@ This module provides mixin classes for adding audit fields (created_at, updated_
 created_by, updated_by) and ULID-based primary keys to SQLModel tables.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlmodel import Field, SQLModel
-from ulid import ULID
 
 
 class ULIDMixin(SQLModel):
@@ -16,12 +15,15 @@ class ULIDMixin(SQLModel):
     ULID (Universally Unique Lexicographically Sortable Identifier) provides
     better performance and ordering compared to traditional UUIDs.
 
+    Note: The ID must be provided by the domain entity. This mixin only
+    defines the field for database persistence without auto-generation,
+    following DDD principles where entities own their identity.
+
     Attributes:
-        id: ULID primary key stored as string
+        id: ULID primary key stored as string (must be provided)
     """
 
     id: str = Field(
-        default_factory=lambda: str(ULID()),
         primary_key=True,
         max_length=26,
         description="ULID primary key",
@@ -40,28 +42,25 @@ class TimestampMixin(SQLModel):
     """
 
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(datetime.UTC),
+        default_factory=lambda: datetime.now(UTC),
         nullable=False,
         description="Timestamp when the record was created (UTC)",
     )
     updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(datetime.UTC),
+        default_factory=lambda: datetime.now(UTC),
         nullable=False,
         sa_column_kwargs={"onupdate": lambda: datetime.now(datetime.UTC)},
         description="Timestamp when the record was last updated (UTC)",
     )
 
 
-class AuditMixin(ULIDMixin, TimestampMixin):
-    """Mixin that adds full audit fields to a model.
+class UserTrackingMixin(SQLModel):
+    """Mixin that adds user tracking fields to a model.
 
-    This mixin combines ULIDMixin and TimestampMixin with user tracking fields
-    to maintain a complete audit trail of who created and modified records.
+    This mixin tracks which user created and last modified a record,
+    providing accountability and audit trail capabilities.
 
     Attributes:
-        id: ULID primary key (inherited from ULIDMixin)
-        created_at: Timestamp when the record was created (inherited from TimestampMixin)
-        updated_at: Timestamp when the record was last updated (inherited from TimestampMixin)
         created_by: ULID of the user who created the record
         updated_by: ULID of the user who last updated the record
     """
@@ -78,3 +77,20 @@ class AuditMixin(ULIDMixin, TimestampMixin):
         max_length=26,
         description="ULID of the user who last updated the record",
     )
+
+
+class AuditMixin(ULIDMixin, TimestampMixin, UserTrackingMixin):
+    """Mixin that adds full audit fields to a model.
+
+    This mixin combines ULIDMixin, TimestampMixin, and UserTrackingMixin
+    to maintain a complete audit trail with ID, timestamps, and user tracking.
+
+    Attributes:
+        id: ULID primary key (inherited from ULIDMixin)
+        created_at: Timestamp when the record was created (inherited from TimestampMixin)
+        updated_at: Timestamp when the record was last updated (inherited from TimestampMixin)
+        created_by: ULID of the user who created the record (inherited from UserTrackingMixin)
+        updated_by: ULID of the user who last updated the record (inherited from UserTrackingMixin)
+    """
+
+    pass

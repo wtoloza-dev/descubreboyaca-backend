@@ -4,10 +4,17 @@ This package contains repository implementations for shared domain entities.
 Repositories handle data persistence and retrieval.
 """
 
-from app.shared.repositories.archive import (
-    ArchiveRepository,
-    AsyncArchiveRepository,
+from .archive import (
+    ArchiveRepositoryPostgreSQL,
+    ArchiveRepositorySQLite,
+    AsyncArchiveRepositoryPostgreSQL,
+    AsyncArchiveRepositorySQLite,
 )
 
 
-__all__ = ["ArchiveRepository", "AsyncArchiveRepository"]
+__all__ = [
+    "ArchiveRepositorySQLite",
+    "AsyncArchiveRepositorySQLite",
+    "ArchiveRepositoryPostgreSQL",
+    "AsyncArchiveRepositoryPostgreSQL",
+]

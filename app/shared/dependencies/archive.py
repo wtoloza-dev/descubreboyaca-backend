@@ -3,116 +3,61 @@
 This module provides factory functions to create Archive repository
 and service instances for dependency injection in FastAPI endpoints.
 
-Note: Only the Session should use Depends() in routes. Internal layers
-(repositories, services) receive dependencies via constructor.
+All dependencies follow the naming convention: get_{entity}_{type}_dependency
 """
 
-from sqlmodel import Session
+from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.shared.interfaces import (
-    ArchiveRepositoryProtocol,
-    AsyncArchiveRepositoryProtocol,
+from app.core.settings import settings
+from app.shared.dependencies.sql import get_async_session_dependency
+from app.shared.domain import (
+    AsyncArchiveRepositoryInterface,
 )
-from app.shared.repositories import ArchiveRepository, AsyncArchiveRepository
-from app.shared.services import ArchiveService, AsyncArchiveService
+from app.shared.repositories import (
+    AsyncArchiveRepositoryPostgreSQL,
+    AsyncArchiveRepositorySQLite,
+)
+from app.shared.services import AsyncArchiveService
 
 
-def get_archive_repository(session: Session) -> ArchiveRepository:
-    """Factory to create an archive repository instance.
-
-    Args:
-        session: SQLModel session (injected in route via Depends)
-
-    Returns:
-        ArchiveRepository: Configured archive repository
-
-    Example:
-        >>> @app.delete("/restaurants/{id}")
-        >>> def delete_restaurant(
-        ...     id: str,
-        ...     session: Session = Depends(get_sqlite_session_dependency),
-        ... ):
-        ...     archive_repo = get_archive_repository(session)
-        ...     # Use archive_repo
-        ...     ...
-    """
-    return ArchiveRepository(session)
-
-
-def get_async_archive_repository(session: AsyncSession) -> AsyncArchiveRepository:
+def get_async_archive_repository_dependency(
+    session: AsyncSession = Depends(get_async_session_dependency),
+) -> AsyncArchiveRepositoryInterface:
     """Factory to create an async archive repository instance.
 
-    Args:
-        session: Async SQLModel session (injected in route via Depends)
+    Returns the appropriate repository implementation based on environment.
+    Currently uses SQLite for local/development.
 
-    Returns:
-        AsyncArchiveRepository: Configured async archive repository
-
-    Example:
-        >>> @app.delete("/restaurants/{id}")
-        >>> async def delete_restaurant(
-        ...     id: str,
-        ...     session: AsyncSession = Depends(get_async_sqlite_session_dependency),
-        ... ):
-        ...     archive_repo = get_async_archive_repository(session)
-        ...     # Use archive_repo
-        ...     ...
-    """
-    return AsyncArchiveRepository(session)
-
-
-def get_archive_service(repository: ArchiveRepositoryProtocol) -> ArchiveService:
-    """Factory to create an archive service instance.
+    This follows Dependency Inversion Principle: services depend on the
+    interface, while this dependency function provides the concrete implementation.
 
     Args:
-        repository: Archive repository (any implementation of the protocol)
+        session: Async SQLModel session (injected via Depends)
 
     Returns:
-        ArchiveService: Configured archive service
-
-    Example:
-        >>> @app.delete("/restaurants/{id}")
-        >>> def delete_restaurant(
-        ...     id: str,
-        ...     session: Session = Depends(get_sqlite_session_dependency),
-        ... ):
-        ...     archive_repo = get_archive_repository(session)
-        ...     archive_service = get_archive_service(archive_repo)
-        ...     restaurant = get_restaurant(id)
-        ...     archive_service.archive_entity(
-        ...         "restaurants", restaurant, note="Deleted"
-        ...     )
-        ...     # Now delete from main table
-        ...     ...
+        AsyncArchiveRepositoryInterface: Configured async archive repository
     """
-    return ArchiveService(repository)
+    if settings.SCOPE == "local":
+        return AsyncArchiveRepositorySQLite(session)
+    else:
+        return AsyncArchiveRepositoryPostgreSQL(session)
 
 
-def get_async_archive_service(
-    repository: AsyncArchiveRepositoryProtocol,
+def get_async_archive_service_dependency(
+    repository: AsyncArchiveRepositoryInterface = Depends(
+        get_async_archive_repository_dependency
+    ),
 ) -> AsyncArchiveService:
     """Factory to create an async archive service instance.
 
+    The service depends only on repository interfaces, not on sessions.
+    This follows Dependency Inversion Principle and makes testing easier.
+
     Args:
-        repository: Async archive repository (any implementation of the protocol)
+        repository: Async archive repository (injected via Depends)
 
     Returns:
         AsyncArchiveService: Configured async archive service
-
-    Example:
-        >>> @app.delete("/restaurants/{id}")
-        >>> async def delete_restaurant(
-        ...     id: str,
-        ...     session: AsyncSession = Depends(get_async_sqlite_session_dependency),
-        ... ):
-        ...     archive_repo = get_async_archive_repository(session)
-        ...     archive_service = get_async_archive_service(archive_repo)
-        ...     restaurant = await get_restaurant(id)
-        ...     await archive_service.archive_entity(
-        ...         "restaurants", restaurant, note="Deleted"
-        ...     )
-        ...     # Now delete from main table
-        ...     ...
     """
     return AsyncArchiveService(repository)

@@ -32,16 +32,21 @@ app/
 ```
 clients/
 └── sql/
-    ├── ports/              → Interfaces (Protocols) - Contracts
-    │   ├── sql.py          → SQLClientProtocol
-    │   └── async_sql.py    → AsyncSQLClientProtocol
+├── ports/              → Interfaces - Contracts
+│   ├── sql.py          → SQLClientInterface
+│   └── async_sql.py    → AsyncSQLClientInterface
     │
     ├── adapters/           → Concrete implementations
     │   ├── sqlite_client.py    → SQLiteClient, AsyncSQLiteClient
     │   └── postgres_client.py  → PostgreSQLClient, AsyncPostgreSQLClient
     │
-    └── dependencies/       → Factories for dependency injection
-        └── sqlite.py       → get_sqlite_session_dependency()
+    └── dependencies/       → Generic factories (app-agnostic)
+        └── sqlite.py       → create_sqlite_client(), create_sqlite_session_dependency()
+
+shared/
+└── dependencies/
+    └── sql.py              → App-specific factories with concrete config
+                              get_sqlite_session_dependency() (uses settings)
 ```
 
 ### Principles:
@@ -50,21 +55,43 @@ clients/
 - **Adapters** (implementations) fulfill the contract
 - The application depends on **Ports**, not **Adapters**
 - Easy to swap implementations (SQLite ↔ PostgreSQL ↔ MySQL)
+- **Clients are app-agnostic**: They accept configuration as parameters
+- **Shared dependencies inject concrete config**: They use app settings and call client factories
 
 ### Example:
 
 ```python
-# Port (abstraction)
-class SQLClientProtocol(Protocol):
+# 1. Port (abstraction)
+class SQLClientInterface(Protocol):
     def get_session(self) -> Generator[Session]: ...
 
-# Adapters (implementations)
+# 2. Adapters (implementations)
 class SQLiteClient:
+    def __init__(self, database_url: str, echo: bool = False): ...
     def get_session(self) -> Generator[Session]: ...
 
 class PostgreSQLClient:
+    def __init__(self, database_url: str, echo: bool = False): ...
     def get_session(self) -> Generator[Session]: ...
+
+# 3. Generic factories (app-agnostic) in clients/sql/dependencies/
+def create_sqlite_client(database_url: str, echo: bool = False) -> SQLiteClient:
+    """Generic factory - accepts all config as parameters."""
+    return SQLiteClient(database_url=database_url, echo=echo)
+
+# 4. App-specific factories in shared/dependencies/
+def get_sqlite_session_dependency() -> Generator[Session, None, None]:
+    """App-specific factory - injects concrete config from settings."""
+    yield from create_sqlite_session_dependency(
+        database_url="sqlite:///./test.db",  # ← Concrete config
+        echo=settings.DEBUG,                  # ← From app settings
+    )
 ```
+
+This separation ensures that:
+- `clients/` can be reused in any project (framework-agnostic)
+- `shared/` contains the application-specific glue code
+- Configuration is centralized in `settings`
 
 ---
 
@@ -93,18 +120,30 @@ core/
 
 **Purpose**: Components shared across multiple domains.
 
-**Pattern**: **Clean Architecture** with implicit layers (without domain/application/infrastructure folders).
+**Pattern**: **Clean Architecture** with explicit `domain/` folder grouping all domain layer components.
 
 ### Structure:
 
 ```
 shared/
-├── entities/             → Domain Layer - Business entities
-│   ├── archive.py        → ArchiveData, Archive
-│   └── audit.py          → Audit (base entity)
+├── domain/               → Domain Layer - Pure business logic
+│   ├── entities/         → Business entities
+│   │   ├── archive.py    → ArchiveData, Archive
+│   │   └── audit.py      → Audit (base entity)
+│   │
+│   ├── interfaces/       → Contracts (Interfaces)
+│   │   └── archive.py    → ArchiveRepositoryInterface
+│   │
+│   ├── value_objects/    → Immutable value objects
+│   │   ├── geolocation.py → GeoLocation
+│   │   ├── pagination.py  → PaginationParams
+│   │   └── social_media.py → SocialMedia
+│   │
+│   ├── enums/            → Domain enumerations
+│   └── constants/        → Domain constants
 │
-├── interfaces/           → Domain Layer - Contracts (Protocols)
-│   └── archive.py        → ArchiveRepositoryProtocol
+├── schemas/              → Presentation Layer - Shared DTOs
+│   └── pagination.py     → PaginatedResponse[T] (generic)
 │
 ├── models/               → Infrastructure Layer - ORM
 │   ├── archive.py        → ArchiveModel (SQLModel)
@@ -117,15 +156,21 @@ shared/
 │   └── archive.py        → ArchiveService
 │
 └── dependencies/         → Application Layer - DI Factories
-    └── archive.py        → get_archive_repository(), get_archive_service()
+    ├── archive.py        → get_archive_repository(), get_archive_service()
+    ├── sql.py            → get_sqlite_session_dependency()
+    └── pagination.py     → get_pagination_params()
 ```
 
-### Layers (implicit):
+### Layers (organized):
 
 | Folder | Layer | Responsibility |
 |--------|-------|----------------|
-| `entities/` | **Domain** | Pure business objects, generate their own identity |
-| `interfaces/` | **Domain** | Contracts/abstractions (Protocols) |
+| `domain/entities/` | **Domain** | Pure business objects, generate their own identity |
+| `domain/interfaces/` | **Domain** | Contracts/abstractions (Interfaces) |
+| `domain/value_objects/` | **Domain** | Immutable value objects (GeoLocation, PaginationParams, SocialMedia) |
+| `domain/enums/` | **Domain** | Domain enumerations |
+| `domain/constants/` | **Domain** | Domain constants |
+| `schemas/` | **Presentation** | API DTOs, shared response schemas |
 | `services/` | **Application** | Business logic, orchestration |
 | `repositories/` | **Infrastructure** | Data access, persistence |
 | `models/` | **Infrastructure** | ORM models (SQLModel) |
@@ -137,7 +182,7 @@ shared/
 ```python
 # Service depends on abstraction, not implementation
 class ArchiveService:
-    def __init__(self, repository: ArchiveRepositoryProtocol):  # ← Protocol
+    def __init__(self, repository: ArchiveRepositoryInterface):  # ← Interface
         self.repository = repository
 ```
 
@@ -170,29 +215,39 @@ def create(self, archive_data: ArchiveData, deleted_by: str | None) -> Archive:
 ```
 domains/
 └── restaurants/              → Bounded Context
-    ├── entities/             → Domain Layer - Business entities
-    │   └── restaurant.py     → RestaurantData, Restaurant
-    │
-    ├── interfaces/           → Domain Layer - Contracts
-    │   └── restaurant.py     → RestaurantRepositoryProtocol
+    ├── domain/               → Domain Layer - Pure business logic
+    │   ├── entities/         → Business entities
+    │   │   └── restaurant.py → RestaurantData, Restaurant
+    │   │
+    │   ├── interfaces/       → Contracts (Interfaces)
+    │   │   └── restaurant.py → RestaurantRepositoryInterface
+    │   │
+    │   └── enums/            → Domain enumerations
+    │       ├── cuisine_type.py → CuisineType
+    │       ├── price_level.py  → PriceLevel
+    │       └── restaurant_feature.py → RestaurantFeature
     │
     ├── models/               → Infrastructure Layer - ORM
     │   └── restaurant.py     → RestaurantModel (SQLModel)
     │
     ├── repositories/         → Infrastructure Layer - Persistence
-    │   └── restaurant.py     → RestaurantRepository
+    │   └── restaurant.py     → RestaurantRepository, AsyncRestaurantRepository
     │
     ├── schemas/              → Presentation Layer - API DTOs
-    │   └── restaurant.py     → CreateRestaurantRequest, RestaurantResponse
+    │   ├── create.py         → CreateRestaurantRequest, CreateRestaurantResponse
+    │   ├── get.py            → GetRestaurantResponse
+    │   └── list.py           → RestaurantListItem, ListRestaurantsResponse
     │
     ├── services/             → Application Layer - Business logic
-    │   └── restaurant.py     → RestaurantService
+    │   └── restaurant.py     → RestaurantService, AsyncRestaurantService
     │
     ├── routes/               → Presentation Layer - Endpoints
-    │   └── restaurant.py     → @router.get(), @router.post()
+    │   ├── create.py         → POST /restaurants
+    │   ├── get.py            → GET /restaurants/{id}
+    │   └── list.py           → GET /restaurants
     │
     └── dependencies/         → Application Layer - DI Factories
-        └── sql.py            → get_restaurant_repository()
+        └── sql.py            → get_restaurant_service(), get_restaurant_repository()
 ```
 
 ### Features:
@@ -203,31 +258,38 @@ Each domain is independent and contains all its layers:
 - ✅ `users/` would have everything needed for users
 - ✅ No cross-dependencies between domains
 
-#### 2. **Clean Architecture (Layered - Implicit)**
-Folders are not called "domain/", "application/", "infrastructure/", but the layers exist:
+#### 2. **Clean Architecture (Layered - Explicit)**
+Each domain has an explicit `domain/` folder containing all domain layer components:
 
 | Folder | Clean Layer | Depends on |
 |--------|-------------|------------|
-| `entities/` | Domain | Nothing (pure) |
-| `interfaces/` | Domain | Nothing (abstract) |
-| `schemas/` | Presentation | entities/ |
-| `services/` | Application | interfaces/ |
-| `repositories/` | Infrastructure | entities/, models/ |
+| `domain/entities/` | Domain | Nothing (pure) |
+| `domain/interfaces/` | Domain | Nothing (interfaces) |
+| `domain/enums/` | Domain | Nothing (pure) |
+| `domain/value_objects/` | Domain | Nothing (immutable) |
+| `schemas/` | Presentation | domain/ |
+| `services/` | Application | domain/interfaces/ |
+| `repositories/` | Infrastructure | domain/, models/ |
 | `models/` | Infrastructure | Nothing (ORM) |
 | `routes/` | Presentation | services/, schemas/ |
 
 #### 3. **Dependency rules**
 
 ```
-routes/          → uses → services/, schemas/
+routes/              → uses → services/, schemas/
     ↓
-services/        → uses → interfaces/ (Protocols)
+services/            → uses → domain/interfaces/ (Interfaces)
     ↓
-repositories/    → implements → interfaces/
+repositories/        → implements → domain/interfaces/
     ↓
-models/          → maps → entities/
+models/              → maps → domain/entities/
     ↓
-entities/        → independent (core)
+domain/              → independent (core)
+  ├── entities/      → pure business objects
+  ├── interfaces/    → interface contracts
+  ├── enums/         → enumerations
+  ├── exceptions/    → domain exceptions
+  └── value_objects/ → immutable objects
 ```
 
 **Never**: Infrastructure → Domain ❌  
@@ -264,6 +326,208 @@ entities/        → independent (core)
 
 ---
 
+## 🔧 Service Layer Architecture
+
+### Application Services vs Infrastructure Services
+
+This architecture distinguishes between two types of services:
+
+#### 1. **Application Services** (Business Logic / Orchestration)
+
+**Purpose**: Orchestrate business use cases and coordinate domain operations.
+
+**Naming**: `{Domain}Service`
+
+**Characteristics**:
+- ✅ Contain core business logic
+- ✅ Orchestrate multiple dependencies (repositories, providers, clients)
+- ✅ Define use cases (register user, login, transfer ownership)
+- ✅ **Do NOT need abstraction** - they ARE the business logic
+- ✅ Located in: `domains/{domain}/services/`
+
+**Example**:
+```python
+# app/domains/auth/services/auth.py
+class AuthService:
+    """Orchestrates authentication use cases."""
+    
+    def __init__(
+        self,
+        user_repository: UserRepositoryInterface,
+        token_provider: TokenProvider,
+        password_hasher: PasswordHasher,
+    ):
+        self.user_repository = user_repository
+        self.token_provider = token_provider
+        self.password_hasher = password_hasher
+    
+    async def register(self, email: str, password: str) -> User:
+        """Register a new user - Business use case."""
+        # Hash password using infrastructure
+        hashed = self.password_hasher.hash_password(password)
+        # Save user using repository
+        return await self.user_repository.create(...)
+```
+
+**When to use**: For orchestrating business logic and use cases.
+
+---
+
+#### 2. **Infrastructure Services** (Technical Details)
+
+**Purpose**: Abstract external dependencies, libraries, and technical operations.
+
+**Characteristics**:
+- ✅ Wrap external libraries (bcrypt, JWT, OAuth SDKs)
+- ✅ Provide technical operations (hashing, token generation, API calls)
+- ✅ **ALWAYS need abstraction** (Protocol/Interface)
+- ✅ Multiple implementations possible (bcrypt vs argon2, JWT vs Paseto)
+- ✅ Located in: `domains/{domain}/services/` but abstracted in `domain/interfaces/`
+
+**Naming Convention by Type**:
+
+##### A) **Providers** - Create/Generate/Provide data or tokens
+
+**Naming**: `{Technology}{What}Provider`
+
+**When to use**: The service primarily creates, generates, or provides something.
+
+**Example**:
+```python
+# Interface: app/domains/auth/domain/interfaces/token_provider.py
+class TokenProvider(Protocol):
+    """Interface for JWT token operations."""
+    def create_access_token(self, user_id: str) -> str: ...
+    def verify_token(self, token: str) -> dict: ...
+
+# Implementation: app/domains/auth/services/token.py
+class JWTTokenProvider:
+    """JWT-based token provider."""
+    def create_access_token(self, user_id: str) -> str:
+        return jwt.encode({...}, self.secret_key)
+```
+
+**Other examples**: `ConfigProvider`, `IdentifierProvider`
+
+---
+
+##### B) **Hashers/Handlers** - Process/Transform/Validate data
+
+**Naming**: `{Technology}{What}Hasher` or `{Technology}{What}Handler`
+
+**When to use**: The service transforms, processes, or validates data.
+
+**Example**:
+```python
+# Interface: app/domains/auth/domain/interfaces/password_hasher.py
+class PasswordHasher(Protocol):
+    """Interface for password hashing operations."""
+    def hash_password(self, password: str) -> PasswordHash: ...
+    def verify_password(self, plain: str, hashed: PasswordHash) -> bool: ...
+
+# Implementation: app/domains/auth/services/password.py
+class BcryptPasswordHasher:
+    """Bcrypt-based password hasher."""
+    def hash_password(self, password: str) -> PasswordHash:
+        return bcrypt.hashpw(...)
+```
+
+**Other examples**: `FileHandler`, `ImageProcessor`, `EmailHandler`
+
+---
+
+##### C) **Clients** - Communicate with external systems
+
+**Naming**: `{Provider}{What}Client`
+
+**When to use**: The service communicates with external APIs or systems.
+
+**Example**:
+```python
+# Interface: app/domains/auth/domain/interfaces/oauth_client.py
+class OAuthClient(Protocol):
+    """Interface for OAuth client operations."""
+    def get_authorization_url(self) -> str: ...
+    async def get_user_profile(self, code: str) -> OAuthProfile: ...
+
+# Implementation: app/domains/auth/services/google_oauth.py
+class GoogleOAuthClient:
+    """Google OAuth client."""
+    async def get_user_profile(self, code: str) -> OAuthProfile:
+        # HTTP call to Google API
+        response = await httpx.get("https://oauth2.googleapis.com/...")
+        return OAuthProfile(...)
+```
+
+**Other examples**: `StripeClient`, `SendGridClient`, `SlackClient`
+
+---
+
+##### D) **Managers** - Manage state/lifecycle
+
+**Naming**: `{What}Manager`
+
+**When to use**: The service manages stateful resources or lifecycles.
+
+**Example**:
+```python
+class SessionManager:
+    """Manages user sessions and their lifecycle."""
+    def create_session(self, user_id: str) -> Session:
+        session = Session(...)
+        self._sessions[session.id] = session
+        return session
+    
+    def invalidate_session(self, session_id: str) -> None:
+        del self._sessions[session_id]
+```
+
+**Other examples**: `ConnectionManager` (WebSockets), `CacheManager`, `TransactionManager`
+
+---
+
+### Decision Tree
+
+```
+Is it business logic that orchestrates use cases?
+  └─ YES → {Domain}Service (no interface needed)
+      └─ Example: AuthService, RestaurantService
+  
+  └─ NO → Infrastructure service (needs interface)
+      
+      What does it do?
+      
+      ├─ Creates/Generates/Provides something?
+      │   └─ {Tech}{What}Provider
+      │       └─ Example: JWTTokenProvider, ConfigProvider
+      
+      ├─ Transforms/Processes/Validates data?
+      │   └─ {Tech}{What}Hasher or {Tech}{What}Handler
+      │       └─ Example: BcryptPasswordHasher, ImageHandler
+      
+      ├─ Communicates with external API/system?
+      │   └─ {Provider}{What}Client
+      │       └─ Example: GoogleOAuthClient, StripeClient
+      
+      └─ Manages state/lifecycle?
+          └─ {What}Manager
+              └─ Example: SessionManager, CacheManager
+```
+
+---
+
+### Summary Table
+
+| Type | Purpose | Needs Interface? | Naming | Location |
+|------|---------|------------------|--------|----------|
+| **Application Service** | Business logic orchestration | ❌ No | `{Domain}Service` | `domains/{domain}/services/` |
+| **Provider** | Create/generate/provide | ✅ Yes | `{Tech}{What}Provider` | `domains/{domain}/services/` + interface |
+| **Hasher/Handler** | Transform/process | ✅ Yes | `{Tech}{What}Hasher` | `domains/{domain}/services/` + interface |
+| **Client** | External communication | ✅ Yes | `{Provider}{What}Client` | `domains/{domain}/services/` + interface |
+| **Manager** | State/lifecycle management | ✅ Yes | `{What}Manager` | `domains/{domain}/services/` + interface |
+
+---
+
 ## 📏 Conventions and Standards
 
 ### Naming
@@ -273,11 +537,17 @@ entities/        → independent (core)
 | **Entities (without ID)** | `{Name}Data` | `ArchiveData`, `RestaurantData` |
 | **Entities (with ID)** | `{Name}` | `Archive`, `Restaurant`, `Audit` |
 | **Models (ORM)** | `{Name}Model` | `ArchiveModel`, `RestaurantModel` |
-| **Protocols** | `{Name}Protocol` | `ArchiveRepositoryProtocol` |
+| **Interfaces** | `{Name}Interface` or specific | `ArchiveRepositoryInterface`, `TokenProvider`, `PasswordHasher` |
 | **Repositories** | `{Name}Repository` | `ArchiveRepository` |
-| **Services** | `{Name}Service` | `ArchiveService` |
+| **Services (Application)** | `{Name}Service` | `ArchiveService`, `AuthService` |
+| **Providers (Infrastructure)** | `{Tech}{Name}Provider` | `JWTTokenProvider` |
+| **Hashers (Infrastructure)** | `{Tech}{Name}Hasher` | `BcryptPasswordHasher` |
+| **Clients (Infrastructure)** | `{Provider}{Name}Client` | `GoogleOAuthClient` |
 | **Schemas (request)** | `{Action}{Name}Request` | `CreateRestaurantRequest`, `UpdateRestaurantRequest` |
-| **Schemas (response)** | `{Name}Response` | `RestaurantResponse` |
+| **Schemas (response)** | `{Action}{Name}Response` | `CreateRestaurantResponse`, `GetRestaurantResponse` |
+| **Schemas (list item)** | `{Name}ListItem` | `RestaurantListItem` |
+| **Routes files** | `{action}.py` | `create.py`, `get.py`, `list.py` |
+| **Route handlers** | `handle_{action}_{name}` | `handle_create_restaurant`, `handle_list_restaurants` |
 
 ### Dependency Injection
 
@@ -297,15 +567,62 @@ def delete_restaurant(
 
 ```python
 # ✅ Correct
-def get_archive_service(repository: ArchiveRepositoryProtocol) -> ArchiveService:
+def get_archive_service(repository: ArchiveRepositoryInterface) -> ArchiveService:
     return ArchiveService(repository)  # ← Simple constructor
 ```
 
 ### Type Hints
 
-- ✅ Use `Protocol` for abstractions
-- ✅ Use native Python 3.12+ type hints (`list[str]`, `dict[str, any]`)
+- ✅ Use `Protocol` for interface abstractions (named `*Interface`)
+- ✅ Use native Python 3.12+ type hints (`list[str]`, `dict[str, Any]`)
 - ✅ Use `str | None` instead of `Optional[str]`
+- ✅ Use `class Generic[T]` syntax (Python 3.12+) instead of `TypeVar`
+
+### API Patterns
+
+#### Pagination
+- **User-facing**: `page` (1-based) and `page_size` (1-100)
+- **Database**: `offset` and `limit`
+- **Conversion**: Handled by `get_pagination_params()` dependency
+- **Response**: Standardized `PaginatedResponse[T]` generic schema
+
+```python
+# Dependency converts user params to DB params
+def get_pagination_params(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+) -> PaginationParams:
+    offset = (page - 1) * page_size
+    return PaginationParams(offset=offset, limit=page_size)
+
+# Generic response schema
+class PaginatedResponse[T](BaseModel):
+    items: list[T]
+    page: int
+    page_size: int
+    total: int
+
+# Domain-specific usage
+class ListRestaurantsResponse(PaginatedResponse[RestaurantListItem]):
+    pass
+```
+
+#### Value Objects
+- **Immutable**: Use `@dataclass(frozen=True)` or Pydantic `ConfigDict(frozen=True)`
+- **Serialization**: Use `field_serializer` for custom JSON output
+- **Validation**: Use `field_validator` for input validation
+- **Examples**: `GeoLocation`, `SocialMedia`, `PaginationParams`
+
+```python
+# GeoLocation with precision control
+@field_validator("latitude", "longitude", mode="before")
+def validate_decimal(cls, v: Any) -> Decimal:
+    return Decimal(str(v)).quantize(Decimal("0.00000001"))  # 8 decimals
+
+@field_serializer("latitude", "longitude")
+def serialize_decimal(self, value: Decimal) -> float:
+    return round(float(value), 8)  # Clean JSON output
+```
 
 ---
 
@@ -321,16 +638,66 @@ def get_archive_service(repository: ArchiveRepositoryProtocol) -> ArchiveService
 - Closed for modification (interfaces don't change)
 
 ### Liskov Substitution
-- Any implementation of `ArchiveRepositoryProtocol` is interchangeable
+- Any implementation of `ArchiveRepositoryInterface` is interchangeable
 
 ### Interface Segregation
-- Small, specific Protocols
-- `ArchiveRepositoryProtocol` only has `create()` (for now)
+- Small, specific Interfaces
+- `ArchiveRepositoryInterface` only has `create()` (for now)
 
 ### Dependency Inversion
-- **Services depend on Protocols (abstractions)**
-- **Repositories implement Protocols**
+- **Services depend on Interfaces (abstractions)**
+- **Repositories implement Interfaces**
 - **Routes inject concrete implementations**
+
+---
+
+## 🗄️ Database Migrations
+
+### Pattern: Alembic with Manual Migrations
+
+**Location**: `alembic/versions/`
+
+### Structure:
+```
+alembic/
+├── alembic.ini          → Configuration
+├── env.py               → Environment setup (SQLModel integration)
+├── script.py.mako       → Template for new migrations
+└── versions/            → Migration files
+    ├── 20251021_0918_xxx_create_archive_table.py
+    └── 20251021_0918_xxx_create_restaurants_table.py
+```
+
+### Principles:
+- ✅ **One table per migration**: Better control and rollback granularity
+- ✅ **Manual migrations**: Explicit control over schema changes
+- ✅ **Environment-aware**: Supports local (SQLite) and prod (PostgreSQL)
+- ✅ **Bidirectional**: Both `upgrade()` and `downgrade()` implemented
+
+### Migration Example:
+```python
+def upgrade() -> None:
+    """Create restaurants table."""
+    op.create_table(
+        'restaurants',
+        sa.Column('id', sa.String(length=26), nullable=False),
+        sa.Column('name', sa.String(length=255), nullable=False),
+        # ... more columns ...
+        sa.PrimaryKeyConstraint('id', name=op.f('pk_restaurants')),
+    )
+    op.create_index(op.f('ix_restaurants_name'), 'restaurants', ['name'])
+
+def downgrade() -> None:
+    """Drop restaurants table."""
+    op.drop_index(op.f('ix_restaurants_name'), table_name='restaurants')
+    op.drop_table('restaurants')
+```
+
+### Workflow:
+1. **Development**: `alembic revision -m "description"` → Create migration
+2. **Apply**: `alembic upgrade head` → Run migrations
+3. **Rollback**: `alembic downgrade -1` → Undo last migration
+4. **Production**: `alembic upgrade head --sql > migration.sql` → Generate SQL for DBA
 
 ---
 
@@ -341,7 +708,7 @@ The architecture facilitates testing at each layer:
 ### Unit Tests (without DB)
 ```python
 def test_archive_service():
-    mock_repo = Mock(spec=ArchiveRepositoryProtocol)
+    mock_repo = Mock(spec=ArchiveRepositoryInterface)
     service = ArchiveService(mock_repo)  # ← Without DB
     
     # Test pure logic

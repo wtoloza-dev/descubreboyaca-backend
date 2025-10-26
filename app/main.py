@@ -4,10 +4,49 @@ This module initializes and configures the FastAPI application with all
 required middleware, routers, and settings using the Application Factory pattern.
 """
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.errors import register_exception_handlers
 from app.core.routes import router as core_router
 from app.core.settings import settings
+from app.domains.auth.routes import router as auth_router
+from app.domains.restaurants.routes import router as restaurants_router
+
+
+def register_routers(app: FastAPI) -> None:
+    """Register all application routers.
+
+    This function registers all application routers with the FastAPI application.
+
+    Args:
+        app: FastAPI application instance
+    """
+    # Core routers
+    app.include_router(core_router, include_in_schema=settings.DEBUG)
+    app.include_router(auth_router)
+
+    # API v1 routers
+    api_v1_router = APIRouter(prefix="/api/v1")
+    api_v1_router.include_router(restaurants_router)
+    app.include_router(api_v1_router)
+
+
+def register_cors(app: FastAPI) -> None:
+    """Register CORS middleware with the FastAPI application.
+
+    This function registers the CORS middleware with the FastAPI application.
+
+    Args:
+        app: FastAPI application instance
+    """
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 def create_app() -> FastAPI:
@@ -23,25 +62,17 @@ def create_app() -> FastAPI:
         title=settings.APP_NAME + " " + settings.SCOPE,
         description=settings.APP_DESCRIPTION,
         version=settings.APP_VERSION + " " + settings.SCOPE,
+        redirect_slashes=True,  # Redirige /endpoint/ a /endpoint y viceversa
     )
 
-    # Register core routes
-    app.include_router(core_router)
+    # Register CORS middleware
+    register_cors(app)
 
-    # TODO: Add middleware
-    # from fastapi.middleware.cors import CORSMiddleware
-    # app.add_middleware(CORSMiddleware, ...)
+    # Register exception handlers
+    register_exception_handlers(app)
 
-    # TODO: Add event handlers
-    # @app.on_event("startup")
-    # async def startup_event():
-    #     # Initialize database, cache, etc.
-    #     pass
-    #
-    # @app.on_event("shutdown")
-    # async def shutdown_event():
-    #     # Cleanup resources
-    #     pass
+    # Register all routers
+    register_routers(app)
 
     return app
 

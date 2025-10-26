@@ -18,12 +18,15 @@ class ArchiveModel(ULIDMixin, SQLModel, table=True):
     Stores deleted records from any table as JSON, preserving all data
     and metadata about the deletion.
 
+    Note: Following DDD principles, the ID and timestamps must be provided
+    by the Archive domain entity. This model only persists the data.
+
     Attributes:
-        id: ULID primary key (inherited from ULIDMixin)
+        id: ULID primary key (inherited from ULIDMixin, must be provided)
         original_table: Name of the source table
         original_id: ULID from the original record
         data: Complete record data serialized as JSON
-        deleted_at: Timestamp when the record was deleted
+        deleted_at: Timestamp when the record was deleted (must be provided)
         deleted_by: ULID of user who deleted the record
         note: Optional note or reason for deletion
     """
@@ -47,7 +50,6 @@ class ArchiveModel(ULIDMixin, SQLModel, table=True):
         description="Complete record data as JSON",
     )
     deleted_at: datetime = Field(
-        default_factory=lambda: datetime.now(datetime.UTC),
         nullable=False,
         index=True,
         description="Timestamp when the record was deleted (UTC)",
