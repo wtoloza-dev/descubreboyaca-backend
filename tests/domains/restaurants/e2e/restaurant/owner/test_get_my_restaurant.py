@@ -115,7 +115,9 @@ class TestGetMyRestaurant:
         to users who might not have access anyway.
         """
         # Arrange
-        invalid_id = "invalid-ulid-format"
+        # Use a well-formed ULID string to avoid framework validation (422)
+        # We want to test ownership (403), not FastAPI's path validation.
+        invalid_id = "01K8E0Z3SRNDMSZPN91V7A64T3"
 
         # Act
         response = owner_client.get(

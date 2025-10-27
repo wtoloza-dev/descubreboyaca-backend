@@ -3,6 +3,8 @@
 This module handles user login with email and password.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
 
 from app.domains.auth.dependencies.sql import get_auth_service_dependency
@@ -25,7 +27,7 @@ router = APIRouter()
 )
 async def handle_login(
     request: LoginUserSchemaRequest,
-    auth_service: AuthService = Depends(get_auth_service_dependency),
+    auth_service: Annotated[AuthService, Depends(get_auth_service_dependency)],
 ) -> LoginUserSchemaResponse:
     """Login user with email and password.
 

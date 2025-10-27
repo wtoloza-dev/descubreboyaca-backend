@@ -13,7 +13,7 @@ from app.domains.restaurants.routes.restaurant.owner import (
 )
 
 
-router = APIRouter(prefix="/owner", tags=["Owner - Restaurants"])
+router = APIRouter(prefix="/owner")
 
 router.include_router(list_my_restaurants.router)
 router.include_router(get_my_restaurant.router)

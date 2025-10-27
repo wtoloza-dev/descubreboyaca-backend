@@ -11,7 +11,9 @@ from ulid import ULID
 
 from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import get_restaurant_service_dependency
+from app.domains.restaurants.dependencies.restaurant import (
+    get_restaurant_service_dependency,
+)
 from app.domains.restaurants.schemas.restaurant.delete import (
     DeleteRestaurantSchemaRequest,
 )

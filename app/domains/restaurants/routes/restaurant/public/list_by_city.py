@@ -3,9 +3,13 @@
 This module provides an endpoint for listing restaurants filtered by city with pagination support.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Path, status
 
-from app.domains.restaurants.dependencies.sql import get_restaurant_service_dependency
+from app.domains.restaurants.dependencies.restaurant import (
+    get_restaurant_service_dependency,
+)
 from app.domains.restaurants.schemas.restaurant.list import (
     ListRestaurantsSchemaResponse,
     RestaurantSchemaListItem,
@@ -25,13 +29,15 @@ router = APIRouter()
     description="Retrieve a paginated list of restaurants filtered by city name.",
 )
 async def handle_list_restaurants_by_city(
-    city: str = Path(
-        ...,
-        description="City name to filter restaurants",
-        examples=["Tunja", "Duitama", "Sogamoso"],
-    ),
-    pagination: PaginationParams = Depends(get_pagination_params_dependency),
-    service: RestaurantService = Depends(get_restaurant_service_dependency),
+    city: Annotated[
+        str,
+        Path(
+            description="City name to filter restaurants",
+            examples=["Tunja", "Duitama", "Sogamoso"],
+        ),
+    ],
+    pagination: Annotated[PaginationParams, Depends(get_pagination_params_dependency)],
+    service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
 ) -> ListRestaurantsSchemaResponse:
     """List restaurants by city with pagination.
 

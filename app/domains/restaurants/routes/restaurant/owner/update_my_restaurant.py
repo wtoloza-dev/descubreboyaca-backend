@@ -3,11 +3,14 @@
 This module provides an endpoint for restaurant owners to update their restaurant information.
 """
 
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, Path, status
+from ulid import ULID
 
 from app.domains.auth.dependencies.auth import require_owner_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import (
+from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
     get_restaurant_service_dependency,
 )
@@ -29,13 +32,24 @@ router = APIRouter()
     description="Update information about a restaurant owned/managed by the current user.",
 )
 async def handle_update_my_restaurant(
-    restaurant_id: str,
-    request: CreateRestaurantSchemaRequest,
-    owner_service: RestaurantOwnerService = Depends(
-        get_restaurant_owner_service_dependency
-    ),
-    restaurant_service: RestaurantService = Depends(get_restaurant_service_dependency),
-    current_user: User = Depends(require_owner_dependency),
+    restaurant_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the restaurant to update",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
+    request: Annotated[
+        CreateRestaurantSchemaRequest,
+        Body(description="Updated restaurant data (partial for PATCH)"),
+    ],
+    owner_service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    restaurant_service: Annotated[
+        RestaurantService, Depends(get_restaurant_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_owner_dependency)],
 ) -> GetRestaurantSchemaResponse:
     """Update a restaurant owned/managed by the current user.
 
@@ -64,13 +78,13 @@ async def handle_update_my_restaurant(
     # Verify ownership (service will raise exception if not owner)
     await owner_service.require_ownership(
         owner_id=current_user.id,
-        restaurant_id=restaurant_id,
+        restaurant_id=str(restaurant_id),
     )
 
     # Update restaurant (exclude_unset=True for PATCH - only update provided fields)
     restaurant_data = RestaurantData(**request.model_dump(exclude_unset=True))
     updated_restaurant = await restaurant_service.update_restaurant(
-        restaurant_id=restaurant_id,
+        restaurant_id=str(restaurant_id),
         restaurant_data=restaurant_data,
         updated_by=current_user.id,
     )

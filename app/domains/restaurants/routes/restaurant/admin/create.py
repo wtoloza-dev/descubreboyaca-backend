@@ -3,11 +3,15 @@
 This module provides a simplified endpoint for creating restaurants with minimal fields (admin only).
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
 
 from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import get_restaurant_service_dependency
+from app.domains.restaurants.dependencies.restaurant import (
+    get_restaurant_service_dependency,
+)
 from app.domains.restaurants.domain import RestaurantData
 from app.domains.restaurants.schemas.restaurant.create import (
     CreateRestaurantSchemaRequest,
@@ -29,8 +33,8 @@ router = APIRouter()
 )
 async def handle_create_restaurant(
     request: CreateRestaurantSchemaRequest,
-    service: RestaurantService = Depends(get_restaurant_service_dependency),
-    admin_user: User = Depends(require_admin_dependency),
+    service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
+    admin_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> CreateRestaurantSchemaResponse:
     """Create a new restaurant with minimal required fields.
 

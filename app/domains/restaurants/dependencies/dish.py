@@ -7,7 +7,7 @@ from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.settings import settings
-from app.domains.restaurants.dependencies.sql import (
+from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_repository_dependency,
 )
 from app.domains.restaurants.domain.interfaces import (

@@ -11,6 +11,7 @@ from app.core.errors import register_exception_handlers
 from app.core.routes import router as core_router
 from app.core.settings import settings
 from app.domains.auth.routes import router as auth_router
+from app.domains.favorites.routes import router as favorites_router
 from app.domains.restaurants.routes import router as restaurants_router
 
 
@@ -29,6 +30,7 @@ def register_routers(app: FastAPI) -> None:
     # API v1 routers
     api_v1_router = APIRouter(prefix="/api/v1")
     api_v1_router.include_router(restaurants_router)
+    api_v1_router.include_router(favorites_router)
     app.include_router(api_v1_router)
 
 

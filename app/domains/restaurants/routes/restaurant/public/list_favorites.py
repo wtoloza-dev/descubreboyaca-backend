@@ -3,12 +3,22 @@
 This module provides an authenticated endpoint to list a user's favorite restaurants.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
 
 from app.domains.auth.dependencies.auth import get_current_user_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import get_restaurant_service_dependency
+from app.domains.restaurants.dependencies.restaurant import (
+    get_restaurant_service_dependency,
+)
+from app.domains.restaurants.schemas.restaurant.list import (
+    ListRestaurantsSchemaResponse,
+    RestaurantSchemaListItem,
+)
 from app.domains.restaurants.services import RestaurantService
+from app.shared.dependencies import get_pagination_params_dependency
+from app.shared.domain import PaginationParams
 
 
 router = APIRouter()
@@ -19,35 +29,53 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
     summary="List user's favorite restaurants",
     description="List all favorite restaurants for the authenticated user. Requires authentication.",
+    response_model=ListRestaurantsSchemaResponse,
 )
 async def handle_list_with_favorites(
-    service: RestaurantService = Depends(get_restaurant_service_dependency),
-    current_user: User = Depends(get_current_user_dependency),
-):
+    pagination: Annotated[PaginationParams, Depends(get_pagination_params_dependency)],
+    service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
+    current_user: Annotated[User, Depends(get_current_user_dependency)],
+) -> ListRestaurantsSchemaResponse:
     """List user's favorite restaurants.
 
     **Authentication required**: This endpoint requires a valid authentication token.
 
     Args:
+        pagination: Pagination parameters (page, page_size converted to offset, limit)
         service: Restaurant service (injected)
         current_user: Authenticated user (injected)
 
     Returns:
-        List of user's favorite restaurants
+        Paginated list of user's favorite restaurants
 
     Raises:
         HTTPException: 401 if not authenticated or token is invalid
 
     Example:
-        GET /api/v1/restaurants/favorites
+        GET /api/v1/restaurants/favorites?page=1&page_size=20
         Authorization: Bearer <token>
-        → Returns list of user's favorite restaurants
+        → Returns paginated list of user's favorite restaurants
     """
-    # TODO: Implement actual logic
-    # restaurants = await service.list_user_favorites(current_user.id)
+    # Get user's favorite restaurants
+    restaurants, total = await service.list_user_favorites(
+        user_id=current_user.id,
+        offset=pagination.offset,
+        limit=pagination.limit,
+    )
 
-    return {
-        "message": f"Showing favorites for user {current_user.email}",
-        "user_id": current_user.id,
-        "restaurants": [],  # TODO: Implement
-    }
+    # Convert entities to dicts with JSON-compatible types (HttpUrl → str)
+    items = [
+        RestaurantSchemaListItem.model_validate(r.model_dump(mode="json"))
+        for r in restaurants
+    ]
+
+    # Calculate current page from offset and limit
+    page = (pagination.offset // pagination.limit) + 1
+
+    # Return paginated response
+    return ListRestaurantsSchemaResponse(
+        items=items,
+        page=page,
+        page_size=pagination.limit,
+        total=total,
+    )

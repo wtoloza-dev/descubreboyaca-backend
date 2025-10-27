@@ -3,11 +3,16 @@
 This module provides an endpoint for administrators to remove owners from restaurants.
 """
 
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, status
+from ulid import ULID
 
 from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import get_restaurant_owner_service_dependency
+from app.domains.restaurants.dependencies.restaurant import (
+    get_restaurant_owner_service_dependency,
+)
 from app.domains.restaurants.services import RestaurantOwnerService
 
 
@@ -21,10 +26,24 @@ router = APIRouter()
     description="Remove a user's ownership/management rights from a restaurant. Only administrators can perform this action.",
 )
 async def handle_remove_owner(
-    restaurant_id: str,
-    owner_id: str,
-    service: RestaurantOwnerService = Depends(get_restaurant_owner_service_dependency),
-    current_user: User = Depends(require_admin_dependency),
+    restaurant_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the restaurant",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
+    owner_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the owner",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
+    service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> None:
     """Remove an owner/manager/staff from a restaurant.
 
@@ -49,6 +68,6 @@ async def handle_remove_owner(
         HTTPException: 404 if ownership relationship not found
     """
     await service.remove_owner(
-        restaurant_id=restaurant_id,
-        owner_id=owner_id,
+        restaurant_id=str(restaurant_id),
+        owner_id=str(owner_id),
     )

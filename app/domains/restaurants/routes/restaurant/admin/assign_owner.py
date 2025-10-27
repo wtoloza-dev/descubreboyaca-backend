@@ -3,11 +3,14 @@
 This module provides an endpoint for administrators to assign owners to restaurants.
 """
 
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, status
+from ulid import ULID
 
 from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import (
+from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
 )
 from app.domains.restaurants.schemas.restaurant.ownership import (
@@ -27,14 +30,22 @@ router = APIRouter()
     description="Assign a user as owner/manager/staff of a restaurant. Only administrators can perform this action.",
 )
 async def handle_assign_owner(
-    restaurant_id: str,
+    restaurant_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the restaurant",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
     request: AssignOwnerSchemaRequest,
-    service: RestaurantOwnerService = Depends(get_restaurant_owner_service_dependency),
-    current_user: User = Depends(require_admin_dependency),
+    service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> OwnershipSchemaResponse:
     """Assign an owner to a restaurant.
 
-    **Requiere autenticación**: Solo administradores (ADMIN) pueden asignar owners.
+    **Authentication required**: Only administrators (ADMIN) can assign owners.
 
     This endpoint allows administrators to assign a user as owner, manager, or staff
     of a restaurant. If is_primary is True, this will automatically unset any existing
@@ -56,7 +67,7 @@ async def handle_assign_owner(
         HTTPException: 404 if restaurant or user not found
     """
     ownership = await service.assign_owner(
-        restaurant_id=restaurant_id,
+        restaurant_id=str(restaurant_id),
         owner_id=request.owner_id,
         role=request.role,
         is_primary=request.is_primary,

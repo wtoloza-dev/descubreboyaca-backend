@@ -3,6 +3,8 @@
 This module provides an endpoint for listing restaurants with pagination support.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
 
 from app.domains.restaurants.dependencies import (
@@ -30,9 +32,9 @@ router = APIRouter()
     "Results can be filtered using query parameters (city, state, country, price_level).",
 )
 async def handle_list_restaurants(
-    pagination: PaginationParams = Depends(get_pagination_params_dependency),
-    filters: RestaurantFilters = Depends(get_restaurant_filters_dependency),
-    service: RestaurantService = Depends(get_restaurant_service_dependency),
+    pagination: Annotated[PaginationParams, Depends(get_pagination_params_dependency)],
+    filters: Annotated[RestaurantFilters, Depends(get_restaurant_filters_dependency)],
+    service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
 ) -> ListRestaurantsSchemaResponse:
     """List restaurants with pagination and optional filtering.
 

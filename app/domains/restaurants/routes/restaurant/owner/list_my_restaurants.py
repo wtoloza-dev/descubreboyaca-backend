@@ -3,11 +3,13 @@
 This module provides an endpoint for restaurant owners to list their restaurants.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
 
 from app.domains.auth.dependencies.auth import require_owner_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import (
+from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
     get_restaurant_service_dependency,
 )
@@ -28,11 +30,13 @@ router = APIRouter()
     description="Get a list of all restaurants owned or managed by the current user.",
 )
 async def handle_list_my_restaurants(
-    owner_service: RestaurantOwnerService = Depends(
-        get_restaurant_owner_service_dependency
-    ),
-    restaurant_service: RestaurantService = Depends(get_restaurant_service_dependency),
-    current_user: User = Depends(require_owner_dependency),
+    owner_service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    restaurant_service: Annotated[
+        RestaurantService, Depends(get_restaurant_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_owner_dependency)],
 ) -> MyRestaurantsSchemaResponse:
     """List all restaurants owned/managed by the current user.
 

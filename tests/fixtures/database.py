@@ -25,6 +25,7 @@ async def fixture_test_engine():
     """
     # Import all models to ensure they're registered with SQLModel
     from app.domains.auth.models import UserModel  # noqa: F401
+    from app.domains.favorites.models import FavoriteModel  # noqa: F401
     from app.domains.restaurants.models import (  # noqa: F401
         DishModel,
         RestaurantModel,

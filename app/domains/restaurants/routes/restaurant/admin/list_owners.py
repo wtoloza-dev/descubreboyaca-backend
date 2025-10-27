@@ -3,11 +3,14 @@
 This module provides an endpoint for administrators to list all owners of a restaurant.
 """
 
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, status
+from ulid import ULID
 
 from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import (
+from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
 )
 from app.domains.restaurants.schemas.restaurant.ownership import (
@@ -26,9 +29,17 @@ router = APIRouter()
     description="Get a list of all users who have ownership/management rights on a restaurant. Only administrators can access this information.",
 )
 async def handle_list_owners(
-    restaurant_id: str,
-    service: RestaurantOwnerService = Depends(get_restaurant_owner_service_dependency),
-    current_user: User = Depends(require_admin_dependency),
+    restaurant_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the restaurant",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
+    service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> OwnershipListSchemaResponse:
     """List all owners/managers/staff of a restaurant.
 
@@ -50,10 +61,10 @@ async def handle_list_owners(
         HTTPException: 403 if not ADMIN
         HTTPException: 404 if restaurant not found
     """
-    owners = await service._repository.get_owners_by_restaurant(restaurant_id)
+    owners = await service.get_owners_by_restaurant(str(restaurant_id))
 
     return OwnershipListSchemaResponse(
-        restaurant_id=restaurant_id,
+        restaurant_id=str(restaurant_id),
         owners=owners,
         total=len(owners),
     )

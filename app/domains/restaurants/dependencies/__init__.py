@@ -14,7 +14,7 @@ from app.domains.restaurants.dependencies.filters import (
     RestaurantFilters,
     get_restaurant_filters_dependency,
 )
-from app.domains.restaurants.dependencies.sql import (
+from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_repository_dependency,
     get_restaurant_owner_service_dependency,
     get_restaurant_repository_dependency,
@@ -26,12 +26,12 @@ __all__ = [
     # Filters
     "RestaurantFilters",
     "get_restaurant_filters_dependency",
-    # Restaurant SQL
+    # Restaurant
     "get_restaurant_repository_dependency",
     "get_restaurant_service_dependency",
     "get_restaurant_owner_repository_dependency",
     "get_restaurant_owner_service_dependency",
-    # Dish SQL
+    # Dish
     "get_dish_repository_dependency",
     "get_dish_service_dependency",
 ]

@@ -30,7 +30,7 @@ async def handle_get_dish(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    service: DishService = Depends(get_dish_service_dependency),
+    service: Annotated[DishService, Depends(get_dish_service_dependency)],
 ) -> GetDishSchemaResponse:
     """Get a single dish by its ID.
 

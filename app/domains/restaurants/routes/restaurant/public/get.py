@@ -8,7 +8,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
-from app.domains.restaurants.dependencies.sql import get_restaurant_service_dependency
+from app.domains.restaurants.dependencies.restaurant import (
+    get_restaurant_service_dependency,
+)
 from app.domains.restaurants.schemas import GetRestaurantSchemaResponse
 from app.domains.restaurants.services import RestaurantService
 
@@ -30,7 +32,7 @@ async def handle_get_restaurant(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    service: RestaurantService = Depends(get_restaurant_service_dependency),
+    service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
 ) -> GetRestaurantSchemaResponse:
     """Get a single restaurant by its ID.
 

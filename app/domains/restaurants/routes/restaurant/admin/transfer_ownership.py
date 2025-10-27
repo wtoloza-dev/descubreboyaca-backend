@@ -3,11 +3,14 @@
 This module provides an endpoint for administrators to transfer primary ownership.
 """
 
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, status
+from ulid import ULID
 
 from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import (
+from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
 )
 from app.domains.restaurants.schemas.restaurant.ownership import (
@@ -26,10 +29,24 @@ router = APIRouter()
     description="Transfer primary ownership of a restaurant to another owner. The new owner must already be assigned to the restaurant. Only administrators can perform this action.",
 )
 async def handle_transfer_ownership(
-    restaurant_id: str,
-    owner_id: str,
-    service: RestaurantOwnerService = Depends(get_restaurant_owner_service_dependency),
-    current_user: User = Depends(require_admin_dependency),
+    restaurant_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the restaurant",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
+    owner_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the owner",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
+    service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> OwnershipSchemaResponse:
     """Transfer primary ownership to another owner.
 
@@ -55,8 +72,8 @@ async def handle_transfer_ownership(
         HTTPException: 404 if restaurant or owner not found
     """
     ownership = await service.transfer_ownership(
-        restaurant_id=restaurant_id,
-        new_primary_owner_id=owner_id,
+        restaurant_id=str(restaurant_id),
+        new_primary_owner_id=str(owner_id),
         updated_by=current_user.id,
     )
 

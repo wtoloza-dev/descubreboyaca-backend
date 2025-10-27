@@ -11,7 +11,6 @@ from app.domains.auth.dependencies.auth import (
     get_optional_user_dependency,
     require_admin_dependency,
     require_owner_dependency,
-    verify_restaurant_ownership,
 )
 from app.domains.auth.dependencies.security import (
     get_google_oauth_client_dependency,
@@ -30,7 +29,6 @@ __all__ = [
     "get_optional_user_dependency",
     "require_admin_dependency",
     "require_owner_dependency",
-    "verify_restaurant_ownership",
     # Security services
     "get_password_hasher_dependency",
     "get_token_provider_dependency",

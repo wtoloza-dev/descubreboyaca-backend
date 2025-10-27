@@ -16,7 +16,7 @@ from app.domains.restaurants.routes.restaurant.admin import (
 )
 
 
-router = APIRouter(prefix="/admin", tags=["Admin - Restaurants"])
+router = APIRouter(prefix="/admin")
 
 router.include_router(create.router)
 router.include_router(delete.router)

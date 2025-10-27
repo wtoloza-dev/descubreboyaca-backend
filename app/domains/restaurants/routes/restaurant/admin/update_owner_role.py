@@ -3,11 +3,14 @@
 This module provides an endpoint for administrators to update an owner's role.
 """
 
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, status
+from ulid import ULID
 
 from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import (
+from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
 )
 from app.domains.restaurants.schemas.restaurant.ownership import (
@@ -27,11 +30,25 @@ router = APIRouter()
     description="Change the role of an owner/manager/staff member. Only administrators can perform this action.",
 )
 async def handle_update_owner_role(
-    restaurant_id: str,
-    owner_id: str,
+    restaurant_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the restaurant",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
+    owner_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the owner",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
     request: UpdateOwnerRoleSchemaRequest,
-    service: RestaurantOwnerService = Depends(get_restaurant_owner_service_dependency),
-    current_user: User = Depends(require_admin_dependency),
+    service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> OwnershipSchemaResponse:
     """Update the role of an owner/manager/staff.
 
@@ -57,8 +74,8 @@ async def handle_update_owner_role(
         HTTPException: 404 if ownership relationship not found
     """
     ownership = await service.update_owner_role(
-        restaurant_id=restaurant_id,
-        owner_id=owner_id,
+        restaurant_id=str(restaurant_id),
+        owner_id=str(owner_id),
         role=request.role,
         updated_by=current_user.id,
     )

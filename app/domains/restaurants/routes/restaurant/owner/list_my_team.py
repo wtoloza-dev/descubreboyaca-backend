@@ -3,12 +3,14 @@
 This module provides an endpoint for restaurant owners to view their team members.
 """
 
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, status
 from pydantic import BaseModel, ConfigDict
 
 from app.domains.auth.dependencies.auth import require_owner_dependency
 from app.domains.auth.domain import User
-from app.domains.restaurants.dependencies.sql import (
+from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
 )
 from app.domains.restaurants.services import RestaurantOwnerService
@@ -42,11 +44,11 @@ class TeamListResponse(BaseModel):
     description="Get a list of all team members (owners/managers/staff) for a restaurant owned/managed by the current user.",
 )
 async def handle_list_my_team(
-    restaurant_id: str,
-    owner_service: RestaurantOwnerService = Depends(
-        get_restaurant_owner_service_dependency
-    ),
-    current_user: User = Depends(require_owner_dependency),
+    restaurant_id: Annotated[str, Path(description="ULID of the restaurant")],
+    owner_service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_owner_dependency)],
 ) -> TeamListResponse:
     """List all team members of a restaurant owned/managed by the current user.
 

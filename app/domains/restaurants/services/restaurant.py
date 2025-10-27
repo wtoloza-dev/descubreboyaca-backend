@@ -6,6 +6,8 @@ Services coordinate between repositories and contain domain logic.
 
 from typing import Any
 
+from app.domains.favorites.domain.enums import EntityType
+from app.domains.favorites.domain.interfaces import FavoriteRepositoryInterface
 from app.domains.restaurants.domain import (
     Restaurant,
     RestaurantData,
@@ -28,12 +30,14 @@ class RestaurantService:
     Attributes:
         repository: Restaurant repository for data persistence
         archive_repository: Archive repository for deleted records
+        favorite_repository: Favorite repository for user favorites (optional)
     """
 
     def __init__(
         self,
         repository: RestaurantRepositoryInterface,
         archive_repository: AsyncArchiveRepositoryInterface,
+        favorite_repository: FavoriteRepositoryInterface | None = None,
     ) -> None:
         """Initialize restaurant service.
 
@@ -43,9 +47,11 @@ class RestaurantService:
         Args:
             repository: Restaurant repository implementation
             archive_repository: Archive repository implementation (mandatory)
+            favorite_repository: Favorite repository implementation (optional, needed for favorite operations)
         """
         self.repository = repository
         self.archive_repository = archive_repository
+        self.favorite_repository = favorite_repository
 
     async def create_restaurant(
         self, restaurant_data: RestaurantData, created_by: str | None = None
@@ -281,3 +287,64 @@ class RestaurantService:
             # Single atomic commit through UoW
             await uow.commit()
             # If exception occurs, UoW auto-rolls back in __aexit__
+
+    async def list_user_favorites(
+        self,
+        user_id: str,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> tuple[list[Restaurant], int]:
+        """List restaurants favorited by a user with pagination.
+
+        This method retrieves all restaurants that a user has marked as favorites.
+        It uses the favorite repository to get the list of favorite entity IDs,
+        then fetches the complete restaurant data for each one.
+
+        Args:
+            user_id: ULID of the user
+            offset: Number of records to skip
+            limit: Maximum number of records to return
+
+        Returns:
+            Tuple of (list of favorite restaurants, total count)
+
+        Raises:
+            ValueError: If favorite_repository is not available
+
+        Example:
+            >>> restaurants, total = await service.list_user_favorites(
+            ...     user_id="01BX5ZZKBKACTAV9WEVGEMMVS0",
+            ...     offset=0,
+            ...     limit=10,
+            ... )
+        """
+        if not self.favorite_repository:
+            raise ValueError(
+                "Favorite repository is required for this operation. "
+                "Please provide it when initializing the service."
+            )
+
+        # Get user's favorite restaurants
+        favorites, total = await self.favorite_repository.get_by_user(
+            user_id=user_id,
+            entity_type=EntityType.RESTAURANT,
+            offset=offset,
+            limit=limit,
+        )
+
+        # Extract restaurant IDs from favorites
+        restaurant_ids = [favorite.entity_id for favorite in favorites]
+
+        # If no favorites, return empty list
+        if not restaurant_ids:
+            return [], 0
+
+        # Fetch complete restaurant data for each favorite
+        # Note: This could be optimized with a bulk query in the repository
+        restaurants = []
+        for restaurant_id in restaurant_ids:
+            restaurant = await self.repository.get_by_id(restaurant_id)
+            if restaurant:  # Only add if restaurant still exists
+                restaurants.append(restaurant)
+
+        return restaurants, total
