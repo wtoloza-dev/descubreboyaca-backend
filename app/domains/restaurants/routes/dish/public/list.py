@@ -14,8 +14,8 @@ from app.domains.restaurants.schemas.dish import (
     ListDishesSchemaResponse,
 )
 from app.domains.restaurants.services.dish import DishService
-from app.shared.dependencies import get_pagination_params_dependency
-from app.shared.domain import PaginationParams
+from app.shared.dependencies import get_pagination_dependency
+from app.shared.domain.entities import Pagination
 
 
 router = APIRouter()
@@ -35,7 +35,7 @@ async def handle_list_restaurant_dishes(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    pagination: PaginationParams = Depends(get_pagination_params_dependency),
+    pagination: Pagination = Depends(get_pagination_dependency),
     category: Annotated[
         str | None,
         Query(
@@ -63,7 +63,7 @@ async def handle_list_restaurant_dishes(
 
     Args:
         restaurant_id: ULID of the restaurant (validated automatically)
-        pagination: Pagination parameters (page, page_size converted to offset, limit)
+        pagination: Pagination entity with page, page_size, offset, and limit
         category: Optional filter by category
         is_available: Optional filter by availability
         is_featured: Optional filter by featured status
@@ -102,12 +102,9 @@ async def handle_list_restaurant_dishes(
         DishSchemaListItem.model_validate(d.model_dump(mode="json")) for d in dishes
     ]
 
-    # Calculate current page from offset and limit
-    page = (pagination.offset // pagination.limit) + 1
-
     return ListDishesSchemaResponse(
         items=items,
-        page=page,
-        page_size=pagination.limit,
+        page=pagination.page,
+        page_size=pagination.page_size,
         total=total_count,
     )

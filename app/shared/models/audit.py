@@ -2,6 +2,13 @@
 
 This module provides mixin classes for adding audit fields (created_at, updated_at,
 created_by, updated_by) and ULID-based primary keys to SQLModel tables.
+
+1:1 Correspondence with Domain Entities:
+    - ULIDMixin <-> Identity (domain/entities/audit.py)
+    - TimestampMixin <-> Timestamp (domain/entities/audit.py)
+    - UserTrackingMixin <-> UserTracking (domain/entities/audit.py)
+    - AuditBasicMixin <-> AuditBasic (domain/entities/audit.py)
+    - AuditMixin <-> Audit (domain/entities/audit.py)
 """
 
 from datetime import UTC, datetime
@@ -77,6 +84,25 @@ class UserTrackingMixin(SQLModel):
         max_length=26,
         description="ULID of the user who last updated the record",
     )
+
+
+class AuditBasicMixin(ULIDMixin, TimestampMixin):
+    """Mixin that adds basic audit fields to a model.
+
+    This mixin combines ULIDMixin and TimestampMixin to provide identity
+    and timestamp tracking without user tracking (created_by/updated_by).
+
+    This is ideal for user-generated content where the user relationship
+    is explicit through a foreign key (like reviews, favorites, etc.)
+    rather than implicit through audit fields.
+
+    Attributes:
+        id: ULID primary key (inherited from ULIDMixin)
+        created_at: Timestamp when the record was created (inherited from TimestampMixin)
+        updated_at: Timestamp when the record was last updated (inherited from TimestampMixin)
+    """
+
+    pass
 
 
 class AuditMixin(ULIDMixin, TimestampMixin, UserTrackingMixin):

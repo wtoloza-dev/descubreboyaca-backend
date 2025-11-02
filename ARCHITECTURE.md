@@ -129,14 +129,14 @@ shared/
 ├── domain/               → Domain Layer - Pure business logic
 │   ├── entities/         → Business entities
 │   │   ├── archive.py    → ArchiveData, Archive
-│   │   └── audit.py      → Audit (base entity)
+│   │   ├── audit.py      → Audit (base entity)
+│   │   └── pagination.py → Pagination (with computed fields)
 │   │
 │   ├── interfaces/       → Contracts (Interfaces)
 │   │   └── archive.py    → ArchiveRepositoryInterface
 │   │
 │   ├── value_objects/    → Immutable value objects
 │   │   ├── geolocation.py → GeoLocation
-│   │   ├── pagination.py  → PaginationParams
 │   │   └── social_media.py → SocialMedia
 │   │
 │   ├── enums/            → Domain enumerations
@@ -165,9 +165,9 @@ shared/
 
 | Folder | Layer | Responsibility |
 |--------|-------|----------------|
-| `domain/entities/` | **Domain** | Pure business objects, generate their own identity |
+| `domain/entities/` | **Domain** | Pure business objects with identity or computed properties (Archive, Audit, Pagination) |
 | `domain/interfaces/` | **Domain** | Contracts/abstractions (Interfaces) |
-| `domain/value_objects/` | **Domain** | Immutable value objects (GeoLocation, PaginationParams, SocialMedia) |
+| `domain/value_objects/` | **Domain** | Immutable value objects without identity (GeoLocation, SocialMedia) |
 | `domain/enums/` | **Domain** | Domain enumerations |
 | `domain/constants/` | **Domain** | Domain constants |
 | `schemas/` | **Presentation** | API DTOs, shared response schemas |
@@ -583,17 +583,37 @@ def get_archive_service(repository: ArchiveRepositoryInterface) -> ArchiveServic
 #### Pagination
 - **User-facing**: `page` (1-based) and `page_size` (1-100)
 - **Database**: `offset` and `limit`
-- **Conversion**: Handled by `get_pagination_params()` dependency
+- **Entity**: `Pagination` with computed fields for automatic `offset`/`limit` calculation
 - **Response**: Standardized `PaginatedResponse[T]` generic schema
 
 ```python
-# Dependency converts user params to DB params
-def get_pagination_params(
+# Pagination entity with computed fields (Pydantic)
+class Pagination(BaseModel):
+    """Pagination entity with user-friendly and database-friendly parameters."""
+    
+    page: int = Field(ge=1, description="Page number (1-based)")
+    page_size: int = Field(ge=1, le=100, description="Items per page (max 100)")
+    
+    @computed_field
+    @property
+    def offset(self) -> int:
+        """Calculate offset from page and page_size."""
+        return (self.page - 1) * self.page_size
+    
+    @computed_field
+    @property
+    def limit(self) -> int:
+        """Get limit (same as page_size)."""
+        return self.page_size
+    
+    model_config = {"frozen": True}
+
+# Dependency creates Pagination entity from query params
+def get_pagination_dependency(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
-) -> PaginationParams:
-    offset = (page - 1) * page_size
-    return PaginationParams(offset=offset, limit=page_size)
+) -> Pagination:
+    return Pagination(page=page, page_size=page_size)
 
 # Generic response schema
 class PaginatedResponse[T](BaseModel):
@@ -605,16 +625,37 @@ class PaginatedResponse[T](BaseModel):
 # Domain-specific usage
 class ListRestaurantsResponse(PaginatedResponse[RestaurantListItem]):
     pass
+
+# Usage in routes
+@router.get("/restaurants")
+async def handle_list_restaurants(
+    pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
+):
+    # Use both user-friendly and database-friendly fields
+    restaurants, total = await service.find_restaurants(
+        offset=pagination.offset,  # ← Computed field
+        limit=pagination.limit,    # ← Computed field
+    )
+    
+    return ListRestaurantsResponse(
+        items=restaurants,
+        page=pagination.page,           # ← Direct access
+        page_size=pagination.page_size, # ← Direct access
+        total=total,
+    )
 ```
 
-#### Value Objects
-- **Immutable**: Use `@dataclass(frozen=True)` or Pydantic `ConfigDict(frozen=True)`
+#### Value Objects vs Entities
+
+**Value Objects** (immutable, no identity):
+- **Immutable**: Use `@dataclass(frozen=True)` or Pydantic `model_config = {"frozen": True}`
+- **No identity**: Compared by value, not by ID
 - **Serialization**: Use `field_serializer` for custom JSON output
 - **Validation**: Use `field_validator` for input validation
-- **Examples**: `GeoLocation`, `SocialMedia`, `PaginationParams`
+- **Examples**: `GeoLocation`, `SocialMedia`
 
 ```python
-# GeoLocation with precision control
+# GeoLocation with precision control (Value Object)
 @field_validator("latitude", "longitude", mode="before")
 def validate_decimal(cls, v: Any) -> Decimal:
     return Decimal(str(v)).quantize(Decimal("0.00000001"))  # 8 decimals
@@ -622,6 +663,26 @@ def validate_decimal(cls, v: Any) -> Decimal:
 @field_serializer("latitude", "longitude")
 def serialize_decimal(self, value: Decimal) -> float:
     return round(float(value), 8)  # Clean JSON output
+```
+
+**Entities** (may have computed fields):
+- **Computed fields**: Use `@computed_field` for derived properties
+- **Immutable**: Can still be frozen for consistency
+- **Identity**: May have ID or logical identity
+- **Examples**: `Archive`, `Audit`, `Pagination`
+
+```python
+# Pagination with computed fields (Entity)
+class Pagination(BaseModel):
+    page: int = Field(ge=1)
+    page_size: int = Field(ge=1, le=100)
+    
+    @computed_field
+    @property
+    def offset(self) -> int:
+        return (self.page - 1) * self.page_size
+    
+    model_config = {"frozen": True}
 ```
 
 ---

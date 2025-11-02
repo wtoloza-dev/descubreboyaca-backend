@@ -6,6 +6,7 @@ all domain models in the application.
 
 from app.shared.models.archive import ArchiveModel
 from app.shared.models.audit import (
+    AuditBasicMixin,
     AuditMixin,
     TimestampMixin,
     ULIDMixin,
@@ -15,6 +16,7 @@ from app.shared.models.audit import (
 
 __all__ = [
     "ArchiveModel",
+    "AuditBasicMixin",
     "AuditMixin",
     "TimestampMixin",
     "ULIDMixin",

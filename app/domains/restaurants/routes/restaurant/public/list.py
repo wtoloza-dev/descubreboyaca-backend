@@ -17,8 +17,8 @@ from app.domains.restaurants.schemas.restaurant.list import (
     RestaurantSchemaListItem,
 )
 from app.domains.restaurants.services import RestaurantService
-from app.shared.dependencies import get_pagination_params_dependency
-from app.shared.domain import PaginationParams
+from app.shared.dependencies import get_pagination_dependency
+from app.shared.domain.entities import Pagination
 
 
 router = APIRouter()
@@ -32,14 +32,14 @@ router = APIRouter()
     "Results can be filtered using query parameters (city, state, country, price_level).",
 )
 async def handle_list_restaurants(
-    pagination: Annotated[PaginationParams, Depends(get_pagination_params_dependency)],
+    pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
     filters: Annotated[RestaurantFilters, Depends(get_restaurant_filters_dependency)],
     service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
 ) -> ListRestaurantsSchemaResponse:
     """List restaurants with pagination and optional filtering.
 
     Args:
-        pagination: Pagination parameters (page, page_size converted to offset, limit)
+        pagination: Pagination entity with page, page_size, offset, and limit
         filters: Restaurant filter parameters (injected)
         service: Restaurant service (injected)
 
@@ -70,12 +70,9 @@ async def handle_list_restaurants(
         for r in restaurants
     ]
 
-    # Calculate current page from offset and limit
-    page = (pagination.offset // pagination.limit) + 1
-
     return ListRestaurantsSchemaResponse(
         items=items,
-        page=page,
-        page_size=pagination.limit,
+        page=pagination.page,
+        page_size=pagination.page_size,
         total=total,
     )

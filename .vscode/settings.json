@@ -1,4 +1,4 @@
-{
+  {
   // File exclusion patterns
   "files.exclude": {
     "**/__pycache__": true,

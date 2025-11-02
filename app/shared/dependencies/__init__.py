@@ -8,7 +8,7 @@ from app.shared.dependencies.archive import (
     get_async_archive_repository_dependency,
     get_async_archive_service_dependency,
 )
-from app.shared.dependencies.pagination import get_pagination_params_dependency
+from app.shared.dependencies.pagination import get_pagination_dependency
 from app.shared.dependencies.sql import get_async_session_dependency
 
 
@@ -16,5 +16,5 @@ __all__ = [
     "get_async_session_dependency",
     "get_async_archive_repository_dependency",
     "get_async_archive_service_dependency",
-    "get_pagination_params_dependency",
+    "get_pagination_dependency",
 ]
