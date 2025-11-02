@@ -5,7 +5,7 @@ This module defines the interface contract for OAuth2 operations.
 
 from typing import Protocol
 
-from app.domains.auth.domain.entities import OAuthProfile
+from app.domains.auth.domain.value_objects import OAuthProfile
 
 
 class OAuthClient(Protocol):

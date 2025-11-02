@@ -9,7 +9,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.favorites.domain.entities import Favorite, FavoriteData
 from app.domains.favorites.domain.enums import EntityType
-from app.domains.favorites.domain.exceptions import FavoriteAlreadyExistsError
+from app.domains.favorites.domain.exceptions import FavoriteAlreadyExistsException
 from app.domains.favorites.models import FavoriteModel
 
 
@@ -44,7 +44,7 @@ class FavoriteRepository:
             The created favorite entity with generated ID and timestamp
 
         Raises:
-            FavoriteAlreadyExistsError: If the user has already favorited this entity
+            FavoriteAlreadyExistsException: If the user has already favorited this entity
         """
         # Create entity with auto-generated ID and timestamp
         favorite = Favorite(**favorite_data.model_dump())
@@ -58,9 +58,9 @@ class FavoriteRepository:
             await self.session.refresh(model)
         except IntegrityError as e:
             await self.session.rollback()
-            raise FavoriteAlreadyExistsError(
+            raise FavoriteAlreadyExistsException(
                 user_id=favorite_data.user_id,
-                entity_type=favorite_data.entity_type,
+                entity_type=favorite_data.entity_type.value,
                 entity_id=favorite_data.entity_id,
             ) from e
 

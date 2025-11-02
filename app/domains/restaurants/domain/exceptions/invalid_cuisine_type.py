@@ -1,9 +1,8 @@
-"""Invalid cuisine type exception.
+"""Invalid cuisine type domain exception."""
 
-This module defines the exception raised when an invalid cuisine type is provided.
-"""
+from typing import Any
 
-from app.shared.domain.exceptions.base import ValidationException
+from app.shared.domain.exceptions import ValidationException
 
 
 class InvalidCuisineTypeException(ValidationException):
@@ -13,18 +12,29 @@ class InvalidCuisineTypeException(ValidationException):
     that is not recognized by the system.
 
     Example:
-        >>> raise InvalidCuisineTypeException("INVALID_TYPE")
-        InvalidCuisineTypeException: Invalid cuisine type: 'INVALID_TYPE'
+        >>> raise InvalidCuisineTypeException(
+        ...     cuisine_type="INVALID_TYPE",
+        ... )
     """
 
-    def __init__(self, cuisine_type: str) -> None:
+    def __init__(
+        self,
+        cuisine_type: str,
+        context: dict[str, Any] | None = None,
+    ) -> None:
         """Initialize invalid cuisine type exception.
 
         Args:
             cuisine_type: The invalid cuisine type value
+            context: Additional context
         """
+        full_context = {
+            "cuisine_type": cuisine_type,
+            "field": "cuisine_type",
+            **(context or {}),
+        }
         super().__init__(
             message=f"Invalid cuisine type: '{cuisine_type}'",
-            field="cuisine_type",
-            value=cuisine_type,
+            context=full_context,
+            error_code="INVALID_CUISINE_TYPE",
         )

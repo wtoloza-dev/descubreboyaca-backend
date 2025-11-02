@@ -9,7 +9,7 @@ from ulid import ULID
 
 from app.domains.favorites.domain.entities import FavoriteData
 from app.domains.favorites.domain.enums import EntityType
-from app.domains.favorites.domain.exceptions import FavoriteAlreadyExistsError
+from app.domains.favorites.domain.exceptions import FavoriteAlreadyExistsException
 from app.domains.favorites.repositories import FavoriteRepository
 
 
@@ -40,7 +40,7 @@ class TestFavoriteRepositoryCreate:
         )
         await repo.create(data)
 
-        with pytest.raises(FavoriteAlreadyExistsError):
+        with pytest.raises(FavoriteAlreadyExistsException):
             await repo.create(data)
 
 

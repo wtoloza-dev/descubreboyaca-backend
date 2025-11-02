@@ -48,6 +48,9 @@ def upgrade() -> None:
         # Timestamps
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
+        # Audit fields (user tracking)
+        sa.Column("created_by", sa.String(length=26), nullable=True),
+        sa.Column("updated_by", sa.String(length=26), nullable=True),
         # Constraints
         sa.PrimaryKeyConstraint("id", name=op.f("pk_users")),
     )

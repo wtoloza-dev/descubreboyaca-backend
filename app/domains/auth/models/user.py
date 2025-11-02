@@ -26,11 +26,16 @@ class UserModel(SQLModel, table=True):
         profile_picture_url: URL to user's profile picture (nullable)
         created_at: Timestamp when user was created
         updated_at: Timestamp when user was last updated (nullable)
+        created_by: ULID of user/admin who created this account (nullable for self-registration)
+        updated_by: ULID of user/admin who last updated this account (nullable)
     """
 
     __tablename__ = "users"
 
+    # Primary key
     id: str = Field(primary_key=True, max_length=26)
+
+    # User data
     email: str = Field(unique=True, index=True, max_length=255)
     full_name: str = Field(max_length=255)
     hashed_password: str | None = Field(default=None, max_length=255)
@@ -39,5 +44,11 @@ class UserModel(SQLModel, table=True):
     auth_provider: str = Field(default="email", max_length=50)
     google_id: str | None = Field(default=None, max_length=255, index=True)
     profile_picture_url: str | None = Field(default=None, max_length=500)
+
+    # Audit fields
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime | None = Field(default=None)
+    created_by: str | None = Field(
+        default=None, max_length=26
+    )  # ULID of creator (None for self-registration)
+    updated_by: str | None = Field(default=None, max_length=26)  # ULID of last updater

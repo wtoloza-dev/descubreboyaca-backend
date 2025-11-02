@@ -11,7 +11,7 @@ from app.domains.auth.dependencies.auth import get_current_user_dependency
 from app.domains.auth.domain import User
 from app.domains.favorites.dependencies import get_favorite_service_dependency
 from app.domains.favorites.domain.enums import EntityType
-from app.domains.favorites.domain.exceptions import FavoriteNotFoundError
+from app.domains.favorites.domain.exceptions import FavoriteNotFoundException
 from app.domains.favorites.services import FavoriteService
 
 
@@ -41,7 +41,7 @@ async def handle_remove_favorite(
         service: Favorite service (injected)
 
     Raises:
-        FavoriteNotFoundError: If favorite not found (404 Not Found)
+        FavoriteNotFoundException: If favorite not found (404 Not Found)
     """
     # Remove favorite
     try:
@@ -50,6 +50,6 @@ async def handle_remove_favorite(
             entity_type=entity_type,
             entity_id=entity_id,
         )
-    except FavoriteNotFoundError:
+    except FavoriteNotFoundException:
         # Re-raise to be handled by error handler
         raise

@@ -5,7 +5,7 @@ This module defines the interface contract for password hashing operations.
 
 from typing import Protocol
 
-from app.domains.auth.domain.entities import PasswordHash
+from app.domains.auth.domain.value_objects import PasswordHash
 
 
 class PasswordHasher(Protocol):

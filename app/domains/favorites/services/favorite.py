@@ -5,7 +5,7 @@ This module implements the favorite service for business logic orchestration.
 
 from app.domains.favorites.domain.entities import Favorite, FavoriteData
 from app.domains.favorites.domain.enums import EntityType
-from app.domains.favorites.domain.exceptions import FavoriteNotFoundError
+from app.domains.favorites.domain.exceptions import FavoriteNotFoundException
 from app.domains.favorites.domain.interfaces import FavoriteRepositoryInterface
 
 
@@ -45,7 +45,7 @@ class FavoriteService:
             The created favorite
 
         Raises:
-            FavoriteAlreadyExistsError: If already favorited
+            FavoriteAlreadyExistsException: If already favorited
         """
         favorite_data = FavoriteData(
             user_id=user_id,
@@ -65,13 +65,13 @@ class FavoriteService:
             entity_id: ULID of the entity
 
         Raises:
-            FavoriteNotFoundError: If favorite not found
+            FavoriteNotFoundException: If favorite not found
         """
         deleted = await self.repository.delete(user_id, entity_type, entity_id)
         if not deleted:
-            raise FavoriteNotFoundError(
+            raise FavoriteNotFoundException(
                 user_id=user_id,
-                entity_type=entity_type,
+                entity_type=entity_type.value,
                 entity_id=entity_id,
             )
 

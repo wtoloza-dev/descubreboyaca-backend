@@ -9,8 +9,8 @@ from ulid import ULID
 
 from app.domains.favorites.domain.enums import EntityType
 from app.domains.favorites.domain.exceptions import (
-    FavoriteAlreadyExistsError,
-    FavoriteNotFoundError,
+    FavoriteAlreadyExistsException,
+    FavoriteNotFoundException,
 )
 from app.domains.favorites.repositories import FavoriteRepository
 from app.domains.favorites.services import FavoriteService
@@ -41,7 +41,7 @@ async def test_add_duplicate_raises(test_session: AsyncSession):
 
     await service.add_favorite(user_id, EntityType.DISH, entity_id)
 
-    with pytest.raises(FavoriteAlreadyExistsError):
+    with pytest.raises(FavoriteAlreadyExistsException):
         await service.add_favorite(user_id, EntityType.DISH, entity_id)
 
 
@@ -73,5 +73,5 @@ async def test_remove_nonexistent_raises(test_session: AsyncSession):
     repo = FavoriteRepository(test_session)
     service = FavoriteService(repo)
 
-    with pytest.raises(FavoriteNotFoundError):
+    with pytest.raises(FavoriteNotFoundException):
         await service.remove_favorite(str(ULID()), EntityType.RESTAURANT, str(ULID()))

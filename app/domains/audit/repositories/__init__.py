@@ -1,8 +1,4 @@
-"""Shared repositories.
-
-This package contains repository implementations for shared domain entities.
-Repositories handle data persistence and retrieval.
-"""
+"""Audit repositories."""
 
 from .archive import (
     ArchiveRepositoryPostgreSQL,
@@ -13,8 +9,9 @@ from .archive import (
 
 
 __all__ = [
-    "ArchiveRepositorySQLite",
-    "AsyncArchiveRepositorySQLite",
     "ArchiveRepositoryPostgreSQL",
+    "ArchiveRepositorySQLite",
     "AsyncArchiveRepositoryPostgreSQL",
+    "AsyncArchiveRepositorySQLite",
 ]
+

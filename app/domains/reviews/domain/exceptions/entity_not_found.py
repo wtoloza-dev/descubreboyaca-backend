@@ -1,35 +1,43 @@
-"""Entity not found exception.
+"""Entity not found domain exception."""
 
-This module defines the exception raised when the entity being reviewed
-does not exist.
-"""
+from typing import Any
 
-from app.shared.domain.exceptions import DomainException
+from app.shared.domain.exceptions import NotFoundException
 
 
-class EntityNotFoundException(DomainException):
+class EntityNotFoundException(NotFoundException):
     """Exception raised when the entity being reviewed does not exist.
 
     This exception is raised when a user attempts to create a review for
     an entity (restaurant, event, place) that does not exist in the system.
 
-    Attributes:
-        entity_type: The type of entity that was not found
-        entity_id: The ULID of the entity that was not found
+    Example:
+        >>> raise EntityNotFoundException(
+        ...     entity_type="Restaurant",
+        ...     entity_id="01HQ123ABC",
+        ... )
     """
 
-    def __init__(self, entity_type: str, entity_id: str) -> None:
-        """Initialize the exception.
+    def __init__(
+        self,
+        entity_type: str,
+        entity_id: str,
+        context: dict[str, Any] | None = None,
+    ) -> None:
+        """Initialize entity not found exception.
 
         Args:
-            entity_type: The type of entity that was not found
-            entity_id: The ULID of the entity that was not found
+            entity_type: Type of entity that was not found
+            entity_id: ULID of the entity that was not found
+            context: Additional context
         """
+        full_context = {
+            "entity_type": entity_type,
+            "entity_id": entity_id,
+            **(context or {}),
+        }
         super().__init__(
-            error_code="ENTITY_NOT_FOUND",
-            message=f"{entity_type.capitalize()} with ID '{entity_id}' was not found",
-            context={
-                "entity_type": entity_type,
-                "entity_id": entity_id,
-            },
+            message=f"{entity_type.capitalize()} with ID '{entity_id}' not found",
+            context=full_context,
+            error_code=f"{entity_type.upper()}_NOT_FOUND",
         )

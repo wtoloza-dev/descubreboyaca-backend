@@ -2,9 +2,10 @@
 
 This module contains base models that provide common functionality across
 all domain models in the application.
+
+Note: Archive model has been moved to app/domains/audit/models/
 """
 
-from app.shared.models.archive import ArchiveModel
 from app.shared.models.audit import (
     AuditBasicMixin,
     AuditMixin,
@@ -15,7 +16,6 @@ from app.shared.models.audit import (
 
 
 __all__ = [
-    "ArchiveModel",
     "AuditBasicMixin",
     "AuditMixin",
     "TimestampMixin",

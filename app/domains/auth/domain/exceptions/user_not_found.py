@@ -1,7 +1,6 @@
-"""User not found exception.
+"""User not found domain exception."""
 
-This module defines the exception raised when a user is not found.
-"""
+from typing import Any
 
 from app.domains.auth.domain.exceptions.authentication import AuthenticationException
 
@@ -9,18 +8,32 @@ from app.domains.auth.domain.exceptions.authentication import AuthenticationExce
 class UserNotFoundException(AuthenticationException):
     """Exception raised when a user is not found.
 
-    Raised when attempting to access a user that doesn't exist.
+    Raised when attempting to access or authenticate a user that doesn't exist
+    in the system.
+
+    Example:
+        >>> raise UserNotFoundException(
+        ...     identifier="user@example.com",
+        ... )
     """
 
-    def __init__(self, identifier: str) -> None:
+    def __init__(
+        self,
+        identifier: str,
+        context: dict[str, Any] | None = None,
+    ) -> None:
         """Initialize user not found exception.
 
         Args:
             identifier: User identifier (email or ID) that was not found
+            context: Additional context
         """
+        full_context = {
+            "identifier": identifier,
+            **(context or {}),
+        }
         super().__init__(
-            error_code="USER_NOT_FOUND",
             message=f"User '{identifier}' not found",
-            context={"identifier": identifier},
+            context=full_context,
+            error_code="USER_NOT_FOUND",
         )
-        self.identifier = identifier

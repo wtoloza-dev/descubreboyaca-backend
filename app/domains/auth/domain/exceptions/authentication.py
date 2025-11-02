@@ -1,28 +1,38 @@
-"""Authentication exception.
+"""Authentication domain exception."""
 
-This module defines the base authentication exception.
-"""
+from typing import Any
 
 from app.shared.domain.exceptions import DomainException
 
 
 class AuthenticationException(DomainException):
-    """Base exception for authentication errors.
+    """Base exception for authentication and authorization errors.
 
-    This is the base class for all authentication-related exceptions.
+    This is the base class for all authentication-related exceptions
+    in the auth domain (credentials, tokens, permissions, etc.).
+
+    Example:
+        >>> raise AuthenticationException(
+        ...     message="Authentication failed",
+        ...     context={"reason": "invalid_token"},
+        ... )
     """
 
     def __init__(
         self,
+        message: str,
+        context: dict[str, Any] | None = None,
         error_code: str = "AUTHENTICATION_FAILED",
-        message: str = "Authentication failed",
-        context: dict[str, str] | None = None,
     ) -> None:
         """Initialize authentication exception.
 
         Args:
-            error_code: Machine-readable error code
             message: Human-readable error message
             context: Additional error context
+            error_code: Machine-readable error code
         """
-        super().__init__(error_code=error_code, message=message, context=context)
+        super().__init__(
+            message=message,
+            context=context,
+            error_code=error_code,
+        )

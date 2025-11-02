@@ -1,7 +1,4 @@
-"""Archive repository implementations.
-
-This package contains SQLite and PostgreSQL implementations for archive persistence.
-"""
+"""Archive repository implementations."""
 
 from .postgresql import (
     ArchiveRepositoryPostgreSQL,
@@ -11,8 +8,9 @@ from .sqlite import ArchiveRepositorySQLite, AsyncArchiveRepositorySQLite
 
 
 __all__ = [
-    "ArchiveRepositorySQLite",
-    "AsyncArchiveRepositorySQLite",
     "ArchiveRepositoryPostgreSQL",
     "AsyncArchiveRepositoryPostgreSQL",
+    "ArchiveRepositorySQLite",
+    "AsyncArchiveRepositorySQLite",
 ]
+

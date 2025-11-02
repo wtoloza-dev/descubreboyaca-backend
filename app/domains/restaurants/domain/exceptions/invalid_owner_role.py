@@ -1,9 +1,8 @@
-"""Invalid owner role exception.
+"""Invalid owner role domain exception."""
 
-This module defines the exception raised when an invalid owner role is provided.
-"""
+from typing import Any
 
-from app.shared.domain.exceptions.base import ValidationException
+from app.shared.domain.exceptions import ValidationException
 
 
 class InvalidOwnerRoleException(ValidationException):
@@ -13,18 +12,30 @@ class InvalidOwnerRoleException(ValidationException):
     that is not recognized by the system.
 
     Example:
-        >>> raise InvalidOwnerRoleException("invalid_role")
-        InvalidOwnerRoleException: Invalid role: 'invalid_role'. Must be one of: owner, manager, staff
+        >>> raise InvalidOwnerRoleException(
+        ...     role="invalid_role",
+        ... )
     """
 
-    def __init__(self, role: str) -> None:
+    def __init__(
+        self,
+        role: str,
+        context: dict[str, Any] | None = None,
+    ) -> None:
         """Initialize invalid owner role exception.
 
         Args:
             role: The invalid role value
+            context: Additional context
         """
+        full_context = {
+            "role": role,
+            "field": "role",
+            "valid_values": ["PRIMARY", "SECONDARY", "STAFF"],
+            **(context or {}),
+        }
         super().__init__(
-            message=f"Invalid role '{role}'. Must be one of: owner, manager, staff",
-            field="role",
-            value=role,
+            message=f"Invalid role '{role}'. Must be one of: PRIMARY, SECONDARY, STAFF",
+            context=full_context,
+            error_code="INVALID_OWNER_ROLE",
         )

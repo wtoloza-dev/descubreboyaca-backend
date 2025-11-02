@@ -1,17 +1,20 @@
-"""Pagination domain entity.
+"""Pagination domain value object.
 
-This module defines the pagination entity used across the application.
+This module defines the pagination value object used across the application.
+Value objects are immutable objects that represent descriptive aspects of the domain.
 """
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 
 class Pagination(BaseModel):
-    """Pagination entity with user-friendly and database-friendly parameters.
+    """Pagination value object with user-friendly and database-friendly parameters.
 
-    This entity bridges the gap between user-facing pagination (page, page_size)
+    Immutable value object bridging the gap between user-facing pagination (page, page_size)
     and database pagination (offset, limit). It stores both representations to
     avoid repeated calculations.
+
+    As a value object, it has no identity and is immutable (frozen).
 
     Attributes:
         page: Current page number (1-based, user-friendly)
@@ -32,6 +35,8 @@ class Pagination(BaseModel):
         >>> # Use in response
         >>> response = {"page": pagination.page, "page_size": pagination.page_size}
     """
+
+    model_config = ConfigDict(frozen=True)
 
     page: int = Field(ge=1, description="Page number (1-based)")
     page_size: int = Field(ge=1, le=100, description="Items per page (max 100)")
@@ -65,5 +70,3 @@ class Pagination(BaseModel):
             >>> Pagination(page=1, page_size=20).limit  # 20
         """
         return self.page_size
-
-    model_config = {"frozen": True}

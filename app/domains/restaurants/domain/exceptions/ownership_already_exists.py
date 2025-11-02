@@ -1,9 +1,8 @@
-"""Ownership already exists exception.
+"""Ownership already exists domain exception."""
 
-This module defines the exception raised when attempting to create a duplicate ownership relationship.
-"""
+from typing import Any
 
-from app.shared.domain.exceptions.base import AlreadyExistsException
+from app.shared.domain.exceptions import AlreadyExistsException
 
 
 class OwnershipAlreadyExistsException(AlreadyExistsException):
@@ -12,20 +11,32 @@ class OwnershipAlreadyExistsException(AlreadyExistsException):
     This exception is raised when an owner is already assigned to a restaurant.
 
     Example:
-        >>> raise OwnershipAlreadyExistsException("01J9X...", "01J9Y...")
-        OwnershipAlreadyExistsException: Owner '01J9Y...' is already assigned to restaurant '01J9X...'
+        >>> raise OwnershipAlreadyExistsException(
+        ...     restaurant_id="01HQ123ABC",
+        ...     owner_id="01HQ456DEF",
+        ... )
     """
 
-    def __init__(self, restaurant_id: str, owner_id: str) -> None:
+    def __init__(
+        self,
+        restaurant_id: str,
+        owner_id: str,
+        context: dict[str, Any] | None = None,
+    ) -> None:
         """Initialize ownership already exists exception.
 
         Args:
             restaurant_id: ULID of the restaurant
             owner_id: ULID of the owner
+            context: Additional context
         """
-        self.restaurant_id = restaurant_id
-        self.owner_id = owner_id
+        full_context = {
+            "restaurant_id": restaurant_id,
+            "owner_id": owner_id,
+            **(context or {}),
+        }
         super().__init__(
-            entity_type="Ownership",
-            identifier=f"Owner {owner_id} is already assigned to restaurant {restaurant_id}",
+            message=f"Owner '{owner_id}' is already assigned to restaurant '{restaurant_id}'",
+            context=full_context,
+            error_code="OWNERSHIP_ALREADY_EXISTS",
         )

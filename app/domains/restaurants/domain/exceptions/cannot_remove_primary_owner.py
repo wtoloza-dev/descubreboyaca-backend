@@ -1,9 +1,8 @@
-"""Cannot remove primary owner exception.
+"""Cannot remove primary owner domain exception."""
 
-This module defines the exception raised when attempting to remove the primary owner.
-"""
+from typing import Any
 
-from app.shared.domain.exceptions.base import ValidationException
+from app.shared.domain.exceptions import ValidationException
 
 
 class CannotRemovePrimaryOwnerException(ValidationException):
@@ -13,18 +12,33 @@ class CannotRemovePrimaryOwnerException(ValidationException):
     without transferring ownership first.
 
     Example:
-        >>> raise CannotRemovePrimaryOwnerException("01J9Y...")
-        CannotRemovePrimaryOwnerException: Cannot remove primary owner without transferring ownership first
+        >>> raise CannotRemovePrimaryOwnerException(
+        ...     owner_id="01HQ123ABC",
+        ...     restaurant_id="01HQ456DEF",
+        ... )
     """
 
-    def __init__(self, owner_id: str) -> None:
+    def __init__(
+        self,
+        owner_id: str,
+        restaurant_id: str | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> None:
         """Initialize cannot remove primary owner exception.
 
         Args:
             owner_id: ULID of the primary owner being removed
+            restaurant_id: Optional ULID of the restaurant
+            context: Additional context
         """
+        full_context = {
+            "owner_id": owner_id,
+            "field": "is_primary",
+            **({"restaurant_id": restaurant_id} if restaurant_id else {}),
+            **(context or {}),
+        }
         super().__init__(
             message="Cannot remove primary owner. Transfer ownership first or assign a new primary owner.",
-            field="is_primary",
-            value=owner_id,
+            context=full_context,
+            error_code="CANNOT_REMOVE_PRIMARY_OWNER",
         )

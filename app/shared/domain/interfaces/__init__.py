@@ -2,15 +2,9 @@
 
 This package contains abstract interfaces and protocols shared across multiple domains,
 defining contracts for repositories and services.
+
+Note: Archive repository interfaces have been moved to app/domains/audit/domain/interfaces/
 """
 
-from .archive import (
-    ArchiveRepositoryInterface,
-    AsyncArchiveRepositoryInterface,
-)
 
-
-__all__ = [
-    "ArchiveRepositoryInterface",
-    "AsyncArchiveRepositoryInterface",
-]
+__all__ = []

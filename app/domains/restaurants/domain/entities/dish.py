@@ -1,4 +1,4 @@
-"""Dish domain entities.
+"""Dish domain entities following DDD principles.
 
 This module defines the Dish domain entities following DDD principles.
 Dishes represent individual menu items that belong to restaurants.
@@ -8,7 +8,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
-from app.shared.domain import Audit
+from app.shared.domain.entities import Audit
 
 
 class DishData(BaseModel):
@@ -18,6 +18,7 @@ class DishData(BaseModel):
     without system-generated metadata like ID or timestamps.
 
     Attributes:
+        restaurant_id: ID of the restaurant this dish belongs to
         name: Dish name
         description: Detailed description of the dish
         category: Primary category (appetizer, main_course, dessert, etc.)
@@ -36,7 +37,12 @@ class DishData(BaseModel):
         display_order: Order for displaying in menus (lower numbers first)
     """
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, validate_assignment=True)
+
+    # Restaurant relationship
+    restaurant_id: str = Field(
+        ..., description="ID of the restaurant this dish belongs to"
+    )
 
     # Basic information
     name: str = Field(..., min_length=1, max_length=255, description="Dish name")
@@ -123,7 +129,7 @@ class DishData(BaseModel):
     )
 
 
-class Dish(Audit, DishData):
+class Dish(DishData, Audit):
     """Complete Dish entity with system metadata.
 
     Extends DishData with database primary key and audit fields.
@@ -134,13 +140,8 @@ class Dish(Audit, DishData):
 
     Attributes:
         id: ULID primary key (auto-generated, inherited from Audit)
-        restaurant_id: ID of the restaurant this dish belongs to
         created_at: Timestamp when created (auto-generated, inherited from Audit)
         updated_at: Timestamp when updated (auto-generated, inherited from Audit)
         created_by: ULID of creator (inherited from Audit)
         updated_by: ULID of last updater (inherited from Audit)
     """
-
-    restaurant_id: str = Field(
-        ..., description="ID of the restaurant this dish belongs to"
-    )

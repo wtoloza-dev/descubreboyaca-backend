@@ -1,13 +1,13 @@
-"""Review domain entity.
+"""Review domain entities following DDD principles.
 
 This module defines the core review entity used in the domain layer.
 """
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
-from app.shared.domain import AuditBasic
+from app.shared.domain.entities import AuditBasic
 
 from ..enums import EntityType, ReviewStatus
 
@@ -33,6 +33,8 @@ class ReviewData(BaseModel):
         status: Moderation status of the review (pending, approved, rejected)
     """
 
+    model_config = ConfigDict(from_attributes=True, validate_assignment=True)
+
     entity_type: EntityType = Field(description="Type of entity being reviewed")
     entity_id: str = Field(max_length=26, description="Entity ULID")
     user_id: str = Field(max_length=26, description="User ULID")
@@ -57,7 +59,7 @@ class ReviewData(BaseModel):
     )
 
 
-class Review(AuditBasic, ReviewData):
+class Review(ReviewData, AuditBasic):
     """Complete review entity with auto-generated fields.
 
     This class extends ReviewData with id and timestamp fields that are

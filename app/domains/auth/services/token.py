@@ -113,9 +113,9 @@ class JWTTokenProvider:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             return payload
         except jwt.ExpiredSignatureError as e:
-            raise ExpiredTokenException() from e
+            raise ExpiredTokenException(reason="token_expired") from e
         except JWTError as e:
-            raise InvalidTokenException() from e
+            raise InvalidTokenException(reason="jwt_decode_error") from e
 
     def decode_token(self, token: str) -> dict[str, Any]:
         """Decode a JWT token without verification (for debugging).

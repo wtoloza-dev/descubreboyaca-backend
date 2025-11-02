@@ -5,7 +5,7 @@ This module provides password hashing and verification using bcrypt.
 
 import bcrypt
 
-from app.domains.auth.domain.entities import PasswordHash
+from app.domains.auth.domain.value_objects import PasswordHash
 
 
 class BcryptPasswordHasher:

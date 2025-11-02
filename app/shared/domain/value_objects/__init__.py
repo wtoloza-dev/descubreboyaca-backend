@@ -6,12 +6,14 @@ of the domain with no conceptual identity.
 """
 
 from .geolocation import GeoLocation
+from .pagination import Pagination
 from .rating import Rating
 from .social_media import SocialMedia
 
 
 __all__ = [
     "GeoLocation",
+    "Pagination",
     "Rating",
     "SocialMedia",
 ]

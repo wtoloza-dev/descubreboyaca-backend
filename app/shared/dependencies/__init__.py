@@ -2,19 +2,15 @@
 
 This module exports all shared dependencies that can be used across domains.
 All dependency functions follow the naming convention: get_{entity}_{type}_dependency
+
+Note: Archive dependencies have been moved to app/domains/audit/dependencies/
 """
 
-from app.shared.dependencies.archive import (
-    get_async_archive_repository_dependency,
-    get_async_archive_service_dependency,
-)
 from app.shared.dependencies.pagination import get_pagination_dependency
 from app.shared.dependencies.sql import get_async_session_dependency
 
 
 __all__ = [
     "get_async_session_dependency",
-    "get_async_archive_repository_dependency",
-    "get_async_archive_service_dependency",
     "get_pagination_dependency",
 ]

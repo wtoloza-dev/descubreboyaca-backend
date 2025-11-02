@@ -10,15 +10,13 @@ from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.settings import settings
-from app.shared.dependencies.sql import get_async_session_dependency
-from app.shared.domain import (
-    AsyncArchiveRepositoryInterface,
-)
-from app.shared.repositories import (
+from app.domains.audit.domain import AsyncArchiveRepositoryInterface
+from app.domains.audit.repositories import (
     AsyncArchiveRepositoryPostgreSQL,
     AsyncArchiveRepositorySQLite,
 )
-from app.shared.services import AsyncArchiveService
+from app.domains.audit.services import AsyncArchiveService
+from app.shared.dependencies.sql import get_async_session_dependency
 
 
 def get_async_archive_repository_dependency(

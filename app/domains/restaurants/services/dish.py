@@ -15,7 +15,8 @@ from app.domains.restaurants.domain.interfaces import (
     DishRepositoryInterface,
     RestaurantRepositoryInterface,
 )
-from app.shared.domain import AsyncArchiveRepositoryInterface, AsyncUnitOfWork
+from app.domains.audit.domain import AsyncArchiveRepositoryInterface
+from app.shared.domain.patterns import AsyncUnitOfWork
 
 
 class DishService:
@@ -198,7 +199,7 @@ class DishService:
             raise DishNotFoundException(dish_id)
 
         # Prepare archive data
-        from app.shared.domain import ArchiveData
+        from app.domains.audit.domain import ArchiveData
 
         archive_data = ArchiveData(
             original_table="dishes",

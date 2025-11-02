@@ -20,6 +20,8 @@ class ReviewStats(BaseModel):
         rating_distribution: Count of reviews per rating (1-5)
     """
 
+    model_config = ConfigDict(frozen=True)
+
     total_reviews: int = Field(ge=0, description="Total number of reviews")
     average_rating: Decimal = Field(
         ge=Decimal("0.00"),
@@ -30,8 +32,6 @@ class ReviewStats(BaseModel):
     rating_distribution: dict[int, int] = Field(
         description="Distribution of ratings {1: count, 2: count, ...}"
     )
-
-    model_config = ConfigDict(frozen=True)
 
     @property
     def five_star_count(self) -> int:

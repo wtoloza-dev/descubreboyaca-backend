@@ -1,29 +1,39 @@
-"""Review not found exception.
+"""Review not found domain exception."""
 
-This module defines the exception raised when a review is not found.
-"""
+from typing import Any
 
-from app.shared.domain.exceptions import DomainException
+from app.shared.domain.exceptions import NotFoundException
 
 
-class ReviewNotFoundException(DomainException):
+class ReviewNotFoundException(NotFoundException):
     """Exception raised when a review is not found.
 
     This exception is raised when attempting to retrieve, update, or delete
     a review that does not exist in the system.
 
-    Attributes:
-        review_id: The ULID of the review that was not found
+    Example:
+        >>> raise ReviewNotFoundException(
+        ...     review_id="01HQ123ABC",
+        ... )
     """
 
-    def __init__(self, review_id: str) -> None:
-        """Initialize the exception.
+    def __init__(
+        self,
+        review_id: str,
+        context: dict[str, Any] | None = None,
+    ) -> None:
+        """Initialize review not found exception.
 
         Args:
-            review_id: The ULID of the review that was not found
+            review_id: ULID of the review that was not found
+            context: Additional context
         """
+        full_context = {
+            "review_id": review_id,
+            **(context or {}),
+        }
         super().__init__(
+            message=f"Review with ID '{review_id}' not found",
+            context=full_context,
             error_code="REVIEW_NOT_FOUND",
-            message=f"Review with ID '{review_id}' was not found",
-            context={"review_id": review_id},
         )

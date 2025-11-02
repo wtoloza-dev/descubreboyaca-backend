@@ -1,11 +1,11 @@
 """Pagination dependencies for FastAPI endpoints.
 
-FastAPI dependency that creates Pagination entity from query parameters.
+FastAPI dependency that creates Pagination value object from query parameters.
 """
 
 from fastapi import Query
 
-from app.shared.domain.entities import Pagination
+from app.shared.domain.value_objects import Pagination
 
 
 def get_pagination_dependency(
@@ -14,14 +14,14 @@ def get_pagination_dependency(
         default=20, ge=1, le=100, description="Items per page (max 100)"
     ),
 ) -> Pagination:
-    """Create Pagination entity from query parameters.
+    """Create Pagination value object from query parameters.
 
     Args:
         page: Page number (1-based)
         page_size: Items per page (1-100)
 
     Returns:
-        Pagination entity with page, page_size, offset, and limit
+        Pagination value object with page, page_size, offset, and limit
 
     Example:
         @router.get("/items")

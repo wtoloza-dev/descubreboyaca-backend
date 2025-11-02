@@ -209,14 +209,14 @@ class AuthService:
         if payload.get("type") != "refresh":
             from app.domains.auth.domain.exceptions import InvalidTokenException
 
-            raise InvalidTokenException("Invalid token type")
+            raise InvalidTokenException(reason="invalid_token_type")
 
         # Get user ID from token
         user_id = payload.get("sub")
         if not user_id:
             from app.domains.auth.domain.exceptions import InvalidTokenException
 
-            raise InvalidTokenException("Invalid token payload")
+            raise InvalidTokenException(reason="missing_subject")
 
         # Get user from database
         user = await self.user_repository.get_by_id(user_id)
@@ -252,7 +252,7 @@ class AuthService:
         if not user_id:
             from app.domains.auth.domain.exceptions import InvalidTokenException
 
-            raise InvalidTokenException("Invalid token payload")
+            raise InvalidTokenException(reason="missing_subject")
 
         # Get user from database
         user = await self.user_repository.get_by_id(user_id)
@@ -282,16 +282,19 @@ class AuthService:
         # Get user by email
         user = await self.user_repository.get_by_email(email)
         if not user:
-            raise InvalidCredentialsException()
+            raise InvalidCredentialsException(email=email)
 
         # Check if user has a password (OAuth users don't have passwords)
         if not user.hashed_password:
-            raise InvalidCredentialsException("This account uses OAuth authentication")
+            raise InvalidCredentialsException(
+                email=email,
+                context={"reason": "oauth_account"},
+            )
 
         # Verify password
         password_hash = PasswordHash(value=user.hashed_password)
         if not self.password_hasher.verify_password(password, password_hash):
-            raise InvalidCredentialsException()
+            raise InvalidCredentialsException(email=email)
 
         # Check if user is active
         if not user.is_active:

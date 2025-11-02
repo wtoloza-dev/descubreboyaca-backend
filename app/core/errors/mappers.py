@@ -17,8 +17,8 @@ from app.domains.auth.domain.exceptions import (
     UserNotFoundException,
 )
 from app.domains.favorites.domain.exceptions import (
-    FavoriteAlreadyExistsError,
-    FavoriteNotFoundError,
+    FavoriteAlreadyExistsException,
+    FavoriteNotFoundException,
 )
 from app.domains.restaurants.domain.exceptions import (
     CannotRemovePrimaryOwnerException,
@@ -33,7 +33,6 @@ from app.domains.restaurants.domain.exceptions import (
     RestaurantNotFoundException,
 )
 from app.shared.domain.exceptions import (
-    AlreadyArchivedException,
     AlreadyExistsException,
     DomainException,
     MissingHeaderException,
@@ -50,7 +49,6 @@ class DomainExceptionMapper:
         # Base exceptions - Generic mappings
         NotFoundException: status.HTTP_404_NOT_FOUND,
         AlreadyExistsException: status.HTTP_409_CONFLICT,
-        AlreadyArchivedException: status.HTTP_409_CONFLICT,
         ValidationException: status.HTTP_400_BAD_REQUEST,
         MissingHeaderException: status.HTTP_400_BAD_REQUEST,
         # Auth domain - Authentication errors
@@ -77,8 +75,8 @@ class DomainExceptionMapper:
         InvalidOwnerRoleException: status.HTTP_400_BAD_REQUEST,
         OwnerNotAssignedException: status.HTTP_403_FORBIDDEN,
         # Favorites domain - Favorite errors
-        FavoriteNotFoundError: status.HTTP_404_NOT_FOUND,
-        FavoriteAlreadyExistsError: status.HTTP_409_CONFLICT,
+        FavoriteNotFoundException: status.HTTP_404_NOT_FOUND,
+        FavoriteAlreadyExistsException: status.HTTP_409_CONFLICT,
     }
 
     @classmethod

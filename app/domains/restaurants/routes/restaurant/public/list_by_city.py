@@ -16,7 +16,7 @@ from app.domains.restaurants.schemas.restaurant.list import (
 )
 from app.domains.restaurants.services import RestaurantService
 from app.shared.dependencies import get_pagination_dependency
-from app.shared.domain.entities import Pagination
+from app.shared.domain.value_objects import Pagination
 
 
 router = APIRouter()

@@ -21,9 +21,9 @@ from app.domains.restaurants.services import (
     RestaurantOwnerService,
     RestaurantService,
 )
-from app.shared.dependencies import get_async_archive_repository_dependency
+from app.domains.audit.dependencies import get_async_archive_repository_dependency
+from app.domains.audit.domain import AsyncArchiveRepositoryInterface
 from app.shared.dependencies.sql import get_async_session_dependency
-from app.shared.domain import AsyncArchiveRepositoryInterface
 
 
 def get_restaurant_repository_dependency(

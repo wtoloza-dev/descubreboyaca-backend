@@ -1,4 +1,4 @@
-"""Unit tests for Pagination domain entity.
+"""Unit tests for Pagination domain value object.
 
 Tests pure domain logic without database or external dependencies.
 """
@@ -6,11 +6,11 @@ Tests pure domain logic without database or external dependencies.
 import pytest
 from pydantic import ValidationError
 
-from app.shared.domain.entities import Pagination
+from app.shared.domain.value_objects import Pagination
 
 
 class TestPagination:
-    """Unit tests for Pagination entity."""
+    """Unit tests for Pagination value object."""
 
     def test_create_pagination_with_valid_data(self):
         """Test creating pagination with valid data.

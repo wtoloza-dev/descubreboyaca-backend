@@ -10,7 +10,7 @@ from fastapi import APIRouter, Body, Depends, status
 from app.domains.auth.dependencies.auth import get_current_user_dependency
 from app.domains.auth.domain import User
 from app.domains.favorites.dependencies import get_favorite_service_dependency
-from app.domains.favorites.domain.exceptions import FavoriteAlreadyExistsError
+from app.domains.favorites.domain.exceptions import FavoriteAlreadyExistsException
 from app.domains.favorites.schemas import AddFavoriteRequest, AddFavoriteResponse
 from app.domains.favorites.services import FavoriteService
 
@@ -43,7 +43,7 @@ async def handle_add_favorite(
         Created favorite
 
     Raises:
-        FavoriteAlreadyExistsError: If entity is already favorited (409 Conflict)
+        FavoriteAlreadyExistsException: If entity is already favorited (409 Conflict)
     """
     # Add favorite
     try:
@@ -52,7 +52,7 @@ async def handle_add_favorite(
             entity_type=request.entity_type,
             entity_id=request.entity_id,
         )
-    except FavoriteAlreadyExistsError:
+    except FavoriteAlreadyExistsException:
         # Re-raise to be handled by error handler
         raise
 

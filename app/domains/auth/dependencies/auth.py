@@ -63,7 +63,7 @@ async def get_current_user_dependency(
         UserNotFoundException: If user no longer exists
     """
     if credentials is None:
-        raise InvalidTokenException("Missing authentication token")
+        raise InvalidTokenException(reason="missing_token")
 
     token = credentials.credentials
     user = await auth_service.get_current_user(token)

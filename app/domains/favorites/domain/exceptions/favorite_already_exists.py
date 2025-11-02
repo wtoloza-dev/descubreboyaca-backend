@@ -1,0 +1,47 @@
+"""Favorite already exists domain exception."""
+
+from typing import Any
+
+from app.shared.domain.exceptions import AlreadyExistsException
+
+
+class FavoriteAlreadyExistsException(AlreadyExistsException):
+    """Exception raised when attempting to create a duplicate favorite.
+
+    This exception is raised when a user tries to favorite an entity
+    that they have already favorited.
+
+    Example:
+        >>> raise FavoriteAlreadyExistsException(
+        ...     user_id="01HQ123ABC",
+        ...     entity_type="Restaurant",
+        ...     entity_id="01HQ456DEF",
+        ... )
+    """
+
+    def __init__(
+        self,
+        user_id: str,
+        entity_type: str,
+        entity_id: str,
+        context: dict[str, Any] | None = None,
+    ) -> None:
+        """Initialize favorite already exists exception.
+
+        Args:
+            user_id: ULID of the user
+            entity_type: Type of entity (e.g., Restaurant)
+            entity_id: ULID of the entity
+            context: Additional context
+        """
+        full_context = {
+            "user_id": user_id,
+            "entity_type": entity_type,
+            "entity_id": entity_id,
+            **(context or {}),
+        }
+        super().__init__(
+            message=f"User '{user_id}' has already favorited {entity_type} '{entity_id}'",
+            context=full_context,
+            error_code="FAVORITE_ALREADY_EXISTS",
+        )

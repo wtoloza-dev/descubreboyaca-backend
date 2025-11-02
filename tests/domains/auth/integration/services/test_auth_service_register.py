@@ -68,7 +68,7 @@ class TestAuthServiceRegister:
         user = await auth_service.register(email, password, full_name)
 
         # Assert - verify password
-        from app.domains.auth.domain import PasswordHash
+        from app.domains.auth.domain.value_objects import PasswordHash
 
         password_hash = PasswordHash(value=user.hashed_password)
         assert password_service.verify_password(password, password_hash) is True

@@ -14,7 +14,8 @@ from app.domains.restaurants.domain import (
 )
 from app.domains.restaurants.domain.exceptions import RestaurantNotFoundException
 from app.domains.restaurants.domain.interfaces import RestaurantRepositoryInterface
-from app.shared.domain import AsyncArchiveRepositoryInterface, AsyncUnitOfWork
+from app.domains.audit.domain import AsyncArchiveRepositoryInterface
+from app.shared.domain.patterns import AsyncUnitOfWork
 
 
 class RestaurantService:
@@ -264,7 +265,7 @@ class RestaurantService:
             raise RestaurantNotFoundException(restaurant_id)
 
         # Prepare archive data
-        from app.shared.domain import ArchiveData
+        from app.domains.audit.domain import ArchiveData
 
         archive_data = ArchiveData(
             original_table="restaurants",

@@ -7,8 +7,8 @@ of the Archive repository for data persistence.
 from sqlmodel import Session
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.shared.domain import Archive, ArchiveData
-from app.shared.models import ArchiveModel
+from app.domains.audit.domain.entities import Archive, ArchiveData
+from app.domains.audit.models import ArchiveModel
 
 
 class ArchiveRepositorySQLite:

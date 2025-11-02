@@ -6,7 +6,7 @@ Both synchronous and asynchronous versions are provided.
 
 from typing import Protocol
 
-from app.shared.domain import Archive, ArchiveData
+from app.domains.audit.domain.entities import Archive, ArchiveData
 
 
 class ArchiveRepositoryInterface(Protocol):

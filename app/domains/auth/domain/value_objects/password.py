@@ -3,11 +3,10 @@
 This module defines the PasswordHash value object for handling hashed passwords.
 """
 
-from dataclasses import dataclass
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass(frozen=True)
-class PasswordHash:
+class PasswordHash(BaseModel):
     """Immutable value object for hashed passwords.
 
     This represents a bcrypt-hashed password. Being frozen (immutable)
@@ -17,7 +16,9 @@ class PasswordHash:
         value: The bcrypt hashed password string
     """
 
-    value: str
+    model_config = ConfigDict(frozen=True)
+
+    value: str = Field(description="Bcrypt hashed password string")
 
     def __str__(self) -> str:
         """Return string representation (masked for security).

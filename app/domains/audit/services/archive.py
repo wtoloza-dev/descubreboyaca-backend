@@ -2,13 +2,16 @@
 
 This module provides services for archiving deleted records.
 Services coordinate between repositories and contain business logic.
+
+This is part of the Audit domain and will be extended in the future
+with complete audit logging (see project/AUDIT_SYSTEM_PROPOSAL.md).
 """
 
 from typing import Any
 
 from pydantic import BaseModel
 
-from app.shared.domain import (
+from app.domains.audit.domain import (
     Archive,
     ArchiveData,
     ArchiveRepositoryInterface,

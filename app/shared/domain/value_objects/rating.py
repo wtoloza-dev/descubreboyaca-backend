@@ -33,9 +33,9 @@ class Rating(BaseModel):
         ValueError: If rating is not between 1 and 5
     """
 
-    value: int = Field(ge=1, le=5, description="Rating value from 1 to 5")
-
     model_config = ConfigDict(frozen=True)
+
+    value: int = Field(ge=1, le=5, description="Rating value from 1 to 5")
 
     @field_validator("value", mode="before")
     @classmethod

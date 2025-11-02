@@ -19,9 +19,9 @@ from app.domains.restaurants.repositories.dish import (
     DishRepositorySQLite,
 )
 from app.domains.restaurants.services.dish import DishService
-from app.shared.dependencies import get_async_archive_repository_dependency
+from app.domains.audit.dependencies import get_async_archive_repository_dependency
+from app.domains.audit.domain import AsyncArchiveRepositoryInterface
 from app.shared.dependencies.sql import get_async_session_dependency
-from app.shared.domain import AsyncArchiveRepositoryInterface
 
 
 def get_dish_repository_dependency(

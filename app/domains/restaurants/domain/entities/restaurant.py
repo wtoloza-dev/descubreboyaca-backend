@@ -1,11 +1,12 @@
-"""Restaurant domain entities.
+"""Restaurant domain entities following DDD principles.
 
 This module defines the Restaurant domain entities following DDD principles.
 """
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
-from app.shared.domain import Audit, GeoLocation, SocialMedia
+from app.shared.domain.entities import Audit
+from app.shared.domain.value_objects import GeoLocation, SocialMedia
 
 
 class RestaurantData(BaseModel):
@@ -34,7 +35,7 @@ class RestaurantData(BaseModel):
         tags: Additional tags for flexible categorization (romantic, family_friendly, etc.)
     """
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, validate_assignment=True)
 
     # Basic information
     name: str = Field(..., min_length=1, max_length=255)
@@ -83,7 +84,7 @@ class RestaurantData(BaseModel):
     )
 
 
-class Restaurant(Audit, RestaurantData):
+class Restaurant(RestaurantData, Audit):
     """Restaurant entity with database identity and audit trail.
 
     Extends RestaurantData with database primary key and audit fields.

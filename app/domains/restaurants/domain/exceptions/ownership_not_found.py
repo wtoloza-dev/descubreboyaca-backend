@@ -1,9 +1,8 @@
-"""Ownership not found exception.
+"""Ownership not found domain exception."""
 
-This module defines the exception raised when an ownership relationship is not found.
-"""
+from typing import Any
 
-from app.shared.domain.exceptions.base import NotFoundException
+from app.shared.domain.exceptions import NotFoundException
 
 
 class OwnershipNotFoundException(NotFoundException):
@@ -13,18 +12,32 @@ class OwnershipNotFoundException(NotFoundException):
     relationship that doesn't exist in the system.
 
     Example:
-        >>> raise OwnershipNotFoundException("01J9X...", "01J9Y...")
-        OwnershipNotFoundException: Ownership relationship not found for restaurant '01J9X...' and owner '01J9Y...'
+        >>> raise OwnershipNotFoundException(
+        ...     restaurant_id="01HQ123ABC",
+        ...     owner_id="01HQ456DEF",
+        ... )
     """
 
-    def __init__(self, restaurant_id: str, owner_id: str) -> None:
+    def __init__(
+        self,
+        restaurant_id: str,
+        owner_id: str,
+        context: dict[str, Any] | None = None,
+    ) -> None:
         """Initialize ownership not found exception.
 
         Args:
             restaurant_id: ULID of the restaurant
             owner_id: ULID of the owner
+            context: Additional context
         """
+        full_context = {
+            "restaurant_id": restaurant_id,
+            "owner_id": owner_id,
+            **(context or {}),
+        }
         super().__init__(
-            entity_type="Ownership",
-            entity_id=f"restaurant: {restaurant_id}, owner: {owner_id}",
+            message=f"Ownership relationship not found for restaurant '{restaurant_id}' and owner '{owner_id}'",
+            context=full_context,
+            error_code="OWNERSHIP_NOT_FOUND",
         )

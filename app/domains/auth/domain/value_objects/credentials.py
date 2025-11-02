@@ -3,11 +3,10 @@
 This module defines the Credentials value object for authentication.
 """
 
-from dataclasses import dataclass
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass(frozen=True)
-class Credentials:
+class Credentials(BaseModel):
     """Immutable credentials for email/password authentication.
 
     This represents user credentials for authentication.
@@ -18,8 +17,10 @@ class Credentials:
         password: User's plain text password (before hashing)
     """
 
-    email: str
-    password: str
+    model_config = ConfigDict(frozen=True)
+
+    email: str = Field(description="User's email address")
+    password: str = Field(description="User's plain text password")
 
     def __str__(self) -> str:
         """Return string representation (masked for security).

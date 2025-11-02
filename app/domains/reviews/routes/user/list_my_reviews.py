@@ -21,7 +21,7 @@ from app.domains.reviews.services import ReviewService
 
 # Shared
 from app.shared.dependencies import get_pagination_dependency
-from app.shared.domain.entities import Pagination
+from app.shared.domain.value_objects import Pagination
 
 
 router = APIRouter()
@@ -44,7 +44,7 @@ async def handle_list_my_reviews(
     Args:
         current_user: Authenticated user from JWT token
         service: Review service (injected)
-        pagination: Pagination entity with page, page_size, offset, and limit
+        pagination: Pagination value object with page, page_size, offset, and limit
 
     Returns:
         ListMyReviewsSchemaResponse: List of reviews

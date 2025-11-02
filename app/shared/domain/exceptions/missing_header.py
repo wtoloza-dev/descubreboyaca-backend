@@ -1,30 +1,38 @@
-"""Missing header exception.
+"""Missing header domain exception."""
 
-This module defines exceptions for missing required headers in HTTP requests.
-"""
+from typing import Any
 
-from app.shared.domain.exceptions.base import DomainException
+from app.shared.domain.exceptions.validation import ValidationException
 
 
-class MissingHeaderException(DomainException):
+class MissingHeaderException(ValidationException):
     """Exception raised when a required HTTP header is missing.
 
-    This exception is raised when a request is missing a required header.
+    This exception is raised when a request is missing a required header
+    for proper operation (e.g., user context headers).
 
-    Attributes:
-        header_name: The name of the missing header.
+    Example:
+        >>> raise MissingHeaderException(header_name="X-User-ID")
     """
 
-    def __init__(self, header_name: str) -> None:
+    def __init__(
+        self,
+        header_name: str,
+        context: dict[str, Any] | None = None,
+    ) -> None:
         """Initialize missing header exception.
 
         Args:
             header_name: Name of the required header that is missing
+            context: Additional context
         """
+        full_context = {
+            "header_name": header_name,
+            **(context or {}),
+        }
         super().__init__(
-            error_code="MISSING_HEADER",
             message=f"Required header '{header_name}' is missing",
-            context={"header_name": header_name},
+            context=full_context,
+            error_code="MISSING_HEADER",
         )
-        self.header_name = header_name
 
