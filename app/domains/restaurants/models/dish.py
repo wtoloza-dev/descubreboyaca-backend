@@ -1,18 +1,18 @@
-"""Dish database model.
+"""Dish model for database persistence.
 
 This module defines the Dish ORM model for database operations.
 """
 
 from decimal import Decimal
 
-from sqlalchemy import JSON, Boolean, Column, ForeignKey, Integer, Numeric, String
+from sqlalchemy import JSON, Numeric
 from sqlmodel import Field, SQLModel
 
 from app.shared.models import AuditMixin
 
 
 class DishModel(AuditMixin, SQLModel, table=True):
-    """Dish database model.
+    """Dish model for database persistence.
 
     Represents a dish/menu item entity in the database with full audit trail.
     Inherits ULID-based id, timestamp and user tracking fields from AuditMixin.
@@ -52,89 +52,100 @@ class DishModel(AuditMixin, SQLModel, table=True):
 
     # Foreign key to restaurant
     restaurant_id: str = Field(
-        sa_column=Column(
-            String(26),
-            ForeignKey("restaurants.id", ondelete="CASCADE"),
-            nullable=False,
-            index=True,
-        ),
+        foreign_key="restaurants.id",
+        max_length=26,
+        index=True,
         description="ID of the restaurant this dish belongs to",
     )
 
     # Basic information
-    name: str = Field(max_length=255, nullable=False, index=True)
-    description: str | None = Field(default=None, max_length=2000)
-    category: str = Field(max_length=50, nullable=False, index=True)
+    name: str = Field(
+        max_length=255,
+        index=True,
+        description="Dish name",
+    )
+    description: str | None = Field(
+        default=None,
+        max_length=2000,
+        description="Detailed description of the dish",
+    )
+    category: str = Field(
+        max_length=50,
+        index=True,
+        description="Primary category (appetizer, main_course, dessert, etc.)",
+    )
 
     # Pricing (using Decimal for monetary precision)
     price: Decimal = Field(
-        sa_column=Column(Numeric(precision=10, scale=2), nullable=False),
+        sa_type=Numeric(precision=10, scale=2),
         description="Current price in local currency (COP)",
     )
     original_price: Decimal | None = Field(
         default=None,
-        sa_column=Column(Numeric(precision=10, scale=2), nullable=True),
+        sa_type=Numeric(precision=10, scale=2),
         description="Original price before discount",
     )
 
     # Availability
     is_available: bool = Field(
-        sa_column=Column(Boolean, nullable=False, server_default="true", index=True),
+        default=True,
+        index=True,
         description="Whether the dish is currently available for ordering",
     )
 
     # Additional details
     preparation_time_minutes: int | None = Field(
         default=None,
-        sa_column=Column(Integer, nullable=True),
         description="Estimated preparation time in minutes",
     )
     serves: int | None = Field(
         default=None,
-        sa_column=Column(Integer, nullable=True),
         description="Number of people this dish serves",
     )
     calories: int | None = Field(
         default=None,
-        sa_column=Column(Integer, nullable=True),
         description="Estimated calories",
     )
 
     # Media
-    image_url: str | None = Field(default=None, max_length=500)
+    image_url: str | None = Field(
+        default=None,
+        max_length=500,
+        description="URL to dish image",
+    )
 
     # Dietary information (stored as JSON arrays)
     dietary_restrictions: list[str] = Field(
         default_factory=list,
-        sa_column=Column(JSON, nullable=False, server_default="[]"),
+        sa_type=JSON,
         description="Array of dietary tags (vegetarian, vegan, gluten_free, etc.)",
     )
     ingredients: list[str] = Field(
         default_factory=list,
-        sa_column=Column(JSON, nullable=False, server_default="[]"),
+        sa_type=JSON,
         description="Array of main ingredients",
     )
     allergens: list[str] = Field(
         default_factory=list,
-        sa_column=Column(JSON, nullable=False, server_default="[]"),
+        sa_type=JSON,
         description="Array of allergens (nuts, dairy, shellfish, gluten, etc.)",
     )
 
     # Flavor profile (stored as JSON object)
     flavor_profile: dict[str, str] = Field(
         default_factory=dict,
-        sa_column=Column(JSON, nullable=False, server_default="{}"),
+        sa_type=JSON,
         description="Flavor characteristics with intensity levels",
     )
 
     # Display options
     is_featured: bool = Field(
-        sa_column=Column(Boolean, nullable=False, server_default="false", index=True),
+        default=False,
+        index=True,
         description="Whether this dish should be featured/highlighted",
     )
     display_order: int = Field(
         default=0,
-        sa_column=Column(Integer, nullable=False, server_default="0", index=True),
+        index=True,
         description="Order for displaying in menus (lower numbers appear first)",
     )
-

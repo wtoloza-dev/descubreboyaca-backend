@@ -1,16 +1,16 @@
-"""Favorite database model.
+"""Favorite model for database persistence.
 
 This module defines the Favorite ORM model for database operations.
 """
 
-from datetime import datetime
-
-from sqlalchemy import Column, ForeignKey, Index, String, UniqueConstraint
+from sqlalchemy import Index, UniqueConstraint
 from sqlmodel import Field, SQLModel
 
+from app.shared.models import AuditBasicMixin
 
-class FavoriteModel(SQLModel, table=True):
-    """Favorite database model.
+
+class FavoriteModel(AuditBasicMixin, SQLModel, table=True):
+    """Favorite model for database persistence.
 
     This model represents a polymorphic favorites table that can store
     favorites for any type of entity (restaurants, dishes, events, etc.).
@@ -18,36 +18,39 @@ class FavoriteModel(SQLModel, table=True):
     The design is scalable - adding new entity types only requires updating
     the EntityType enum, no schema changes needed.
 
+    Note: Following DDD principles, the ID and timestamps must be provided
+    by the Favorite domain entity. This model only persists the data.
+
     Attributes:
-        id: ULID primary key (must be provided by domain entity)
+        id: ULID primary key - inherited from AuditBasicMixin
         user_id: Foreign key to users table
         entity_type: Type of entity (restaurant, dish, event, place, activity)
         entity_id: ULID of the favorited entity
-        created_at: Timestamp when favorite was created (must be provided)
+        created_at: Timestamp when favorite was created - inherited from AuditBasicMixin
+        updated_at: Timestamp when favorite was last updated - inherited from AuditBasicMixin
     """
 
     __tablename__ = "favorites"
 
-    # Primary key
-    id: str = Field(primary_key=True, max_length=26)
-
     # Foreign key to users
     user_id: str = Field(
-        sa_column=Column(
-            String(26),
-            ForeignKey("users.id", ondelete="CASCADE"),
-            nullable=False,
-            index=True,
-        ),
+        foreign_key="users.id",
+        max_length=26,
+        index=True,
         description="User who created the favorite",
     )
 
     # Polymorphic fields
-    entity_type: str = Field(max_length=50, nullable=False, index=True)
-    entity_id: str = Field(max_length=26, nullable=False, index=True)
-
-    # Timestamp
-    created_at: datetime = Field(nullable=False, index=True)
+    entity_type: str = Field(
+        max_length=50,
+        index=True,
+        description="Type of entity being favorited",
+    )
+    entity_id: str = Field(
+        max_length=26,
+        index=True,
+        description="ULID of the favorited entity",
+    )
 
     __table_args__ = (
         # Unique constraint: one user cannot favorite the same entity twice

@@ -64,5 +64,6 @@ exclude_lines = [
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.3.0",
     "pytest-xdist>=3.8.0",
 ]

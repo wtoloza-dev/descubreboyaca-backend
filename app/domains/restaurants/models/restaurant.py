@@ -1,16 +1,16 @@
-"""Restaurant database model.
+"""Restaurant model for database persistence.
 
 This module defines the Restaurant ORM model for database operations.
 """
 
-from sqlalchemy import JSON, Column
+from sqlalchemy import JSON
 from sqlmodel import Field, SQLModel
 
 from app.shared.models import AuditMixin
 
 
 class RestaurantModel(AuditMixin, SQLModel, table=True):
-    """Restaurant database model.
+    """Restaurant model for database persistence.
 
     Represents a restaurant entity in the database with full audit trail.
     Inherits ULID-based id, timestamp and user tracking fields from AuditMixin.
@@ -49,44 +49,82 @@ class RestaurantModel(AuditMixin, SQLModel, table=True):
     __tablename__ = "restaurants"
 
     # Basic information
-    name: str = Field(max_length=255, nullable=False, index=True)
-    description: str | None = Field(default=None, max_length=1000)
+    name: str = Field(
+        max_length=255,
+        index=True,
+        description="Restaurant name",
+    )
+    description: str | None = Field(
+        default=None,
+        max_length=1000,
+        description="Restaurant description",
+    )
 
     # Address components
-    address: str = Field(max_length=500, nullable=False)
-    city: str = Field(max_length=100, nullable=False, index=True)
-    state: str = Field(default="Boyacá", max_length=100, nullable=False)
-    postal_code: str | None = Field(default=None, max_length=20)
-    country: str = Field(default="Colombia", max_length=100, nullable=False)
+    address: str = Field(
+        max_length=500,
+        description="Full street address",
+    )
+    city: str = Field(
+        max_length=100,
+        index=True,
+        description="City or municipality",
+    )
+    state: str = Field(
+        default="Boyacá",
+        max_length=100,
+        description="Department/State",
+    )
+    postal_code: str | None = Field(
+        default=None,
+        max_length=20,
+        description="Postal/zip code",
+    )
+    country: str = Field(
+        default="Colombia",
+        max_length=100,
+        description="Country",
+    )
 
     # Contact information
-    phone: str = Field(max_length=20, nullable=False)
-    email: str | None = Field(default=None, max_length=255)
-    website: str | None = Field(default=None, max_length=500)
+    phone: str = Field(
+        max_length=20,
+        description="Contact phone number",
+    )
+    email: str | None = Field(
+        default=None,
+        max_length=255,
+        description="Contact email address",
+    )
+    website: str | None = Field(
+        default=None,
+        max_length=500,
+        description="Restaurant website URL",
+    )
 
     # Geolocation (stored as JSON)
     location: dict[str, float] | None = Field(
         default=None,
-        sa_column=Column(JSON),
+        sa_type=JSON,
         description="Geographic coordinates as JSON object with latitude/longitude",
     )
 
     # Social media (stored as JSON)
     social_media: dict[str, str] | None = Field(
         default=None,
-        sa_column=Column(JSON),
+        sa_type=JSON,
         description="Social media profile URLs as JSON object",
     )
 
     # Business classification and categorization (stored as JSON)
     establishment_types: list[str] = Field(
         default_factory=list,
-        sa_column=Column(JSON, nullable=False, server_default="[]"),
+        sa_type=JSON,
         description="Array of establishment types (restaurant, cafe, bakery, bar, food_truck)",
     )
     cuisine_types: list[str] = Field(
         default_factory=list,
-        sa_column=Column(JSON, nullable=False, server_default="[]"),
+        sa_type=JSON,
         description="Array of cuisine types offered",
     )
     price_level: int | None = Field(
@@ -97,11 +135,11 @@ class RestaurantModel(AuditMixin, SQLModel, table=True):
     )
     features: list[str] = Field(
         default_factory=list,
-        sa_column=Column(JSON, nullable=False, server_default="[]"),
+        sa_type=JSON,
         description="Array of features/amenities",
     )
     tags: list[str] = Field(
         default_factory=list,
-        sa_column=Column(JSON, nullable=False, server_default="[]"),
+        sa_type=JSON,
         description="Array of additional tags for flexible categorization",
     )

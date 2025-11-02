@@ -1,18 +1,18 @@
-"""Review database model.
+"""Review model for database persistence.
 
 This module defines the Review ORM model for database operations.
 """
 
 from datetime import datetime
 
-from sqlalchemy import JSON, Column, ForeignKey, Index, String
+from sqlalchemy import JSON, Index
 from sqlmodel import Field, SQLModel
 
 from app.shared.models import AuditBasicMixin
 
 
 class ReviewModel(AuditBasicMixin, SQLModel, table=True):
-    """Review database model.
+    """Review model for database persistence.
 
     This model represents a polymorphic reviews table that can store
     reviews for any type of entity (restaurants, events, places, etc.).
@@ -41,23 +41,27 @@ class ReviewModel(AuditBasicMixin, SQLModel, table=True):
     __tablename__ = "reviews"
 
     # Polymorphic fields
-    entity_type: str = Field(max_length=50, nullable=False, index=True)
-    entity_id: str = Field(max_length=26, nullable=False, index=True)
+    entity_type: str = Field(
+        max_length=50,
+        index=True,
+        description="Type of entity being reviewed",
+    )
+    entity_id: str = Field(
+        max_length=26,
+        index=True,
+        description="ULID of the entity being reviewed",
+    )
 
     # Foreign key to users
     user_id: str = Field(
-        sa_column=Column(
-            String(26),
-            ForeignKey("users.id", ondelete="CASCADE"),
-            nullable=False,
-            index=True,
-        ),
+        foreign_key="users.id",
+        max_length=26,
+        index=True,
         description="User who created the review",
     )
 
     # Rating and content
     rating: int = Field(
-        nullable=False,
         index=True,
         description="Rating from 1 to 5 stars",
     )
@@ -74,7 +78,7 @@ class ReviewModel(AuditBasicMixin, SQLModel, table=True):
     # Photos (stored as JSON array)
     photos: list[str] = Field(
         default_factory=list,
-        sa_column=Column(JSON, nullable=False, server_default="[]"),
+        sa_type=JSON,
         description="Array of photo URLs",
     )
 
@@ -88,7 +92,6 @@ class ReviewModel(AuditBasicMixin, SQLModel, table=True):
     status: str = Field(
         default="approved",
         max_length=20,
-        nullable=False,
         index=True,
         description="Moderation status: pending, approved, rejected",
     )

@@ -1,19 +1,20 @@
-"""Archive database model for deleted records.
+"""Archive model for database persistence.
 
 This module defines a generic Archive model to store deleted records from any table.
 Records are serialized as JSON to maintain flexibility across different entities.
 """
 
 from datetime import datetime
+from typing import Any
 
-from sqlalchemy import JSON, Column
+from sqlalchemy import JSON
 from sqlmodel import Field, SQLModel
 
 from app.shared.models.audit import ULIDMixin
 
 
 class ArchiveModel(ULIDMixin, SQLModel, table=True):
-    """Generic archive model for deleted records.
+    """Archive model for database persistence.
 
     Stores deleted records from any table as JSON, preserving all data
     and metadata about the deletion.
@@ -35,28 +36,24 @@ class ArchiveModel(ULIDMixin, SQLModel, table=True):
 
     original_table: str = Field(
         max_length=255,
-        nullable=False,
         index=True,
         description="Name of the source table",
     )
     original_id: str = Field(
         max_length=26,
-        nullable=False,
         index=True,
         description="ULID from the original record",
     )
-    data: dict = Field(
-        sa_column=Column(JSON, nullable=False),
+    data: dict[str, Any] = Field(
+        sa_type=JSON,
         description="Complete record data as JSON",
     )
     deleted_at: datetime = Field(
-        nullable=False,
         index=True,
         description="Timestamp when the record was deleted (UTC)",
     )
     deleted_by: str | None = Field(
         default=None,
-        nullable=True,
         max_length=26,
         description="ULID of the user who deleted the record",
     )
