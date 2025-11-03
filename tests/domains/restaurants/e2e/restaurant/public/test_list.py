@@ -32,9 +32,9 @@ class TestListRestaurants:
         assert "total" in data
         assert "page" in data
         assert "page_size" in data
-        assert isinstance(data["items"], list)
-        assert len(data["items"]) == 0
-        assert data["total"] == 0
+        assert isinstance(data["data"], list)
+        assert len(data["data"]) == 0
+        assert data["pagination"]["total"] == 0
 
     @pytest.mark.asyncio
     async def test_list_with_restaurants(
@@ -57,9 +57,9 @@ class TestListRestaurants:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 3
-        assert data["total"] == 3
-        names = [r["name"] for r in data["items"]]
+        assert len(data["data"]) == 3
+        assert data["pagination"]["total"] == 3
+        names = [r["name"] for r in data["data"]]
         assert "Restaurant 1" in names
         assert "Restaurant 2" in names
         assert "Restaurant 3" in names
@@ -90,9 +90,9 @@ class TestListRestaurants:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 1
-        assert data["total"] == 1
-        restaurant = data["items"][0]
+        assert len(data["data"]) == 1
+        assert data["pagination"]["total"] == 1
+        restaurant = data["data"][0]
         # Verify fields from RestaurantListItem schema (summary view)
         assert "id" in restaurant
         assert "name" in restaurant
@@ -127,10 +127,10 @@ class TestListRestaurants:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 5
-        assert data["page"] == 2
-        assert data["page_size"] == 5
-        assert data["total"] == 15
+        assert len(data["data"]) == 5
+        assert data["pagination"]["page"] == 2
+        assert data["pagination"]["page_size"] == 5
+        assert data["pagination"]["total"] == 15
 
     @pytest.mark.asyncio
     async def test_list_filter_by_city(
@@ -153,9 +153,9 @@ class TestListRestaurants:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert data["total"] == 2
-        assert len(data["items"]) == 2
-        assert all(r["city"] == "Tunja" for r in data["items"])
+        assert data["pagination"]["total"] == 2
+        assert len(data["data"]) == 2
+        assert all(r["city"] == "Tunja" for r in data["data"])
 
     @pytest.mark.asyncio
     async def test_list_filter_by_price_level(
@@ -179,9 +179,9 @@ class TestListRestaurants:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert data["total"] == 2
-        assert len(data["items"]) == 2
-        assert all(r["price_level"] == 2 for r in data["items"])
+        assert data["pagination"]["total"] == 2
+        assert len(data["data"]) == 2
+        assert all(r["price_level"] == 2 for r in data["data"])
 
     @pytest.mark.asyncio
     async def test_list_filter_combined(
@@ -205,11 +205,11 @@ class TestListRestaurants:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert data["total"] == 1
-        assert len(data["items"]) == 1
-        assert data["items"][0]["name"] == "Match Both"
-        assert data["items"][0]["city"] == "Tunja"
-        assert data["items"][0]["price_level"] == 2
+        assert data["pagination"]["total"] == 1
+        assert len(data["data"]) == 1
+        assert data["data"][0]["name"] == "Match Both"
+        assert data["data"][0]["city"] == "Tunja"
+        assert data["data"][0]["price_level"] == 2
 
     @pytest.mark.asyncio
     async def test_list_pagination_large_page_size(
@@ -232,4 +232,6 @@ class TestListRestaurants:
         assert response.status_code in [HTTPStatus.OK, HTTPStatus.UNPROCESSABLE_ENTITY]
         if response.status_code == HTTPStatus.OK:
             data = response.json()
-            assert data["page_size"] <= 100, "page_size should be capped to prevent DoS"
+            assert data["pagination"]["page_size"] <= 100, (
+                "page_size should be capped to prevent DoS"
+            )

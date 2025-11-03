@@ -19,6 +19,7 @@ from app.domains.restaurants.schemas.restaurant.public.find_all import (
 from app.domains.restaurants.services import RestaurantService
 from app.shared.dependencies import get_pagination_dependency
 from app.shared.domain.value_objects import Pagination
+from app.shared.schemas import PaginationSchemaData
 
 
 router = APIRouter()
@@ -71,8 +72,10 @@ async def handle_list_restaurants(
     ]
 
     return ListRestaurantsSchemaResponse(
-        items=items,
-        page=pagination.page,
-        page_size=pagination.page_size,
-        total=total,
+        data=items,
+        pagination=PaginationSchemaData(
+            page=pagination.page,
+            page_size=pagination.page_size,
+            total=total,
+        ),
     )

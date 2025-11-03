@@ -37,10 +37,10 @@ class TestListRestaurantsByCity:
         assert "total" in data
         assert "page" in data
         assert "page_size" in data
-        assert len(data["items"]) == 2
+        assert len(data["data"]) == 2
         assert data["total"] == 2
-        assert all(r["city"] == "Tunja" for r in data["items"])
-        names = [r["name"] for r in data["items"]]
+        assert all(r["city"] == "Tunja" for r in data["data"])
+        names = [r["name"] for r in data["data"]]
         assert "Tunja Restaurant 1" in names
         assert "Tunja Restaurant 2" in names
 
@@ -61,8 +61,8 @@ class TestListRestaurantsByCity:
         assert response.status_code == HTTPStatus.OK
         data = response.json()
         assert "items" in data
-        assert isinstance(data["items"], list)
-        assert len(data["items"]) == 0
+        assert isinstance(data["data"], list)
+        assert len(data["data"]) == 0
         assert data["total"] == 0
 
     @pytest.mark.asyncio
@@ -84,7 +84,7 @@ class TestListRestaurantsByCity:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 0
+        assert len(data["data"]) == 0
         assert data["total"] == 0
 
     @pytest.mark.asyncio
@@ -107,11 +107,11 @@ class TestListRestaurantsByCity:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 3
+        assert len(data["data"]) == 3
         assert data["page"] == 2
         assert data["page_size"] == 3
         assert data["total"] == 10
-        assert all(r["city"] == "Tunja" for r in data["items"])
+        assert all(r["city"] == "Tunja" for r in data["data"])
 
     @pytest.mark.asyncio
     async def test_list_by_city_with_spaces(
@@ -135,9 +135,9 @@ class TestListRestaurantsByCity:
         assert response.status_code == HTTPStatus.OK
         data = response.json()
         assert data["total"] == 1
-        assert len(data["items"]) == 1
-        assert data["items"][0]["city"] == "Villa de Leyva"
-        assert data["items"][0]["name"] == "Villa Restaurant"
+        assert len(data["data"]) == 1
+        assert data["data"][0]["city"] == "Villa de Leyva"
+        assert data["data"][0]["name"] == "Villa Restaurant"
 
     @pytest.mark.asyncio
     async def test_list_by_city_with_accents(
@@ -161,6 +161,6 @@ class TestListRestaurantsByCity:
         assert response.status_code == HTTPStatus.OK
         data = response.json()
         assert data["total"] == 1
-        assert len(data["items"]) == 1
-        assert data["items"][0]["city"] == "Bogotá"
-        assert data["items"][0]["name"] == "Bogotá Restaurant"
+        assert len(data["data"]) == 1
+        assert data["data"][0]["city"] == "Bogotá"
+        assert data["data"][0]["name"] == "Bogotá Restaurant"

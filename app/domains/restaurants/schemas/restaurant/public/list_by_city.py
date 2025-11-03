@@ -9,7 +9,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.shared.domain import GeoLocation
-from app.shared.schemas import PaginatedResponse
+from app.shared.schemas import PaginationSchemaData, PaginationSchemaResponse
 
 
 class ListRestaurantsByCitySchemaItem(BaseModel):
@@ -54,23 +54,19 @@ class ListRestaurantsByCitySchemaItem(BaseModel):
 
 
 class ListRestaurantsByCitySchemaResponse(
-    PaginatedResponse[ListRestaurantsByCitySchemaItem]
+    PaginationSchemaResponse[ListRestaurantsByCitySchemaItem]
 ):
     """Paginated response for restaurants by city.
 
     Attributes:
-        items: List of restaurants in the city
-        page: Current page number
-        page_size: Number of items per page
-        total: Total number of restaurants
+        data: List of restaurants in the city
+        pagination: Pagination metadata
     """
 
-    items: list[ListRestaurantsByCitySchemaItem] = Field(
+    data: list[ListRestaurantsByCitySchemaItem] = Field(
         description="List of restaurants"
     )
-    page: int = Field(description="Current page")
-    page_size: int = Field(description="Items per page")
-    total: int = Field(description="Total count")
+    pagination: PaginationSchemaData = Field(description="Pagination metadata")
 
 
 __all__ = ["ListRestaurantsByCitySchemaItem", "ListRestaurantsByCitySchemaResponse"]

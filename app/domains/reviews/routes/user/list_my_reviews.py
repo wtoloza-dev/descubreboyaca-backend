@@ -22,6 +22,7 @@ from app.domains.reviews.services import ReviewService
 # Shared
 from app.shared.dependencies import get_pagination_dependency
 from app.shared.domain.value_objects import Pagination
+from app.shared.schemas import PaginationSchemaData
 
 
 router = APIRouter()
@@ -56,8 +57,10 @@ async def handle_list_my_reviews(
     )
 
     return ListMyReviewsSchemaResponse(
-        items=[ListMyReviewsSchemaItem.model_validate(review) for review in reviews],
-        page=pagination.page,
-        page_size=pagination.page_size,
-        total=total,
+        data=[ListMyReviewsSchemaItem.model_validate(review) for review in reviews],
+        pagination=PaginationSchemaData(
+            page=pagination.page,
+            page_size=pagination.page_size,
+            total=total,
+        ),
     )

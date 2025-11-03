@@ -9,7 +9,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.shared.domain import GeoLocation
-from app.shared.schemas import PaginatedResponse
+from app.shared.schemas import PaginationSchemaData, PaginationSchemaResponse
 
 
 class ListFavoriteRestaurantsSchemaItem(BaseModel):
@@ -54,23 +54,19 @@ class ListFavoriteRestaurantsSchemaItem(BaseModel):
 
 
 class ListFavoriteRestaurantsSchemaResponse(
-    PaginatedResponse[ListFavoriteRestaurantsSchemaItem]
+    PaginationSchemaResponse[ListFavoriteRestaurantsSchemaItem]
 ):
     """Paginated response for favorite restaurants.
 
     Attributes:
-        items: List of favorite restaurants
-        page: Current page number
-        page_size: Number of items per page
-        total: Total number of favorites
+        data: List of favorite restaurants
+        pagination: Pagination metadata
     """
 
-    items: list[ListFavoriteRestaurantsSchemaItem] = Field(
+    data: list[ListFavoriteRestaurantsSchemaItem] = Field(
         description="List of favorite restaurants"
     )
-    page: int = Field(description="Current page")
-    page_size: int = Field(description="Items per page")
-    total: int = Field(description="Total count")
+    pagination: PaginationSchemaData = Field(description="Pagination metadata")
 
 
 __all__ = ["ListFavoriteRestaurantsSchemaItem", "ListFavoriteRestaurantsSchemaResponse"]

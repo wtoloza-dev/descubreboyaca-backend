@@ -50,12 +50,13 @@ class TestListRestaurantDishes:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert "items" in data
-        assert "page" in data
-        assert "page_size" in data
-        assert "total" in data
-        assert len(data["items"]) == 3
-        assert data["total"] == 3
+        assert "data" in data
+        assert "pagination" in data
+        assert "page" in data["pagination"]
+        assert "page_size" in data["pagination"]
+        assert "total" in data["pagination"]
+        assert len(data["data"]) == 3
+        assert data["pagination"]["total"] == 3
 
     @pytest.mark.asyncio
     async def test_list_dishes_empty(
@@ -78,8 +79,8 @@ class TestListRestaurantDishes:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert data["items"] == []
-        assert data["total"] == 0
+        assert data["data"] == []
+        assert data["pagination"]["total"] == 0
 
     @pytest.mark.asyncio
     async def test_list_dishes_nonexistent_restaurant(self, test_client: TestClient):
@@ -147,10 +148,10 @@ class TestListRestaurantDishes:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert len(data["items"]) == 3
-        assert data["page"] == 2
-        assert data["page_size"] == 3
-        assert data["total"] == 10
+        assert len(data["data"]) == 3
+        assert data["pagination"]["page"] == 2
+        assert data["pagination"]["page_size"] == 3
+        assert data["pagination"]["total"] == 10
 
     @pytest.mark.asyncio
     async def test_list_dishes_filter_by_category(
@@ -196,9 +197,9 @@ class TestListRestaurantDishes:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert len(data["items"]) == 2
-        assert data["total"] == 2
-        assert all(dish["category"] == "dessert" for dish in data["items"])
+        assert len(data["data"]) == 2
+        assert data["pagination"]["total"] == 2
+        assert all(dish["category"] == "dessert" for dish in data["data"])
 
     @pytest.mark.asyncio
     async def test_list_dishes_filter_by_availability(
@@ -239,9 +240,9 @@ class TestListRestaurantDishes:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert len(data["items"]) == 2
-        assert data["total"] == 2
-        assert all(dish["is_available"] is True for dish in data["items"])
+        assert len(data["data"]) == 2
+        assert data["pagination"]["total"] == 2
+        assert all(dish["is_available"] is True for dish in data["data"])
 
     @pytest.mark.asyncio
     async def test_list_dishes_filter_by_featured(
@@ -282,9 +283,9 @@ class TestListRestaurantDishes:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert len(data["items"]) == 1
-        assert data["total"] == 1
-        assert data["items"][0]["is_featured"] is True
+        assert len(data["data"]) == 1
+        assert data["pagination"]["total"] == 1
+        assert data["data"][0]["is_featured"] is True
 
     @pytest.mark.asyncio
     async def test_list_dishes_multiple_filters(
@@ -328,10 +329,10 @@ class TestListRestaurantDishes:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert len(data["items"]) == 1
-        assert data["total"] == 1
-        assert data["items"][0]["category"] == "dessert"
-        assert data["items"][0]["is_available"] is True
+        assert len(data["data"]) == 1
+        assert data["pagination"]["total"] == 1
+        assert data["data"][0]["category"] == "dessert"
+        assert data["data"][0]["is_available"] is True
 
     @pytest.mark.asyncio
     async def test_list_dishes_ordering(
@@ -370,7 +371,7 @@ class TestListRestaurantDishes:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        items = data["items"]
+        items = data["data"]
         assert len(items) == 3
 
         # Should be sorted by display_order first, then by name
@@ -414,7 +415,7 @@ class TestListRestaurantDishes:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert len(data["items"]) == 2
-        assert data["total"] == 2
-        assert all(dish["restaurant_id"] == restaurant1.id for dish in data["items"])
-        assert all("R1" in dish["name"] for dish in data["items"])
+        assert len(data["data"]) == 2
+        assert data["pagination"]["total"] == 2
+        assert all(dish["restaurant_id"] == restaurant1.id for dish in data["data"])
+        assert all("R1" in dish["name"] for dish in data["data"])

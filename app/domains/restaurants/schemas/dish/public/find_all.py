@@ -8,7 +8,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
-from app.shared.schemas import PaginatedResponse
+from app.shared.schemas import PaginationSchemaData, PaginationSchemaResponse
 
 
 class ListDishesSchemaItem(BaseModel):
@@ -58,18 +58,16 @@ class ListDishesSchemaItem(BaseModel):
     display_order: int = Field(description="Display order")
 
 
-class ListDishesSchemaResponse(PaginatedResponse[ListDishesSchemaItem]):
+class ListDishesSchemaResponse(PaginationSchemaResponse[ListDishesSchemaItem]):
     """Paginated response for list dishes endpoint.
 
     Attributes:
-        items: List of dishes
-        page: Current page number
-        page_size: Number of items per page
-        total: Total number of dishes
+        data: List of dishes
+        pagination: Pagination metadata
 
     Example:
         {
-            "items": [
+            "data": [
                 {
                     "id": "01HQZX123456789ABCDEFGHIJK",
                     "name": "Ajiaco Santafereño",
@@ -78,10 +76,13 @@ class ListDishesSchemaResponse(PaginatedResponse[ListDishesSchemaItem]):
                     ...
                 }
             ],
-            "page": 1,
-            "page_size": 20,
-            "total": 42
+            "pagination": {
+                "page": 1,
+                "page_size": 20,
+                "total": 42
+            }
         }
     """
 
-    pass
+    data: list[ListDishesSchemaItem] = Field(description="List of dishes")
+    pagination: PaginationSchemaData = Field(description="Pagination metadata")

@@ -18,6 +18,7 @@ from app.domains.favorites.schemas import (
 from app.domains.favorites.services import FavoriteService
 from app.shared.dependencies.pagination import get_pagination_dependency
 from app.shared.domain.value_objects import Pagination
+from app.shared.schemas import PaginationSchemaData
 
 
 router = APIRouter()
@@ -60,8 +61,10 @@ async def handle_list_favorites(
     items = [FavoriteSchemaResponse.model_validate(favorite) for favorite in favorites]
 
     return ListFavoritesSchemaResponse(
-        items=items,
-        page=pagination.page,
-        page_size=pagination.page_size,
-        total=total,
+        data=items,
+        pagination=PaginationSchemaData(
+            page=pagination.page,
+            page_size=pagination.page_size,
+            total=total,
+        ),
     )
