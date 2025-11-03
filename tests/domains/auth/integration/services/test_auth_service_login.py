@@ -31,7 +31,7 @@ class TestAuthServiceLogin:
         Then: Returns tuple of (tokens, user)
         """
         # Arrange
-        
+
         user = await create_test_user(
             email="testuser@example.com",
             full_name="Test User",
@@ -79,8 +79,8 @@ class TestAuthServiceLogin:
         Then: Raises InvalidCredentialsException
         """
         # Arrange
-        
-        user = await create_test_user(
+
+        await create_test_user(
             email="user@example.com",
         )
 
@@ -102,8 +102,8 @@ class TestAuthServiceLogin:
         Then: Raises UserInactiveException
         """
         # Arrange
-        
-        user = await create_test_user(
+
+        await create_test_user(
             email="inactive@example.com",
             is_active=False,
         )
@@ -129,7 +129,7 @@ class TestAuthServiceLogin:
         Then: Returns tokens that can be verified
         """
         # Arrange
-        
+
         user = await create_test_user(
             email="jwt@example.com",
         )
@@ -162,7 +162,7 @@ class TestAuthServiceLogin:
         Then: Raises InvalidCredentialsException
         """
         # Arrange - OAuth user has no password
-        user = await create_test_user(
+        await create_test_user(
             email="oauth@example.com",
             hashed_password=None,  # OAuth users don't have passwords
             auth_provider=AuthProvider.GOOGLE,
@@ -189,8 +189,8 @@ class TestAuthServiceLogin:
         Then: Access token includes role="admin"
         """
         # Arrange
-        
-        user = await create_test_user(
+
+        await create_test_user(
             email="admin@example.com",
             role=UserRole.ADMIN,
         )
@@ -219,8 +219,8 @@ class TestAuthServiceLogin:
         Then: Raises InvalidCredentialsException (email not found)
         """
         # Arrange
-        
-        user = await create_test_user(
+
+        await create_test_user(
             email="lowercase@example.com",
         )
 

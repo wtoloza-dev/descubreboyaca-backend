@@ -13,9 +13,9 @@ from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
     get_restaurant_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.ownership import (
-    MyRestaurantSchemaItem,
-    MyRestaurantsSchemaResponse,
+from app.domains.restaurants.schemas.restaurant.owner.list_my_restaurants import (
+    ListMyRestaurantsSchemaItem,
+    ListMyRestaurantsSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantOwnerService, RestaurantService
 
@@ -24,7 +24,7 @@ router = APIRouter()
 
 
 @router.get(
-    path="/restaurants",
+    path="/restaurants/",
     status_code=status.HTTP_200_OK,
     summary="List my restaurants",
     description="Get a list of all restaurants owned or managed by the current user.",
@@ -37,7 +37,7 @@ async def handle_list_my_restaurants(
         RestaurantService, Depends(get_restaurant_service_dependency)
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
-) -> MyRestaurantsSchemaResponse:
+) -> ListMyRestaurantsSchemaResponse:
     """List all restaurants owned/managed by the current user.
 
     **Requiere autenticación**: Solo usuarios con rol OWNER pueden acceder.
@@ -51,7 +51,7 @@ async def handle_list_my_restaurants(
         current_user: Authenticated user (injected)
 
     Returns:
-        MyRestaurantsSchemaResponse: List of user's restaurants
+        ListMyRestaurantsSchemaResponse: List of user's restaurants
 
     Raises:
         HTTPException: 401 if not authenticated
@@ -61,13 +61,13 @@ async def handle_list_my_restaurants(
     ownerships = await owner_service.get_restaurants_by_owner(owner_id=current_user.id)
 
     # Get restaurant details for each ownership
-    items: list[MyRestaurantSchemaItem] = []
+    items: list[ListMyRestaurantsSchemaItem] = []
     for ownership in ownerships:
         restaurant = await restaurant_service.get_restaurant_by_id(
             ownership.restaurant_id
         )
         items.append(
-            MyRestaurantSchemaItem(
+            ListMyRestaurantsSchemaItem(
                 restaurant_id=restaurant.id,
                 restaurant_name=restaurant.name,
                 role=ownership.role,
@@ -77,7 +77,7 @@ async def handle_list_my_restaurants(
             )
         )
 
-    return MyRestaurantsSchemaResponse(
+    return ListMyRestaurantsSchemaResponse(
         items=items,
         total=len(items),
     )

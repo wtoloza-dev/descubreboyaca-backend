@@ -3,11 +3,11 @@
 This package contains SQLite and PostgreSQL implementations for restaurant persistence.
 """
 
-from .postgresql import RestaurantRepositoryPostgreSQL
-from .sqlite import RestaurantRepositorySQLite
+from .postgresql import PostgreSQLRestaurantRepository
+from .sqlite import SQLiteRestaurantRepository
 
 
 __all__ = [
-    "RestaurantRepositorySQLite",
-    "RestaurantRepositoryPostgreSQL",
+    "SQLiteRestaurantRepository",
+    "PostgreSQLRestaurantRepository",
 ]

@@ -117,7 +117,7 @@ class TestUserRepositoryGet:
         Then: Returns None (case-sensitive)
         """
         # Arrange
-        user = await create_test_user(email="lowercase@example.com")
+        await create_test_user(email="lowercase@example.com")
 
         # Act
         retrieved_user = await user_repository.get_by_email("LOWERCASE@EXAMPLE.COM")
@@ -221,7 +221,7 @@ class TestUserRepositoryGet:
         Then: Returns User entity (repository doesn't filter by active status)
         """
         # Arrange
-        user = await create_test_user(
+        await create_test_user(
             email="inactive@example.com",
             is_active=False,
         )
@@ -247,7 +247,7 @@ class TestUserRepositoryGet:
         Then: Returns User entity
         """
         # Arrange
-        user = await create_test_user(
+        await create_test_user(
             email="user+test@example.com",  # Plus sign
             full_name="Special User",
         )

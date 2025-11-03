@@ -18,7 +18,7 @@ router = APIRouter()
 
 
 @router.delete(
-    path="/dishes/{dish_id}",
+    path="/dishes/{dish_id}/",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a dish (Admin)",
     description="Delete any dish. Admin only.",

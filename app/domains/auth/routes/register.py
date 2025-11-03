@@ -3,7 +3,9 @@
 This module handles user registration with email and password.
 """
 
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, status
 
 from app.domains.auth.dependencies.sql import get_auth_service_dependency
 from app.domains.auth.schemas import (
@@ -18,14 +20,14 @@ router = APIRouter()
 
 
 @router.post(
-    path="/register",
+    path="/register/",
     status_code=status.HTTP_201_CREATED,
     summary="Register new user",
     description="Register a new user with email and password",
 )
 async def handle_register(
-    request: RegisterUserSchemaRequest,
-    auth_service: AuthService = Depends(get_auth_service_dependency),
+    request: Annotated[RegisterUserSchemaRequest, Body()],
+    auth_service: Annotated[AuthService, Depends(get_auth_service_dependency)],
 ) -> RegisterUserSchemaResponse:
     """Register a new user.
 

@@ -8,6 +8,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.errors import register_exception_handlers
+from app.core.lifespan import lifespan
 from app.core.routes import router as core_router
 from app.core.settings import settings
 from app.domains.auth.routes import router as auth_router
@@ -67,6 +68,7 @@ def create_app() -> FastAPI:
         description=settings.APP_DESCRIPTION,
         version=settings.APP_VERSION + " " + settings.SCOPE,
         redirect_slashes=True,  # Redirige /endpoint/ a /endpoint y viceversa
+        lifespan=lifespan,  # Manage database lifecycle
     )
 
     # Register CORS middleware

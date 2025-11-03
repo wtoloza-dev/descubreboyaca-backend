@@ -18,11 +18,18 @@ class FavoriteRepositoryInterface(Protocol):
     concrete implementations.
     """
 
-    def create(self, favorite_data: FavoriteData) -> Favorite:
+    async def create(
+        self,
+        favorite_data: FavoriteData,
+        created_by: str,
+        commit: bool = True,
+    ) -> Favorite:
         """Create a new favorite.
 
         Args:
             favorite_data: Data for the new favorite (without ID and timestamp)
+            created_by: User identifier for audit trail
+            commit: Whether to commit the transaction immediately
 
         Returns:
             The created favorite entity with generated ID and timestamp
@@ -32,20 +39,29 @@ class FavoriteRepositoryInterface(Protocol):
         """
         ...
 
-    def delete(self, user_id: str, entity_type: EntityType, entity_id: str) -> bool:
-        """Delete a favorite.
+    async def delete(
+        self,
+        user_id: str,
+        entity_type: EntityType,
+        entity_id: str,
+        deleted_by: str,
+        commit: bool = True,
+    ) -> bool:
+        """Delete a favorite (soft delete).
 
         Args:
             user_id: ULID of the user
             entity_type: Type of entity
             entity_id: ULID of the entity
+            deleted_by: User identifier for audit trail
+            commit: Whether to commit the transaction immediately
 
         Returns:
             True if deleted, False if not found
         """
         ...
 
-    def get_by_user(
+    async def get_by_user(
         self,
         user_id: str,
         entity_type: EntityType | None = None,
@@ -65,7 +81,12 @@ class FavoriteRepositoryInterface(Protocol):
         """
         ...
 
-    def exists(self, user_id: str, entity_type: EntityType, entity_id: str) -> bool:
+    async def exists(
+        self,
+        user_id: str,
+        entity_type: EntityType,
+        entity_id: str,
+    ) -> bool:
         """Check if a favorite exists.
 
         Args:
@@ -78,8 +99,11 @@ class FavoriteRepositoryInterface(Protocol):
         """
         ...
 
-    def get(
-        self, user_id: str, entity_type: EntityType, entity_id: str
+    async def get(
+        self,
+        user_id: str,
+        entity_type: EntityType,
+        entity_id: str,
     ) -> Favorite | None:
         """Get a specific favorite.
 
@@ -90,5 +114,19 @@ class FavoriteRepositoryInterface(Protocol):
 
         Returns:
             The favorite if found, None otherwise
+        """
+        ...
+
+    async def commit(self) -> None:
+        """Commit the current transaction.
+
+        Useful for Unit of Work pattern when commit=False is used in operations.
+        """
+        ...
+
+    async def rollback(self) -> None:
+        """Rollback the current transaction.
+
+        Useful for Unit of Work pattern when an error occurs.
         """
         ...

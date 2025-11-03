@@ -32,21 +32,25 @@ app/
 ```
 clients/
 └── sql/
-├── ports/              → Interfaces - Contracts
-│   ├── sql.py          → SQLClientInterface
-│   └── async_sql.py    → AsyncSQLClientInterface
+    ├── ports/                → Interfaces - Contracts (Ports)
+    │   ├── synchronous.py    → SQLClientPort
+    │   └── asynchronous.py   → AsyncSQLClientPort
     │
-    ├── adapters/           → Concrete implementations
-    │   ├── sqlite_client.py    → SQLiteClient, AsyncSQLiteClient
-    │   └── postgres_client.py  → PostgreSQLClient, AsyncPostgreSQLClient
+    ├── adapters/             → Concrete implementations (Adapters)
+    │   ├── sqlite/
+    │   │   ├── synchronous.py    → SQLiteSynchronousAdapter
+    │   │   └── asynchronous.py   → SQLiteAsynchronousAdapter
+    │   └── postgres/
+    │       ├── synchronous.py    → PostgreSQLSynchronousAdapter
+    │       └── asynchronous.py   → PostgreSQLAsynchronousAdapter
     │
-    └── dependencies/       → Generic factories (app-agnostic)
-        └── sqlite.py       → create_sqlite_client(), create_sqlite_session_dependency()
+    └── dependencies/         → Generic factories (app-agnostic)
+        └── sqlite.py         → create_sqlite_adapter(), create_sqlite_session_dependency()
 
 shared/
 └── dependencies/
-    └── sql.py              → App-specific factories with concrete config
-                              get_sqlite_session_dependency() (uses settings)
+    └── sql.py                → App-specific factories with concrete config
+                                get_sqlite_session_dependency() (uses settings)
 ```
 
 ### Principles:
@@ -62,22 +66,22 @@ shared/
 
 ```python
 # 1. Port (abstraction)
-class SQLClientInterface(Protocol):
+class SQLClientPort(Protocol):
     def get_session(self) -> Generator[Session]: ...
 
 # 2. Adapters (implementations)
-class SQLiteClient:
+class SQLiteSynchronousAdapter:
     def __init__(self, database_url: str, echo: bool = False): ...
     def get_session(self) -> Generator[Session]: ...
 
-class PostgreSQLClient:
+class PostgreSQLSynchronousAdapter:
     def __init__(self, database_url: str, echo: bool = False): ...
     def get_session(self) -> Generator[Session]: ...
 
 # 3. Generic factories (app-agnostic) in clients/sql/dependencies/
-def create_sqlite_client(database_url: str, echo: bool = False) -> SQLiteClient:
+def create_sqlite_adapter(database_url: str, echo: bool = False) -> SQLiteSynchronousAdapter:
     """Generic factory - accepts all config as parameters."""
-    return SQLiteClient(database_url=database_url, echo=echo)
+    return SQLiteSynchronousAdapter(database_url=database_url, echo=echo)
 
 # 4. App-specific factories in shared/dependencies/
 def get_sqlite_session_dependency() -> Generator[Session, None, None]:

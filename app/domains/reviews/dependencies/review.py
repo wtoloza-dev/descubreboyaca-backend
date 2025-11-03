@@ -10,8 +10,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.core.settings import settings
 from app.domains.reviews.domain.interfaces import ReviewRepositoryInterface
 from app.domains.reviews.repositories import (
-    ReviewRepositoryPostgreSQL,
-    ReviewRepositorySQLite,
+    PostgreSQLReviewRepository,
+    SQLiteReviewRepository,
 )
 from app.domains.reviews.services import ReviewService
 from app.shared.dependencies.sql import get_async_session_dependency
@@ -35,9 +35,9 @@ def get_review_repository_dependency(
         ReviewRepositoryInterface: Repository instance (SQLite or PostgreSQL)
     """
     if settings.SCOPE == "local":
-        return ReviewRepositorySQLite(session)
+        return SQLiteReviewRepository(session)
     else:
-        return ReviewRepositoryPostgreSQL(session)
+        return PostgreSQLReviewRepository(session)
 
 
 def get_review_service_dependency(

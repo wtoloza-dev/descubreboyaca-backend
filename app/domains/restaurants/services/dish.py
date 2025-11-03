@@ -6,6 +6,7 @@ Services coordinate between repositories and contain domain logic.
 
 from typing import Any
 
+from app.domains.audit.domain import AsyncArchiveRepositoryInterface
 from app.domains.restaurants.domain import Dish, DishData
 from app.domains.restaurants.domain.exceptions import (
     DishNotFoundException,
@@ -15,7 +16,6 @@ from app.domains.restaurants.domain.interfaces import (
     DishRepositoryInterface,
     RestaurantRepositoryInterface,
 )
-from app.domains.audit.domain import AsyncArchiveRepositoryInterface
 from app.shared.domain.patterns import AsyncUnitOfWork
 
 
@@ -140,7 +140,7 @@ class DishService:
         dish_id: str,
         dish_data: DishData,
         updated_by: str | None = None,
-    ) -> Dish | None:
+    ) -> Dish:
         """Update an existing dish.
 
         Args:
@@ -149,11 +149,22 @@ class DishService:
             updated_by: ULID of the user updating the dish
 
         Returns:
-            Updated Dish if found, None otherwise
+            Dish: Updated dish
+
+        Raises:
+            DishNotFoundException: If dish is not found
         """
-        return await self.dish_repository.update(
+        # Verify dish exists
+        await self.get_dish_by_id(dish_id)
+
+        updated = await self.dish_repository.update(
             dish_id, dish_data, updated_by=updated_by
         )
+
+        if not updated:
+            raise DishNotFoundException(dish_id)
+
+        return updated
 
     async def delete_dish(
         self,
@@ -228,7 +239,7 @@ class DishService:
         dish_id: str,
         is_available: bool,
         updated_by: str | None = None,
-    ) -> Dish | None:
+    ) -> Dish:
         """Toggle dish availability (soft enable/disable).
 
         Args:
@@ -237,12 +248,13 @@ class DishService:
             updated_by: ULID of the user making the change
 
         Returns:
-            Updated Dish if found, None otherwise
+            Dish: Updated dish
+
+        Raises:
+            DishNotFoundException: If dish is not found
         """
-        # Get current dish
-        dish = await self.dish_repository.get_by_id(dish_id)
-        if not dish:
-            return None
+        # Get current dish (raises exception if not found)
+        dish = await self.get_dish_by_id(dish_id)
 
         # Update only is_available field
         dish_data = DishData(
@@ -264,9 +276,14 @@ class DishService:
             display_order=dish.display_order,
         )
 
-        return await self.dish_repository.update(
+        updated = await self.dish_repository.update(
             dish_id, dish_data, updated_by=updated_by
         )
+
+        if not updated:
+            raise DishNotFoundException(dish_id)
+
+        return updated
 
     async def list_dishes(
         self,

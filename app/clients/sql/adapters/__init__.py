@@ -1,22 +1,25 @@
 """SQL client adapters (Implementations).
 
-This package contains concrete implementations of SQL client protocols.
+This package contains concrete implementations of SQL client ports.
 These are ADAPTERS in Hexagonal Architecture (Clean Architecture).
 
-Each adapter implements one or more of the protocol interfaces defined in
-the interfaces package.
+Each adapter implements one or more of the port interfaces defined in
+the ports package.
 """
 
-from app.clients.sql.adapters.postgres_client import (
-    AsyncPostgreSQLClient,
-    PostgreSQLClient,
+from app.clients.sql.adapters.postgres import (
+    PostgreSQLAsynchronousAdapter,
+    PostgreSQLSynchronousAdapter,
 )
-from app.clients.sql.adapters.sqlite_client import AsyncSQLiteClient, SQLiteClient
+from app.clients.sql.adapters.sqlite import (
+    SQLiteAsynchronousAdapter,
+    SQLiteSynchronousAdapter,
+)
 
 
 __all__ = [
-    "SQLiteClient",
-    "AsyncSQLiteClient",
-    "PostgreSQLClient",
-    "AsyncPostgreSQLClient",
+    "SQLiteSynchronousAdapter",
+    "SQLiteAsynchronousAdapter",
+    "PostgreSQLSynchronousAdapter",
+    "PostgreSQLAsynchronousAdapter",
 ]

@@ -23,7 +23,7 @@ class TestGetCurrentUser:
         Then: Returns 200 with current user data
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(
                 email="authenticated@example.com",
                 hashed_password=test_password.hashed_password,
@@ -137,7 +137,7 @@ class TestGetCurrentUser:
         Then: Response includes all user fields except password
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(
                 email="complete@example.com",
                 hashed_password=test_password.hashed_password,
@@ -184,7 +184,7 @@ class TestGetCurrentUser:
         Then: Returns user data with role="admin"
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(
                 email="admin@example.com",
                 hashed_password=test_password.hashed_password,

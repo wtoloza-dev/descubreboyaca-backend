@@ -106,11 +106,17 @@ class DishRepositoryInterface(Protocol):
         """
         ...
 
-    async def delete(self, dish_id: str, commit: bool = True) -> bool:
-        """Delete a dish asynchronously (hard delete).
+    async def delete(
+        self,
+        dish_id: str,
+        deleted_by: str,
+        commit: bool = True,
+    ) -> bool:
+        """Delete a dish asynchronously (soft delete).
 
         Args:
             dish_id: ULID of the dish to delete
+            deleted_by: User identifier for audit trail
             commit: Whether to commit the transaction immediately
 
         Returns:

@@ -1,17 +1,23 @@
 """Audit repositories."""
 
 from .archive import (
-    ArchiveRepositoryPostgreSQL,
-    ArchiveRepositorySQLite,
-    AsyncArchiveRepositoryPostgreSQL,
-    AsyncArchiveRepositorySQLite,
+    AsyncPostgreSQLArchiveRepository,
+    AsyncSQLArchiveRepository,
+    AsyncSQLiteArchiveRepository,
+    PostgreSQLArchiveRepository,
+    SQLArchiveRepository,
+    SQLiteArchiveRepository,
 )
 
 
 __all__ = [
-    "ArchiveRepositoryPostgreSQL",
-    "ArchiveRepositorySQLite",
-    "AsyncArchiveRepositoryPostgreSQL",
-    "AsyncArchiveRepositorySQLite",
+    # Common base implementations
+    "SQLArchiveRepository",
+    "AsyncSQLArchiveRepository",
+    # PostgreSQL implementations
+    "PostgreSQLArchiveRepository",
+    "AsyncPostgreSQLArchiveRepository",
+    # SQLite implementations
+    "SQLiteArchiveRepository",
+    "AsyncSQLiteArchiveRepository",
 ]
-

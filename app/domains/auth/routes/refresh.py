@@ -3,7 +3,9 @@
 This module handles refreshing access tokens using refresh tokens.
 """
 
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, status
 
 from app.domains.auth.dependencies.sql import get_auth_service_dependency
 from app.domains.auth.schemas import (
@@ -17,14 +19,14 @@ router = APIRouter()
 
 
 @router.post(
-    path="/refresh",
+    path="/refresh/",
     status_code=status.HTTP_200_OK,
     summary="Refresh access token",
     description="Get a new access token using a refresh token",
 )
 async def handle_refresh_token(
-    request: RefreshUserSchemaRequest,
-    auth_service: AuthService = Depends(get_auth_service_dependency),
+    request: Annotated[RefreshUserSchemaRequest, Body()],
+    auth_service: Annotated[AuthService, Depends(get_auth_service_dependency)],
 ) -> RefreshUserSchemaResponse:
     """Refresh access token.
 

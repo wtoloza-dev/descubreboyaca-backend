@@ -13,8 +13,11 @@ from app.domains.auth.domain import User, UserData
 from app.domains.auth.domain.enums import AuthProvider, UserRole
 from app.domains.auth.models import UserModel
 from app.domains.auth.repositories.user import UserRepositorySQLite
-from app.domains.auth.services import AuthService, BcryptPasswordHasher
-from app.domains.auth.services.token import JWTTokenProvider
+from app.domains.auth.services import (
+    AuthService,
+    BcryptPasswordHasher,
+    JWTTokenProvider,
+)
 from app.shared.domain.factories import generate_ulid
 
 

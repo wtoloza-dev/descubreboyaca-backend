@@ -7,27 +7,40 @@ and services with their dependencies.
 from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.favorites.repositories import FavoriteRepository
+from app.core.settings import settings
+from app.domains.favorites.domain.interfaces import FavoriteRepositoryInterface
+from app.domains.favorites.repositories import (
+    PostgreSQLFavoriteRepository,
+    SQLiteFavoriteRepository,
+)
 from app.domains.favorites.services import FavoriteService
 from app.shared.dependencies.sql import get_async_session_dependency
 
 
 def get_favorite_repository_dependency(
     session: AsyncSession = Depends(get_async_session_dependency),
-) -> FavoriteRepository:
+) -> FavoriteRepositoryInterface:
     """Create a favorite repository instance.
+
+    Returns the appropriate repository implementation based on environment.
+    Currently uses SQLite for local/development.
 
     Args:
         session: Async database session (injected via Depends)
 
     Returns:
-        Configured favorite repository
+        FavoriteRepositoryInterface: Repository instance (SQLite or PostgreSQL)
     """
-    return FavoriteRepository(session)
+    if settings.SCOPE == "local":
+        return SQLiteFavoriteRepository(session)
+    else:
+        return PostgreSQLFavoriteRepository(session)
 
 
 def get_favorite_service_dependency(
-    repository: FavoriteRepository = Depends(get_favorite_repository_dependency),
+    repository: FavoriteRepositoryInterface = Depends(
+        get_favorite_repository_dependency
+    ),
 ) -> FavoriteService:
     """Create a favorite service instance.
 

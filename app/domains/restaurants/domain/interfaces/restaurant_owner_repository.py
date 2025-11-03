@@ -173,11 +173,17 @@ class RestaurantOwnerRepositoryInterface(Protocol):
         """
         ...
 
-    async def delete(self, ownership_id: str, commit: bool = True) -> bool:
-        """Delete an ownership relationship asynchronously (hard delete).
+    async def delete(
+        self,
+        ownership_id: str,
+        deleted_by: str,
+        commit: bool = True,
+    ) -> bool:
+        """Delete an ownership relationship asynchronously (soft delete).
 
         Args:
             ownership_id: ULID of the ownership to delete
+            deleted_by: User identifier for audit trail
             commit: Whether to commit the transaction immediately
 
         Returns:

@@ -28,3 +28,8 @@ class BaseAppSettings(BaseSettings):
 
     # CORS settings
     CORS_ORIGINS: str = "*"  # Allow all origins
+
+    # Database settings
+    DATABASE_URL: str = "sqlite:///./local.db"
+    DATABASE_ASYNC_URL: str = "sqlite+aiosqlite:///./local.db"
+    DATABASE_ECHO: bool = False

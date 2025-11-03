@@ -18,6 +18,7 @@ from app.domains.favorites.services import FavoriteService
 
 @pytest.mark.asyncio
 async def test_add_and_check_favorite(test_session: AsyncSession):
+    """Test adding a favorite and checking if it exists."""
     repo = FavoriteRepository(test_session)
     service = FavoriteService(repo)
 
@@ -33,6 +34,7 @@ async def test_add_and_check_favorite(test_session: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_add_duplicate_raises(test_session: AsyncSession):
+    """Test that adding duplicate favorite raises exception."""
     repo = FavoriteRepository(test_session)
     service = FavoriteService(repo)
 
@@ -47,6 +49,7 @@ async def test_add_duplicate_raises(test_session: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_remove_and_list(test_session: AsyncSession):
+    """Test removing a favorite and listing remaining favorites."""
     repo = FavoriteRepository(test_session)
     service = FavoriteService(repo)
 
@@ -70,6 +73,7 @@ async def test_remove_and_list(test_session: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_remove_nonexistent_raises(test_session: AsyncSession):
+    """Test that removing nonexistent favorite raises exception."""
     repo = FavoriteRepository(test_session)
     service = FavoriteService(repo)
 

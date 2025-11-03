@@ -21,7 +21,7 @@ class TestRefreshToken:
         Then: Returns 200 with new access_token
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(
                 email="refresh@example.com",
                 hashed_password=test_password.hashed_password,
@@ -114,7 +114,7 @@ class TestRefreshToken:
         Then: Returns 401 Unauthorized (wrong token type)
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(
                 email="wrongtype@example.com",
                 hashed_password=test_password.hashed_password,
@@ -203,7 +203,7 @@ class TestRefreshToken:
         Then: Returns new access token different from original
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(
                 email="newtokens@example.com",
                 hashed_password=test_password.hashed_password,

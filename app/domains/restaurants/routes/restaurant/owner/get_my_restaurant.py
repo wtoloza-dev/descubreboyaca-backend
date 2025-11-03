@@ -14,7 +14,9 @@ from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
     get_restaurant_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.get import GetRestaurantSchemaResponse
+from app.domains.restaurants.schemas.restaurant.owner.get_my_restaurant import (
+    GetMyRestaurantSchemaResponse,
+)
 from app.domains.restaurants.services import RestaurantOwnerService, RestaurantService
 
 
@@ -22,7 +24,7 @@ router = APIRouter()
 
 
 @router.get(
-    path="/restaurants/{restaurant_id}",
+    path="/restaurants/{restaurant_id}/",
     status_code=status.HTTP_200_OK,
     summary="Get my restaurant details",
     description="Get detailed information about a restaurant owned/managed by the current user.",
@@ -42,7 +44,7 @@ async def handle_get_my_restaurant(
         RestaurantService, Depends(get_restaurant_service_dependency)
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
-) -> GetRestaurantSchemaResponse:
+) -> GetMyRestaurantSchemaResponse:
     """Get details of a restaurant owned/managed by the current user.
 
     **Authentication required**: Only users with OWNER role can access.
@@ -75,6 +77,6 @@ async def handle_get_my_restaurant(
     # Get restaurant details
     restaurant = await restaurant_service.get_restaurant_by_id(str(restaurant_id))
 
-    return GetRestaurantSchemaResponse.model_validate(
+    return GetMyRestaurantSchemaResponse.model_validate(
         restaurant.model_dump(mode="json")
     )

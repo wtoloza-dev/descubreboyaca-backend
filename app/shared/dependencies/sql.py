@@ -7,22 +7,26 @@ client factories from app.clients.sql.dependencies.
 This is the layer that makes clients app-aware by providing concrete
 configuration values and handles switching between SQLite (local) and
 PostgreSQL (production) based on SCOPE.
+
+Best Practice:
+    The database adapter is initialized once during application startup
+    via the lifespan event handler and shared across all requests.
+    This follows the recommended pattern for SQLAlchemy connection pooling.
 """
 
 from collections.abc import AsyncGenerator
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.clients.sql.dependencies.sqlite import (
-    create_async_sqlite_session_dependency,
-)
+from app.core.lifespan import get_async_adapter
 from app.core.settings import settings
 
 
 async def get_async_sqlite_session_dependency() -> AsyncGenerator[AsyncSession]:
     """Dependency to get an async SQLite session (for local development).
 
-    This dependency uses the application's configuration from settings.
+    This dependency uses the shared adapter initialized during application startup.
+    The adapter manages connection pooling and lifecycle automatically.
 
     Yields:
         AsyncSession: Async SQLite session configured for the application
@@ -35,10 +39,8 @@ async def get_async_sqlite_session_dependency() -> AsyncGenerator[AsyncSession]:
         ...     result = await session.exec(select(Restaurant))
         ...     return result.all()
     """
-    async for session in create_async_sqlite_session_dependency(
-        database_url="sqlite+aiosqlite:///./local.db",
-        echo=settings.DEBUG,
-    ):
+    adapter = get_async_adapter()
+    async with adapter.get_session() as session:
         yield session
 
 

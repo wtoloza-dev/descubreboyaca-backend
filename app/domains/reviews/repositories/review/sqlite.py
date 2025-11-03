@@ -1,21 +1,28 @@
-"""Review repository SQLite implementation.
+"""Review SQLite implementation.
 
-This module implements the review repository for SQLite database operations.
-SQLite implementation inherits from PostgreSQL as they share the same SQL dialect
-for the operations we're using.
+This module provides the SQLite repository implementation for Review persistence operations.
+SQLite implementation inherits from the common SQL repository.
 """
 
-from .postgresql import ReviewRepositoryPostgreSQL
+from .common import SQLReviewRepository
 
 
-class ReviewRepositorySQLite(ReviewRepositoryPostgreSQL):
-    """SQLite repository for review database operations.
+class SQLiteReviewRepository(SQLReviewRepository):
+    """Review SQLite implementation using async operations.
 
-    This repository inherits from ReviewRepositoryPostgreSQL as SQLite
-    and PostgreSQL share compatible SQL syntax for our use cases.
+    This repository inherits all CRUD operations from SQLReviewRepository.
+    Override methods here only when SQLite-specific functionality is needed:
+    - SQLite-specific optimizations
+    - SQLite-specific query syntax
+    - SQLite-specific features
 
-    If SQLite-specific optimizations or different behavior are needed,
-    methods can be overridden here.
+    For standard CRUD operations, the inherited implementation is sufficient.
+    The __init__ is automatically inherited from the parent class.
+
+    Attributes:
+        session: SQLModel async session for database operations (inherited).
     """
 
+    # SQLite-specific methods or overrides can be added here if needed
+    # Most of the time, this class will be empty (just inheriting)
     pass

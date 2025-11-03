@@ -1,12 +1,13 @@
 """Check favorite schemas.
 
 This module defines response schema for checking if entity is favorited.
+Corresponds to: routes/check.py
 """
 
 from pydantic import BaseModel, Field
 
 
-class CheckFavoriteResponse(BaseModel):
+class CheckFavoriteSchemaResponse(BaseModel):
     """Response schema for checking if entity is favorited.
 
     Attributes:

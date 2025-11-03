@@ -6,6 +6,7 @@ This module tests the get_restaurant_dishes method of DishService.
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.domains.audit.repositories import SQLiteArchiveRepository
 from app.domains.restaurants.domain.exceptions import RestaurantNotFoundException
 from app.domains.restaurants.repositories.dish.sqlite import DishRepositorySQLite
 from app.domains.restaurants.repositories.restaurant.sqlite import (
@@ -13,7 +14,6 @@ from app.domains.restaurants.repositories.restaurant.sqlite import (
 )
 from app.domains.restaurants.services.dish import DishService
 from app.shared.domain.factories import generate_ulid
-from app.shared.repositories.archive.sqlite import ArchiveRepositorySQLite
 
 
 class TestDishServiceList:
@@ -35,7 +35,7 @@ class TestDishServiceList:
         # Arrange
         dish_repo = DishRepositorySQLite(test_session)
         restaurant_repo = RestaurantRepositorySQLite(test_session)
-        archive_repo = ArchiveRepositorySQLite(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
         restaurant = await create_test_restaurant(name="Test Restaurant")
@@ -66,7 +66,7 @@ class TestDishServiceList:
         # Arrange
         dish_repo = DishRepositorySQLite(test_session)
         restaurant_repo = RestaurantRepositorySQLite(test_session)
-        archive_repo = ArchiveRepositorySQLite(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
         restaurant = await create_test_restaurant(name="Empty Restaurant")
@@ -91,7 +91,7 @@ class TestDishServiceList:
         # Arrange
         dish_repo = DishRepositorySQLite(test_session)
         restaurant_repo = RestaurantRepositorySQLite(test_session)
-        archive_repo = ArchiveRepositorySQLite(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
         nonexistent_id = generate_ulid()
@@ -118,7 +118,7 @@ class TestDishServiceList:
         # Arrange
         dish_repo = DishRepositorySQLite(test_session)
         restaurant_repo = RestaurantRepositorySQLite(test_session)
-        archive_repo = ArchiveRepositorySQLite(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
         restaurant = await create_test_restaurant(name="Test Restaurant")
@@ -154,7 +154,7 @@ class TestDishServiceList:
         # Arrange
         dish_repo = DishRepositorySQLite(test_session)
         restaurant_repo = RestaurantRepositorySQLite(test_session)
-        archive_repo = ArchiveRepositorySQLite(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
         restaurant = await create_test_restaurant(name="Test Restaurant")
@@ -194,7 +194,7 @@ class TestDishServiceList:
         # Arrange
         dish_repo = DishRepositorySQLite(test_session)
         restaurant_repo = RestaurantRepositorySQLite(test_session)
-        archive_repo = ArchiveRepositorySQLite(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
         restaurant = await create_test_restaurant(name="Test Restaurant")
@@ -234,7 +234,7 @@ class TestDishServiceList:
         # Arrange
         dish_repo = DishRepositorySQLite(test_session)
         restaurant_repo = RestaurantRepositorySQLite(test_session)
-        archive_repo = ArchiveRepositorySQLite(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
         restaurant = await create_test_restaurant(name="Test Restaurant")

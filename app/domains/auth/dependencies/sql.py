@@ -18,8 +18,8 @@ from app.domains.auth.dependencies.security import (
 )
 from app.domains.auth.domain.interfaces import UserRepositoryInterface
 from app.domains.auth.repositories import (
-    UserRepositoryPostgreSQL,
-    UserRepositorySQLite,
+    PostgreSQLUserRepository,
+    SQLiteUserRepository,
 )
 from app.domains.auth.services import (
     AuthService,
@@ -48,9 +48,9 @@ def get_user_repository_dependency(
         UserRepositoryInterface: Repository instance (SQLite or PostgreSQL)
     """
     if settings.SCOPE == "local":
-        return UserRepositorySQLite(session)
+        return SQLiteUserRepository(session)
     else:
-        return UserRepositoryPostgreSQL(session)
+        return PostgreSQLUserRepository(session)
 
 
 def get_auth_service_dependency(

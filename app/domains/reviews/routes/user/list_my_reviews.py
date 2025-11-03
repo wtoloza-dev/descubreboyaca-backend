@@ -28,7 +28,7 @@ router = APIRouter()
 
 
 @router.get(
-    path="/me",
+    path="/me/",
     status_code=status.HTTP_200_OK,
     summary="List my reviews",
     description="Retrieve a paginated list of all reviews created by the authenticated user. "

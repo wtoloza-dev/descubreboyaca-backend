@@ -3,10 +3,10 @@
 This module contains all repository implementations for the reviews domain.
 """
 
-from .review import ReviewRepositoryPostgreSQL, ReviewRepositorySQLite
+from .review import PostgreSQLReviewRepository, SQLiteReviewRepository
 
 
 __all__ = [
-    "ReviewRepositoryPostgreSQL",
-    "ReviewRepositorySQLite",
+    "SQLiteReviewRepository",
+    "PostgreSQLReviewRepository",
 ]

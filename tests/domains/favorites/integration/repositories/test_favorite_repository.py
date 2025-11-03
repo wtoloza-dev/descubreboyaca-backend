@@ -18,6 +18,7 @@ class TestFavoriteRepositoryCreate:
 
     @pytest.mark.asyncio
     async def test_create_persists_and_returns_entity(self, test_session: AsyncSession):
+        """Test that create operation persists favorite and returns entity."""
         repo = FavoriteRepository(test_session)
         data = FavoriteData(
             user_id=str(ULID()),
@@ -32,6 +33,7 @@ class TestFavoriteRepositoryCreate:
 
     @pytest.mark.asyncio
     async def test_create_duplicate_raises(self, test_session: AsyncSession):
+        """Test that creating duplicate favorite raises exception."""
         repo = FavoriteRepository(test_session)
         data = FavoriteData(
             user_id=str(ULID()),
@@ -49,6 +51,7 @@ class TestFavoriteRepositoryDeleteAndExists:
 
     @pytest.mark.asyncio
     async def test_exists_and_delete_flow(self, test_session: AsyncSession):
+        """Test exists check and delete operation flow."""
         repo = FavoriteRepository(test_session)
         data = FavoriteData(
             user_id=str(ULID()),
@@ -70,6 +73,7 @@ class TestFavoriteRepositoryGetAndList:
 
     @pytest.mark.asyncio
     async def test_get_and_list_by_user(self, test_session: AsyncSession):
+        """Test get single favorite and list favorites by user with filtering."""
         repo = FavoriteRepository(test_session)
         user_id = str(ULID())
 

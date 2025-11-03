@@ -1,147 +1,50 @@
-"""Archive repository implementations.
+"""SQLite-specific implementation for Archive repository.
 
-This module provides synchronous and asynchronous implementations
-of the Archive repository for data persistence.
+This module provides SQLite-specific implementation by inheriting from the
+common SQL repository. Override methods here only if SQLite-specific behavior
+is required.
 """
 
-from sqlmodel import Session
-from sqlmodel.ext.asyncio.session import AsyncSession
-
-from app.domains.audit.domain.entities import Archive, ArchiveData
-from app.domains.audit.models import ArchiveModel
+from .common.sql import AsyncSQLArchiveRepository, SQLArchiveRepository
 
 
-class ArchiveRepositorySQLite:
-    """Synchronous archive repository implementation.
+class SQLiteArchiveRepository(SQLArchiveRepository):
+    """SQLite implementation of Archive repository (synchronous).
 
-    Handles persistence of archived records using SQLModel with
-    synchronous database operations.
+    Inherits all operations from SQLArchiveRepository. Override methods
+    here only when SQLite-specific functionality is needed, such as:
+    - SQLite-specific optimizations
+    - SQLite-specific query syntax
+    - Custom SQLite features
 
-    Attributes:
-        session: SQLModel session for database operations
-
-    Example:
-        >>> repo = ArchiveRepository(session)
-        >>> data = ArchiveData(
-        ...     original_table="restaurants",
-        ...     original_id="01ARZ3NDEKTSV4RRFFQ69G5FAV",
-        ...     data={"name": "Pizza Hut"},
-        ...     note="Closed permanently",
-        ... )
-        >>> archive = repo.create(data, deleted_by="01BX5ZZKBKACTAV9WEVGEMMVS0")
-    """
-
-    def __init__(self, session: Session) -> None:
-        """Initialize the archive repository.
-
-        Args:
-            session: SQLModel session for database operations
-        """
-        self.session = session
-
-    def create(
-        self, archive_data: ArchiveData, deleted_by: str | None = None
-    ) -> Archive:
-        """Create a new archive record.
-
-        Args:
-            archive_data: Core archive data without system metadata
-            deleted_by: ULID of the user who deleted the record
-
-        Returns:
-            Archive: Complete archive entity with ID and system metadata
-
-        Example:
-            >>> data = ArchiveData(
-            ...     original_table="restaurants",
-            ...     original_id="01ARZ3NDEKTSV4RRFFQ69G5FAV",
-            ...     data={"name": "Pizza Hut", "address": "..."},
-            ...     note="Closed permanently",
-            ... )
-            >>> archive = repo.create(data, deleted_by="01BX5ZZKBKACTAV9WEVGEMMVS0")
-        """
-        # Create entity - it generates its own ID and timestamps (DDD)
-        archive = Archive(**archive_data.model_dump(), deleted_by=deleted_by)
-
-        # Convert to model and persist
-        model = ArchiveModel.model_validate(archive)
-        self.session.add(model)
-        self.session.commit()
-        self.session.refresh(model)
-
-        # Return as entity
-        return Archive.model_validate(model)
-
-
-class AsyncArchiveRepositorySQLite:
-    """Asynchronous archive repository implementation.
-
-    Handles persistence of archived records using SQLModel with
-    asynchronous database operations.
+    For standard operations, the inherited implementation is sufficient.
+    The __init__ is automatically inherited from the parent class.
 
     Attributes:
-        session: SQLModel async session for database operations
-
-    Example:
-        >>> repo = AsyncArchiveRepository(async_session)
-        >>> data = ArchiveData(
-        ...     original_table="restaurants",
-        ...     original_id="01ARZ3NDEKTSV4RRFFQ69G5FAV",
-        ...     data={"name": "Pizza Hut"},
-        ...     note="Closed permanently",
-        ... )
-        >>> archive = await repo.create(data, deleted_by="01BX5ZZKBKACTAV9WEVGEMMVS0")
+        session: SQLModel session for database operations (inherited).
     """
 
-    def __init__(self, session: AsyncSession) -> None:
-        """Initialize the async archive repository.
+    # SQLite-specific methods or overrides can be added here if needed
+    # Most of the time, this class will be empty (just inheriting)
+    pass
 
-        Args:
-            session: SQLModel async session for database operations
-        """
-        self.session = session
 
-    async def create(
-        self,
-        archive_data: ArchiveData,
-        deleted_by: str | None = None,
-        commit: bool = True,
-    ) -> Archive:
-        """Create a new archive record asynchronously.
+class AsyncSQLiteArchiveRepository(AsyncSQLArchiveRepository):
+    """SQLite implementation of Archive repository (asynchronous).
 
-        Args:
-            archive_data: Core archive data without system metadata
-            deleted_by: ULID of the user who deleted the record
-            commit: Whether to commit the transaction (default: True).
-                    Set to False when using Unit of Work pattern.
+    Inherits all operations from AsyncSQLArchiveRepository. Override methods
+    here only when SQLite-specific functionality is needed, such as:
+    - SQLite-specific async optimizations
+    - SQLite-specific query syntax
+    - Custom SQLite features
 
-        Returns:
-            Archive: Complete archive entity with ID and system metadata
+    For standard operations, the inherited implementation is sufficient.
+    The __init__ is automatically inherited from the parent class.
 
-        Example:
-            >>> data = ArchiveData(
-            ...     original_table="restaurants",
-            ...     original_id="01ARZ3NDEKTSV4RRFFQ69G5FAV",
-            ...     data={"name": "Pizza Hut", "address": "..."},
-            ...     note="Closed permanently",
-            ... )
-            >>> archive = await repo.create(
-            ...     data, deleted_by="01BX5ZZKBKACTAV9WEVGEMMVS0"
-            ... )
-        """
-        # Create entity - it generates its own ID and timestamps (DDD)
-        archive = Archive(**archive_data.model_dump(), deleted_by=deleted_by)
+    Attributes:
+        session: Async SQLAlchemy session for database operations (inherited).
+    """
 
-        # Convert to model and persist
-        model = ArchiveModel.model_validate(archive)
-        self.session.add(model)
-
-        if commit:
-            await self.session.commit()
-            await self.session.refresh(model)
-        else:
-            # When not committing (UoW pattern), flush to get DB-generated values
-            await self.session.flush()
-
-        # Return as entity
-        return Archive.model_validate(model)
+    # SQLite-specific methods or overrides can be added here if needed
+    # Most of the time, this class will be empty (just inheriting)
+    pass

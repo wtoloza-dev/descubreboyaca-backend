@@ -3,6 +3,8 @@
 This module handles getting the current authenticated user's information.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
 
 from app.domains.auth.dependencies.auth import get_current_user_dependency
@@ -14,13 +16,13 @@ router = APIRouter()
 
 
 @router.get(
-    path="/me",
+    path="/me/",
     status_code=status.HTTP_200_OK,
     summary="Get current user",
     description="Get the currently authenticated user's information",
 )
 async def handle_get_me(
-    current_user: User = Depends(get_current_user_dependency),
+    current_user: Annotated[User, Depends(get_current_user_dependency)],
 ) -> MeUserSchemaResponse:
     """Get current authenticated user.
 

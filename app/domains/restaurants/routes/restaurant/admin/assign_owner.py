@@ -13,8 +13,10 @@ from app.domains.auth.domain import User
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.ownership import (
+from app.domains.restaurants.schemas.restaurant.admin.assign_owner import (
     AssignOwnerSchemaRequest,
+)
+from app.domains.restaurants.schemas.restaurant.common.ownership import (
     OwnershipSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantOwnerService
@@ -24,7 +26,7 @@ router = APIRouter()
 
 
 @router.post(
-    path="/restaurants/{restaurant_id}/owners",
+    path="/restaurants/{restaurant_id}/owners/",
     status_code=status.HTTP_201_CREATED,
     summary="Assign an owner to a restaurant",
     description="Assign a user as owner/manager/staff of a restaurant. Only administrators can perform this action.",

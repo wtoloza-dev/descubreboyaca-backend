@@ -15,9 +15,9 @@ from app.domains.restaurants.dependencies import (
     get_restaurant_owner_service_dependency,
 )
 from app.domains.restaurants.domain import DishData
-from app.domains.restaurants.schemas.dish import (
-    GetDishSchemaResponse,
+from app.domains.restaurants.schemas.dish.owner.update import (
     UpdateDishSchemaRequest,
+    UpdateDishSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantOwnerService
 from app.domains.restaurants.services.dish import DishService
@@ -27,7 +27,7 @@ router = APIRouter()
 
 
 @router.patch(
-    path="/dishes/{dish_id}",
+    path="/dishes/{dish_id}/",
     status_code=status.HTTP_200_OK,
     summary="Update a dish",
     description="Update a dish owned/managed by the current user.",
@@ -49,7 +49,7 @@ async def handle_update_dish(
         get_restaurant_owner_service_dependency
     ),
     current_user: User = Depends(require_owner_dependency),
-) -> GetDishSchemaResponse:
+) -> UpdateDishSchemaResponse:
     """Update a dish.
 
     **Authentication required**: Only users with OWNER role can access.
@@ -68,7 +68,7 @@ async def handle_update_dish(
         current_user: Authenticated user (injected)
 
     Returns:
-        GetDishSchemaResponse: Updated dish details
+        UpdateDishSchemaResponse: Updated dish details
 
     Raises:
         InsufficientPermissionsException: If not owner of the restaurant
@@ -96,4 +96,4 @@ async def handle_update_dish(
         updated_by=current_user.id,
     )
 
-    return GetDishSchemaResponse.model_validate(updated_dish.model_dump(mode="json"))
+    return UpdateDishSchemaResponse.model_validate(updated_dish.model_dump(mode="json"))

@@ -11,7 +11,9 @@ from ulid import ULID
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_service_dependency,
 )
-from app.domains.restaurants.schemas import GetRestaurantSchemaResponse
+from app.domains.restaurants.schemas.restaurant.public.get import (
+    GetRestaurantSchemaResponse,
+)
 from app.domains.restaurants.services import RestaurantService
 
 
@@ -19,7 +21,7 @@ router = APIRouter()
 
 
 @router.get(
-    path="/{restaurant_id}",
+    path="/{restaurant_id}/",
     status_code=status.HTTP_200_OK,
     summary="Get a restaurant by ID",
     description="Retrieve complete information about a single restaurant using its unique ID.",

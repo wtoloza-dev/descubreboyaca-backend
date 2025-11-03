@@ -15,11 +15,17 @@ class UserRepositoryInterface(Protocol):
     user data storage using asynchronous operations.
     """
 
-    async def create(self, user_data: UserData, commit: bool = True) -> User:
+    async def create(
+        self,
+        user_data: UserData,
+        created_by: str,
+        commit: bool = True,
+    ) -> User:
         """Create a new user asynchronously.
 
         Args:
             user_data: Core user data without system metadata
+            created_by: User identifier for audit trail
             commit: Whether to commit the transaction immediately
 
         Returns:
@@ -61,13 +67,18 @@ class UserRepositoryInterface(Protocol):
         ...
 
     async def update(
-        self, user_id: str, user_data: UserData, commit: bool = True
+        self,
+        user_id: str,
+        user_data: UserData,
+        updated_by: str,
+        commit: bool = True,
     ) -> User | None:
         """Update an existing user asynchronously.
 
         Args:
             user_id: ULID of the user to update
             user_data: Updated user data
+            updated_by: User identifier for audit trail
             commit: Whether to commit the transaction immediately
 
         Returns:
@@ -75,11 +86,17 @@ class UserRepositoryInterface(Protocol):
         """
         ...
 
-    async def deactivate(self, user_id: str, commit: bool = True) -> bool:
+    async def deactivate(
+        self,
+        user_id: str,
+        updated_by: str,
+        commit: bool = True,
+    ) -> bool:
         """Deactivate a user asynchronously (soft delete).
 
         Args:
             user_id: ULID of the user to deactivate
+            updated_by: User identifier for audit trail
             commit: Whether to commit the transaction immediately
 
         Returns:
@@ -87,11 +104,17 @@ class UserRepositoryInterface(Protocol):
         """
         ...
 
-    async def delete(self, user_id: str, commit: bool = True) -> bool:
+    async def delete(
+        self,
+        user_id: str,
+        deleted_by: str,
+        commit: bool = True,
+    ) -> bool:
         """Delete a user asynchronously (hard delete).
 
         Args:
             user_id: ULID of the user to delete
+            deleted_by: User identifier for audit trail
             commit: Whether to commit the transaction immediately
 
         Returns:

@@ -1,6 +1,12 @@
 """Favorites repositories."""
 
-from app.domains.favorites.repositories.favorite import FavoriteRepository
+from app.domains.favorites.repositories.favorite import (
+    PostgreSQLFavoriteRepository,
+    SQLiteFavoriteRepository,
+)
 
 
-__all__ = ["FavoriteRepository"]
+__all__ = [
+    "SQLiteFavoriteRepository",
+    "PostgreSQLFavoriteRepository",
+]

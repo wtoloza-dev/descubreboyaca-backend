@@ -34,11 +34,17 @@ class ReviewRepositoryInterface(Protocol):
             ...     await repository.rollback()  # Rollback both if any fails
     """
 
-    def create(self, review_data: ReviewData, commit: bool = True) -> Review:
+    async def create(
+        self,
+        review_data: ReviewData,
+        created_by: str,
+        commit: bool = True,
+    ) -> Review:
         """Create a new review.
 
         Args:
             review_data: The review data to create
+            created_by: User identifier for audit trail
             commit: Whether to commit the transaction immediately
 
         Returns:
@@ -49,7 +55,7 @@ class ReviewRepositoryInterface(Protocol):
         """
         ...
 
-    def get_by_id(self, review_id: str) -> Review | None:
+    async def get_by_id(self, review_id: str) -> Review | None:
         """Get a review by its ID.
 
         Args:
@@ -60,7 +66,7 @@ class ReviewRepositoryInterface(Protocol):
         """
         ...
 
-    def get_by_user_and_entity(
+    async def get_by_user_and_entity(
         self,
         user_id: str,
         entity_type: EntityType,
@@ -81,7 +87,7 @@ class ReviewRepositoryInterface(Protocol):
         """
         ...
 
-    def find(
+    async def find(
         self,
         filters: dict[str, Any] | None = None,
         offset: int = 0,
@@ -131,14 +137,19 @@ class ReviewRepositoryInterface(Protocol):
         """
         ...
 
-    def update(
-        self, review_id: str, review_data: ReviewData, commit: bool = True
+    async def update(
+        self,
+        review_id: str,
+        review_data: ReviewData,
+        updated_by: str,
+        commit: bool = True,
     ) -> Review | None:
         """Update an existing review.
 
         Args:
             review_id: The ULID of the review to update
             review_data: The updated review data
+            updated_by: User identifier for audit trail
             commit: Whether to commit the transaction immediately
 
         Returns:
@@ -146,11 +157,17 @@ class ReviewRepositoryInterface(Protocol):
         """
         ...
 
-    def delete(self, review_id: str, commit: bool = True) -> bool:
-        """Delete a review.
+    async def delete(
+        self,
+        review_id: str,
+        deleted_by: str,
+        commit: bool = True,
+    ) -> bool:
+        """Delete a review (soft delete).
 
         Args:
             review_id: The ULID of the review to delete
+            deleted_by: User identifier for audit trail
             commit: Whether to commit the transaction immediately
 
         Returns:
@@ -158,7 +175,7 @@ class ReviewRepositoryInterface(Protocol):
         """
         ...
 
-    def count(self, filters: dict[str, Any] | None = None) -> int:
+    async def count(self, filters: dict[str, Any] | None = None) -> int:
         """Count reviews with dynamic filters.
 
         Args:
@@ -184,7 +201,7 @@ class ReviewRepositoryInterface(Protocol):
         """
         ...
 
-    def get_stats_by_entity(
+    async def get_stats_by_entity(
         self,
         entity_type: EntityType,
         entity_id: str,
@@ -203,7 +220,7 @@ class ReviewRepositoryInterface(Protocol):
         """
         ...
 
-    def exists_by_user_and_entity(
+    async def exists_by_user_and_entity(
         self,
         user_id: str,
         entity_type: EntityType,
@@ -224,14 +241,14 @@ class ReviewRepositoryInterface(Protocol):
         """
         ...
 
-    def commit(self) -> None:
+    async def commit(self) -> None:
         """Commit the current transaction.
 
         Useful for Unit of Work pattern when commit=False is used in operations.
         """
         ...
 
-    def rollback(self) -> None:
+    async def rollback(self) -> None:
         """Rollback the current transaction.
 
         Useful for Unit of Work pattern when an error occurs.

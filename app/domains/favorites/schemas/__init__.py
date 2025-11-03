@@ -1,18 +1,18 @@
 """Favorites API schemas."""
 
 from app.domains.favorites.schemas.add import (
-    AddFavoriteRequest,
-    AddFavoriteResponse,
+    AddFavoriteSchemaRequest,
+    AddFavoriteSchemaResponse,
 )
-from app.domains.favorites.schemas.check import CheckFavoriteResponse
-from app.domains.favorites.schemas.favorite import FavoriteResponse
-from app.domains.favorites.schemas.list import ListFavoritesResponse
+from app.domains.favorites.schemas.check import CheckFavoriteSchemaResponse
+from app.domains.favorites.schemas.favorite import FavoriteSchemaResponse
+from app.domains.favorites.schemas.list import ListFavoritesSchemaResponse
 
 
 __all__ = [
-    "AddFavoriteRequest",
-    "AddFavoriteResponse",
-    "CheckFavoriteResponse",
-    "FavoriteResponse",
-    "ListFavoritesResponse",
+    "AddFavoriteSchemaRequest",
+    "AddFavoriteSchemaResponse",
+    "CheckFavoriteSchemaResponse",
+    "FavoriteSchemaResponse",
+    "ListFavoritesSchemaResponse",
 ]

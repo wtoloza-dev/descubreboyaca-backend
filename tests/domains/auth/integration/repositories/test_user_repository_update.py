@@ -203,7 +203,7 @@ class TestUserRepositoryUpdate:
         )
 
         # Act
-        updated_user = await user_repository.update(user.id, update_data, commit=False)
+        await user_repository.update(user.id, update_data, commit=False)
 
         # Assert - commit manually
         await user_repository.commit()

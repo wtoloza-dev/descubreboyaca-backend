@@ -15,10 +15,10 @@ from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_service_dependency,
 )
 from app.domains.restaurants.domain import RestaurantData
-from app.domains.restaurants.schemas.restaurant.create import (
-    CreateRestaurantSchemaRequest,
+from app.domains.restaurants.schemas.restaurant.owner.update_my_restaurant import (
+    UpdateMyRestaurantSchemaRequest,
+    UpdateMyRestaurantSchemaResponse,
 )
-from app.domains.restaurants.schemas.restaurant.get import GetRestaurantSchemaResponse
 from app.domains.restaurants.services import RestaurantOwnerService, RestaurantService
 
 
@@ -26,7 +26,7 @@ router = APIRouter()
 
 
 @router.patch(
-    path="/restaurants/{restaurant_id}",
+    path="/restaurants/{restaurant_id}/",
     status_code=status.HTTP_200_OK,
     summary="Update my restaurant",
     description="Update information about a restaurant owned/managed by the current user.",
@@ -40,7 +40,7 @@ async def handle_update_my_restaurant(
         ),
     ],
     request: Annotated[
-        CreateRestaurantSchemaRequest,
+        UpdateMyRestaurantSchemaRequest,
         Body(description="Updated restaurant data (partial for PATCH)"),
     ],
     owner_service: Annotated[
@@ -50,7 +50,7 @@ async def handle_update_my_restaurant(
         RestaurantService, Depends(get_restaurant_service_dependency)
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
-) -> GetRestaurantSchemaResponse:
+) -> UpdateMyRestaurantSchemaResponse:
     """Update a restaurant owned/managed by the current user.
 
     **Authentication required**: Only users with OWNER role can access.
@@ -69,7 +69,7 @@ async def handle_update_my_restaurant(
         current_user: Authenticated user (injected)
 
     Returns:
-        GetRestaurantSchemaResponse: Updated restaurant details
+        UpdateMyRestaurantSchemaResponse: Updated restaurant details
 
     Raises:
         InsufficientPermissionsException: If not owner of this restaurant
@@ -89,6 +89,6 @@ async def handle_update_my_restaurant(
         updated_by=current_user.id,
     )
 
-    return GetRestaurantSchemaResponse.model_validate(
+    return UpdateMyRestaurantSchemaResponse.model_validate(
         updated_restaurant.model_dump(mode="json")
     )

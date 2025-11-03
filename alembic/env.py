@@ -6,6 +6,7 @@ online (connected to DB) and offline (SQL generation) modes.
 
 from logging.config import fileConfig
 
+from app.shared.models.archive import ArchiveModel  # noqa: F401
 from sqlalchemy import engine_from_config, pool
 
 # Import SQLModel metadata
@@ -18,7 +19,6 @@ from app.core.settings import settings
 
 # Import all models to ensure they're registered with SQLModel metadata
 from app.domains.restaurants.models.restaurant import RestaurantModel  # noqa: F401
-from app.shared.models.archive import ArchiveModel  # noqa: F401
 
 
 # Alembic Config object

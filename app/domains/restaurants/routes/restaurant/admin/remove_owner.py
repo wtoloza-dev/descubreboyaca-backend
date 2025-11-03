@@ -20,7 +20,7 @@ router = APIRouter()
 
 
 @router.delete(
-    path="/restaurants/{restaurant_id}/owners/{owner_id}",
+    path="/restaurants/{restaurant_id}/owners/{owner_id}/",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Remove an owner from a restaurant",
     description="Remove a user's ownership/management rights from a restaurant. Only administrators can perform this action.",

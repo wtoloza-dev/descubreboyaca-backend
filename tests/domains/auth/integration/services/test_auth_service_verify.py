@@ -34,7 +34,7 @@ class TestAuthServiceVerifyUserCredentials:
         Then: Returns User entity
         """
         # Arrange
-        
+
         user = await create_test_user(
             email="verify@example.com",
         )
@@ -80,8 +80,8 @@ class TestAuthServiceVerifyUserCredentials:
         Then: Raises InvalidCredentialsException
         """
         # Arrange
-        
-        user = await create_test_user(
+
+        await create_test_user(
             email="wrongpass@example.com",
         )
 
@@ -105,8 +105,8 @@ class TestAuthServiceVerifyUserCredentials:
         Then: Raises UserInactiveException
         """
         # Arrange
-        
-        user = await create_test_user(
+
+        await create_test_user(
             email="inactive@example.com",
             is_active=False,
         )
@@ -131,7 +131,7 @@ class TestAuthServiceVerifyUserCredentials:
         Then: Raises InvalidCredentialsException with OAuth message
         """
         # Arrange
-        user = await create_test_user(
+        await create_test_user(
             email="oauth@example.com",
             hashed_password=None,  # OAuth users don't have passwords
             auth_provider=AuthProvider.GOOGLE,
@@ -161,7 +161,7 @@ class TestAuthServiceGetCurrentUser:
         Then: Returns User entity
         """
         # Arrange
-        
+
         user = await create_test_user(
             email="current@example.com",
         )
@@ -281,7 +281,7 @@ class TestAuthServiceGetCurrentUser:
         Then: Raises UserInactiveException
         """
         # Arrange
-        
+
         user = await create_test_user(
             email="deactivated@example.com",
             is_active=True,

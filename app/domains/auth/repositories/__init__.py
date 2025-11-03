@@ -3,10 +3,10 @@
 This module contains repository implementations for the auth domain.
 """
 
-from .user import UserRepositoryPostgreSQL, UserRepositorySQLite
+from .user import PostgreSQLUserRepository, SQLiteUserRepository
 
 
 __all__ = [
-    "UserRepositorySQLite",
-    "UserRepositoryPostgreSQL",
+    "SQLiteUserRepository",
+    "PostgreSQLUserRepository",
 ]

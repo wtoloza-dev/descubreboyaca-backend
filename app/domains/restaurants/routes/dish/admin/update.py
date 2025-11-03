@@ -12,9 +12,9 @@ from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
 from app.domains.restaurants.dependencies import get_dish_service_dependency
 from app.domains.restaurants.domain import DishData
-from app.domains.restaurants.schemas.dish import (
-    GetDishSchemaResponse,
+from app.domains.restaurants.schemas.dish.admin.update import (
     UpdateDishSchemaRequest,
+    UpdateDishSchemaResponse,
 )
 from app.domains.restaurants.services.dish import DishService
 
@@ -23,7 +23,7 @@ router = APIRouter()
 
 
 @router.patch(
-    path="/dishes/{dish_id}",
+    path="/dishes/{dish_id}/",
     status_code=status.HTTP_200_OK,
     summary="Update a dish (Admin)",
     description="Update any dish. Admin only.",
@@ -42,7 +42,7 @@ async def handle_update_dish(
     ],
     dish_service: DishService = Depends(get_dish_service_dependency),
     current_user: User = Depends(require_admin_dependency),
-) -> GetDishSchemaResponse:
+) -> UpdateDishSchemaResponse:
     """Update a dish.
 
     **Authentication required**: Only users with ADMIN role can access.
@@ -60,7 +60,7 @@ async def handle_update_dish(
         current_user: Authenticated user (injected)
 
     Returns:
-        GetDishSchemaResponse: Updated dish details
+        UpdateDishSchemaResponse: Updated dish details
 
     Raises:
         DishNotFoundException: If dish not found
@@ -81,4 +81,4 @@ async def handle_update_dish(
         updated_by=current_user.id,
     )
 
-    return GetDishSchemaResponse.model_validate(updated_dish.model_dump(mode="json"))
+    return UpdateDishSchemaResponse.model_validate(updated_dish.model_dump(mode="json"))

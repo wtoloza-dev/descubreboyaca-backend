@@ -12,9 +12,9 @@ from app.domains.auth.domain import User
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.list import (
-    ListRestaurantsSchemaResponse,
-    RestaurantSchemaListItem,
+from app.domains.restaurants.schemas.restaurant.public.list_favorites import (
+    ListFavoriteRestaurantsSchemaItem,
+    ListFavoriteRestaurantsSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantService
 from app.shared.dependencies import get_pagination_dependency
@@ -25,17 +25,17 @@ router = APIRouter()
 
 
 @router.get(
-    path="/favorites",
+    path="/favorites/",
     status_code=status.HTTP_200_OK,
     summary="List user's favorite restaurants",
     description="List all favorite restaurants for the authenticated user. Requires authentication.",
-    response_model=ListRestaurantsSchemaResponse,
+    response_model=ListFavoriteRestaurantsSchemaResponse,
 )
 async def handle_list_with_favorites(
     pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
     service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
     current_user: Annotated[User, Depends(get_current_user_dependency)],
-) -> ListRestaurantsSchemaResponse:
+) -> ListFavoriteRestaurantsSchemaResponse:
     """List user's favorite restaurants.
 
     **Authentication required**: This endpoint requires a valid authentication token.
@@ -65,12 +65,12 @@ async def handle_list_with_favorites(
 
     # Convert entities to dicts with JSON-compatible types (HttpUrl → str)
     items = [
-        RestaurantSchemaListItem.model_validate(r.model_dump(mode="json"))
+        ListFavoriteRestaurantsSchemaItem.model_validate(r.model_dump(mode="json"))
         for r in restaurants
     ]
 
     # Return paginated response
-    return ListRestaurantsSchemaResponse(
+    return ListFavoriteRestaurantsSchemaResponse(
         items=items,
         page=pagination.page,
         page_size=pagination.page_size,

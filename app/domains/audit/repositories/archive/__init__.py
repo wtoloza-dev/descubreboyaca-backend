@@ -1,16 +1,18 @@
 """Archive repository implementations."""
 
-from .postgresql import (
-    ArchiveRepositoryPostgreSQL,
-    AsyncArchiveRepositoryPostgreSQL,
-)
-from .sqlite import ArchiveRepositorySQLite, AsyncArchiveRepositorySQLite
+from .common.sql import AsyncSQLArchiveRepository, SQLArchiveRepository
+from .postgresql import AsyncPostgreSQLArchiveRepository, PostgreSQLArchiveRepository
+from .sqlite import AsyncSQLiteArchiveRepository, SQLiteArchiveRepository
 
 
 __all__ = [
-    "ArchiveRepositoryPostgreSQL",
-    "AsyncArchiveRepositoryPostgreSQL",
-    "ArchiveRepositorySQLite",
-    "AsyncArchiveRepositorySQLite",
+    # Common base implementations
+    "SQLArchiveRepository",
+    "AsyncSQLArchiveRepository",
+    # PostgreSQL implementations
+    "PostgreSQLArchiveRepository",
+    "AsyncPostgreSQLArchiveRepository",
+    # SQLite implementations
+    "SQLiteArchiveRepository",
+    "AsyncSQLiteArchiveRepository",
 ]
-

@@ -1,15 +1,16 @@
 """Add favorite schemas.
 
 This module defines request and response schemas for adding favorites.
+Corresponds to: routes/add.py
 """
 
 from pydantic import BaseModel, Field
 
 from app.domains.favorites.domain.enums import EntityType
-from app.domains.favorites.schemas.favorite import FavoriteResponse
+from app.domains.favorites.schemas.favorite import FavoriteSchemaResponse
 
 
-class AddFavoriteRequest(BaseModel):
+class AddFavoriteSchemaRequest(BaseModel):
     """Request schema for adding a favorite.
 
     Attributes:
@@ -21,10 +22,10 @@ class AddFavoriteRequest(BaseModel):
     entity_id: str = Field(max_length=26, description="Entity ULID")
 
 
-class AddFavoriteResponse(FavoriteResponse):
+class AddFavoriteSchemaResponse(FavoriteSchemaResponse):
     """Response schema for adding a favorite.
 
-    Inherits all fields from FavoriteResponse.
+    Inherits all fields from FavoriteSchemaResponse.
     """
 
     pass

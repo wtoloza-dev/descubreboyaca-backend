@@ -5,7 +5,7 @@ This module provides a simplified endpoint for creating restaurants with minimal
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Body, Depends, status
 
 from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
@@ -13,7 +13,7 @@ from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_service_dependency,
 )
 from app.domains.restaurants.domain import RestaurantData
-from app.domains.restaurants.schemas.restaurant.create import (
+from app.domains.restaurants.schemas.restaurant.admin.create import (
     CreateRestaurantSchemaRequest,
     CreateRestaurantSchemaResponse,
 )
@@ -32,7 +32,7 @@ router = APIRouter()
     "Only administrators can perform this action.",
 )
 async def handle_create_restaurant(
-    request: CreateRestaurantSchemaRequest,
+    request: Annotated[CreateRestaurantSchemaRequest, Body()],
     service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
     admin_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> CreateRestaurantSchemaResponse:

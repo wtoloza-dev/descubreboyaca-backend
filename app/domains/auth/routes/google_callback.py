@@ -3,6 +3,8 @@
 This module handles the OAuth callback from Google after user authentication.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Query, status
 
 from app.domains.auth.dependencies.security import get_google_oauth_client_dependency
@@ -18,17 +20,17 @@ router = APIRouter()
 
 
 @router.get(
-    path="/google/callback",
+    path="/google/callback/",
     status_code=status.HTTP_200_OK,
     summary="Google OAuth callback",
     description="Handle OAuth callback from Google and authenticate user",
 )
 async def handle_google_callback(
-    code: str = Query(..., description="Authorization code from Google"),
-    auth_service: AuthService = Depends(get_auth_service_dependency),
-    google_oauth_client: GoogleOAuthClient = Depends(
-        get_google_oauth_client_dependency
-    ),
+    code: Annotated[str, Query(description="Authorization code from Google")],
+    auth_service: Annotated[AuthService, Depends(get_auth_service_dependency)],
+    google_oauth_client: Annotated[
+        GoogleOAuthClient, Depends(get_google_oauth_client_dependency)
+    ],
 ) -> GoogleCallbackUserSchemaResponse:
     """Handle Google OAuth callback.
 
@@ -41,7 +43,7 @@ async def handle_google_callback(
     Args:
         code: Authorization code from Google OAuth callback
         auth_service: Auth service dependency
-        google_oauth_service: Google OAuth service dependency
+        google_oauth_client: Google OAuth client dependency
 
     Returns:
         GoogleCallbackUserSchemaResponse with JWT tokens and user data

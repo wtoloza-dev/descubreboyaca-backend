@@ -23,7 +23,7 @@ class TestLoginUser:
         Then: Returns 200 with access_token, refresh_token, and user data
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(
                 email="testuser@example.com",
                 hashed_password=test_password.hashed_password,
@@ -79,7 +79,7 @@ class TestLoginUser:
         Then: Returns 401 Unauthorized
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(email="user@example.com", full_name="User")
         )
 
@@ -104,7 +104,7 @@ class TestLoginUser:
         Then: Returns 403 Forbidden
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(
                 email="inactive@example.com",
                 hashed_password=test_password.hashed_password,
@@ -171,7 +171,7 @@ class TestLoginUser:
         Then: Access token and refresh token are non-empty strings
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(
                 email="tokens@example.com",
                 hashed_password=test_password.hashed_password,
@@ -205,7 +205,7 @@ class TestLoginUser:
         Then: Returns user data with role="admin"
         """
         # Arrange
-        user = pytest.helpers.run_async(
+        pytest.helpers.run_async(
             create_test_user(
                 email="admin@example.com",
                 hashed_password=test_password.hashed_password,

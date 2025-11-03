@@ -38,7 +38,7 @@ class TeamListResponse(BaseModel):
 
 
 @router.get(
-    path="/restaurants/{restaurant_id}/team",
+    path="/restaurants/{restaurant_id}/team/",
     status_code=status.HTTP_200_OK,
     summary="List my restaurant team",
     description="Get a list of all team members (owners/managers/staff) for a restaurant owned/managed by the current user.",

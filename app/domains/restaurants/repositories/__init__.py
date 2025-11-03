@@ -4,18 +4,18 @@ This package exports the async restaurant repositories.
 """
 
 from .restaurant import (
-    RestaurantRepositoryPostgreSQL,
-    RestaurantRepositorySQLite,
+    PostgreSQLRestaurantRepository,
+    SQLiteRestaurantRepository,
 )
 from .restaurant_owner import (
-    RestaurantOwnerRepositoryPostgreSQL,
-    RestaurantOwnerRepositorySQLite,
+    PostgreSQLRestaurantOwnerRepository,
+    SQLiteRestaurantOwnerRepository,
 )
 
 
 __all__ = [
-    "RestaurantRepositorySQLite",
-    "RestaurantRepositoryPostgreSQL",
-    "RestaurantOwnerRepositorySQLite",
-    "RestaurantOwnerRepositoryPostgreSQL",
+    "SQLiteRestaurantRepository",
+    "PostgreSQLRestaurantRepository",
+    "SQLiteRestaurantOwnerRepository",
+    "PostgreSQLRestaurantOwnerRepository",
 ]

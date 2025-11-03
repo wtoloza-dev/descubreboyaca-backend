@@ -7,7 +7,7 @@ from fastapi import APIRouter
 
 from app.domains.favorites.routes.add import router as add_router
 from app.domains.favorites.routes.check import router as check_router
-from app.domains.favorites.routes.list import router as list_router
+from app.domains.favorites.routes.find_all import router as find_all_router
 from app.domains.favorites.routes.remove import router as remove_router
 
 
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/favorites")
 # Register all routes
 router.include_router(add_router, tags=["Favorites"])
 router.include_router(remove_router, tags=["Favorites"])
-router.include_router(list_router, tags=["Favorites"])
+router.include_router(find_all_router, tags=["Favorites"])
 router.include_router(check_router, tags=["Favorites"])
 
 __all__ = ["router"]

@@ -3,11 +3,11 @@
 This package contains different database implementations for the review repository.
 """
 
-from .postgresql import ReviewRepositoryPostgreSQL
-from .sqlite import ReviewRepositorySQLite
+from .postgresql import PostgreSQLReviewRepository
+from .sqlite import SQLiteReviewRepository
 
 
 __all__ = [
-    "ReviewRepositoryPostgreSQL",
-    "ReviewRepositorySQLite",
+    "SQLiteReviewRepository",
+    "PostgreSQLReviewRepository",
 ]

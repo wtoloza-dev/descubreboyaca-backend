@@ -13,9 +13,11 @@ from app.domains.auth.domain import User
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.ownership import (
-    OwnershipSchemaResponse,
+from app.domains.restaurants.schemas.restaurant.admin.update_owner_role import (
     UpdateOwnerRoleSchemaRequest,
+)
+from app.domains.restaurants.schemas.restaurant.common.ownership import (
+    OwnershipSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantOwnerService
 
@@ -24,7 +26,7 @@ router = APIRouter()
 
 
 @router.patch(
-    path="/restaurants/{restaurant_id}/owners/{owner_id}/role",
+    path="/restaurants/{restaurant_id}/owners/{owner_id}/role/",
     status_code=status.HTTP_200_OK,
     summary="Update an owner's role",
     description="Change the role of an owner/manager/staff member. Only administrators can perform this action.",

@@ -88,7 +88,7 @@ class TestAuthServiceRegister:
         Then: Raises UserAlreadyExistsException
         """
         # Arrange
-        existing_user = await create_test_user(email="existing@example.com")
+        await create_test_user(email="existing@example.com")
 
         # Act & Assert
         with pytest.raises(UserAlreadyExistsException) as exc_info:

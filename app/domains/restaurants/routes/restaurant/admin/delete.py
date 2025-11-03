@@ -14,7 +14,7 @@ from app.domains.auth.domain import User
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.delete import (
+from app.domains.restaurants.schemas.restaurant.admin.delete import (
     DeleteRestaurantSchemaRequest,
 )
 from app.domains.restaurants.services import RestaurantService
@@ -24,7 +24,7 @@ router = APIRouter()
 
 
 @router.delete(
-    path="/{restaurant_id}",
+    path="/{restaurant_id}/",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a restaurant (Admin only)",
     description="""Permanently delete a restaurant from the active database.
@@ -49,12 +49,12 @@ async def handle_delete_restaurant(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    request_body: DeleteRestaurantSchemaRequest = Body(
-        default=DeleteRestaurantSchemaRequest(),
-        description="Optional deletion metadata (note explaining why)",
-    ),
-    service: RestaurantService = Depends(get_restaurant_service_dependency),
-    admin_user: User = Depends(require_admin_dependency),
+    service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
+    admin_user: Annotated[User, Depends(require_admin_dependency)],
+    request_body: Annotated[
+        DeleteRestaurantSchemaRequest,
+        Body(description="Optional deletion metadata (note explaining why)"),
+    ] = DeleteRestaurantSchemaRequest(),
 ) -> None:
     """Delete a restaurant permanently with archiving.
 

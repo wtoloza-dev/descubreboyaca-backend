@@ -1,26 +1,29 @@
 """Dish PostgreSQL implementation.
 
-This module provides an asynchronous implementation of the Dish
-repository for data persistence using SQLModel with PostgreSQL.
-
-Note: The implementation is identical to SQLite because SQLModel
-abstracts the database differences. This separation allows for
-database-specific optimizations if needed in the future.
+This module provides the PostgreSQL repository implementation for Dish persistence operations.
+PostgreSQL implementation inherits from the common SQL repository.
 """
 
-from app.domains.restaurants.repositories.dish.sqlite import DishRepositorySQLite
+from .common import SQLDishRepository
 
 
-class DishRepositoryPostgreSQL(DishRepositorySQLite):
+class PostgreSQLDishRepository(SQLDishRepository):
     """Dish PostgreSQL implementation using async operations.
 
-    Currently inherits from SQLite implementation as SQLModel provides
-    database-agnostic operations. Can be extended with PostgreSQL-specific
-    optimizations if needed (e.g., full-text search, JSON operators, etc.).
+    This repository inherits all CRUD operations from SQLDishRepository.
+    Override methods here only when PostgreSQL-specific functionality is needed:
+    - PostgreSQL-specific JSON operators
+    - Full-text search
+    - PostgreSQL-specific optimizations
+    - Custom PostgreSQL query features
+
+    For standard CRUD operations, the inherited implementation is sufficient.
+    The __init__ is automatically inherited from the parent class.
 
     Attributes:
-        session: SQLModel async session for database operations
+        session: SQLModel async session for database operations (inherited).
     """
 
+    # PostgreSQL-specific methods or overrides can be added here if needed
+    # Most of the time, this class will be empty (just inheriting)
     pass
-

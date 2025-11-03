@@ -15,7 +15,7 @@ from app.domains.restaurants.dependencies import (
     get_restaurant_owner_service_dependency,
 )
 from app.domains.restaurants.domain import DishData
-from app.domains.restaurants.schemas.dish import (
+from app.domains.restaurants.schemas.dish.owner.create import (
     CreateDishSchemaRequest,
     CreateDishSchemaResponse,
 )
@@ -27,7 +27,7 @@ router = APIRouter()
 
 
 @router.post(
-    path="/restaurants/{restaurant_id}/dishes",
+    path="/restaurants/{restaurant_id}/dishes/",
     status_code=status.HTTP_201_CREATED,
     summary="Create a new dish",
     description="Create a new dish for a restaurant owned/managed by the current user.",
@@ -44,11 +44,11 @@ async def handle_create_dish(
         CreateDishSchemaRequest,
         Body(description="Dish data to create"),
     ],
-    dish_service: DishService = Depends(get_dish_service_dependency),
-    owner_service: RestaurantOwnerService = Depends(
-        get_restaurant_owner_service_dependency
-    ),
-    current_user: User = Depends(require_owner_dependency),
+    dish_service: Annotated[DishService, Depends(get_dish_service_dependency)],
+    owner_service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_owner_dependency)],
 ) -> CreateDishSchemaResponse:
     """Create a new dish for a restaurant.
 

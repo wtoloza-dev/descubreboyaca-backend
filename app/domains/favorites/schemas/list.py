@@ -1,17 +1,18 @@
 """List favorites schemas.
 
 This module defines response schemas for listing favorites.
+Corresponds to: routes/list.py
 """
 
-from app.domains.favorites.schemas.favorite import FavoriteResponse
+from app.domains.favorites.schemas.favorite import FavoriteSchemaResponse
 from app.shared.schemas.pagination import PaginatedResponse
 
 
-class ListFavoritesResponse(PaginatedResponse[FavoriteResponse]):
+class ListFavoritesSchemaResponse(PaginatedResponse[FavoriteSchemaResponse]):
     """Response schema for listing favorites.
 
     Inherits pagination fields from PaginatedResponse and uses
-    FavoriteResponse as the item type.
+    FavoriteSchemaResponse as the item type.
 
     Attributes:
         items: List of favorites

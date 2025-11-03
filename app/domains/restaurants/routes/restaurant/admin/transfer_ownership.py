@@ -13,7 +13,7 @@ from app.domains.auth.domain import User
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.ownership import (
+from app.domains.restaurants.schemas.restaurant.common.ownership import (
     OwnershipSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantOwnerService
@@ -23,7 +23,7 @@ router = APIRouter()
 
 
 @router.post(
-    path="/restaurants/{restaurant_id}/owners/{owner_id}/transfer",
+    path="/restaurants/{restaurant_id}/owners/{owner_id}/transfer/",
     status_code=status.HTTP_200_OK,
     summary="Transfer primary ownership",
     description="Transfer primary ownership of a restaurant to another owner. The new owner must already be assigned to the restaurant. Only administrators can perform this action.",

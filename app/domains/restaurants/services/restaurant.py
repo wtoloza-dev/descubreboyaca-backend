@@ -6,6 +6,7 @@ Services coordinate between repositories and contain domain logic.
 
 from typing import Any
 
+from app.domains.audit.domain import AsyncArchiveRepositoryInterface
 from app.domains.favorites.domain.enums import EntityType
 from app.domains.favorites.domain.interfaces import FavoriteRepositoryInterface
 from app.domains.restaurants.domain import (
@@ -14,7 +15,6 @@ from app.domains.restaurants.domain import (
 )
 from app.domains.restaurants.domain.exceptions import RestaurantNotFoundException
 from app.domains.restaurants.domain.interfaces import RestaurantRepositoryInterface
-from app.domains.audit.domain import AsyncArchiveRepositoryInterface
 from app.shared.domain.patterns import AsyncUnitOfWork
 
 

@@ -12,14 +12,14 @@ from app.domains.restaurants.schemas.restaurant.delete import (
 )
 from app.domains.restaurants.schemas.restaurant.get import GetRestaurantSchemaResponse
 from app.domains.restaurants.schemas.restaurant.list import (
+    ListRestaurantsSchemaItem,
     ListRestaurantsSchemaResponse,
-    RestaurantSchemaListItem,
 )
 from app.domains.restaurants.schemas.restaurant.ownership import (
     AssignOwnerSchemaRequest,
-    MyRestaurantSchemaItem,
-    MyRestaurantsSchemaResponse,
-    OwnershipListSchemaResponse,
+    ListMyRestaurantsSchemaItem,
+    ListMyRestaurantsSchemaResponse,
+    ListOwnershipsSchemaResponse,
     OwnershipSchemaResponse,
     UpdateOwnerRoleSchemaRequest,
 )
@@ -34,13 +34,13 @@ __all__ = [
     # Get
     "GetRestaurantSchemaResponse",
     # List
+    "ListRestaurantsSchemaItem",
     "ListRestaurantsSchemaResponse",
-    "RestaurantSchemaListItem",
     # Ownership
     "AssignOwnerSchemaRequest",
-    "MyRestaurantSchemaItem",
-    "MyRestaurantsSchemaResponse",
-    "OwnershipListSchemaResponse",
+    "ListMyRestaurantsSchemaItem",
+    "ListMyRestaurantsSchemaResponse",
+    "ListOwnershipsSchemaResponse",
     "OwnershipSchemaResponse",
     "UpdateOwnerRoleSchemaRequest",
 ]

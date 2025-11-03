@@ -12,7 +12,7 @@ from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
 from app.domains.restaurants.dependencies import get_dish_service_dependency
 from app.domains.restaurants.domain import DishData
-from app.domains.restaurants.schemas.dish import (
+from app.domains.restaurants.schemas.dish.admin.create import (
     CreateDishSchemaRequest,
     CreateDishSchemaResponse,
 )
@@ -23,7 +23,7 @@ router = APIRouter()
 
 
 @router.post(
-    path="/restaurants/{restaurant_id}/dishes",
+    path="/restaurants/{restaurant_id}/dishes/",
     status_code=status.HTTP_201_CREATED,
     summary="Create a new dish (Admin)",
     description="Create a new dish for any restaurant. Admin only.",
@@ -40,8 +40,8 @@ async def handle_create_dish(
         CreateDishSchemaRequest,
         Body(description="Dish data to create"),
     ],
-    dish_service: DishService = Depends(get_dish_service_dependency),
-    current_user: User = Depends(require_admin_dependency),
+    dish_service: Annotated[DishService, Depends(get_dish_service_dependency)],
+    current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> CreateDishSchemaResponse:
     """Create a new dish for a restaurant.
 

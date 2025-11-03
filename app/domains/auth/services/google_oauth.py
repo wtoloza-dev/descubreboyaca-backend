@@ -7,9 +7,9 @@ from typing import Any
 
 import httpx
 
-from app.domains.auth.domain.value_objects import OAuthProfile
 from app.domains.auth.domain.enums import AuthProvider
 from app.domains.auth.domain.exceptions import AuthenticationException
+from app.domains.auth.domain.value_objects import OAuthProfile
 
 
 class GoogleOAuthClient:

@@ -13,8 +13,8 @@ from app.domains.auth.domain import User
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.ownership import (
-    OwnershipListSchemaResponse,
+from app.domains.restaurants.schemas.restaurant.admin.list_owners import (
+    ListOwnershipsSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantOwnerService
 
@@ -23,7 +23,7 @@ router = APIRouter()
 
 
 @router.get(
-    path="/restaurants/{restaurant_id}/owners",
+    path="/restaurants/{restaurant_id}/owners/",
     status_code=status.HTTP_200_OK,
     summary="List all owners of a restaurant",
     description="Get a list of all users who have ownership/management rights on a restaurant. Only administrators can access this information.",
@@ -40,7 +40,7 @@ async def handle_list_owners(
         RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
-) -> OwnershipListSchemaResponse:
+) -> ListOwnershipsSchemaResponse:
     """List all owners/managers/staff of a restaurant.
 
     **Requiere autenticación**: Solo administradores (ADMIN) pueden ver owners.
@@ -54,7 +54,7 @@ async def handle_list_owners(
         current_user: Authenticated user (injected)
 
     Returns:
-        OwnershipListSchemaResponse: List of owners with their roles
+        ListOwnershipsSchemaResponse: List of owners with their roles
 
     Raises:
         HTTPException: 401 if not authenticated
@@ -63,7 +63,7 @@ async def handle_list_owners(
     """
     owners = await service.get_owners_by_restaurant(str(restaurant_id))
 
-    return OwnershipListSchemaResponse(
+    return ListOwnershipsSchemaResponse(
         restaurant_id=str(restaurant_id),
         owners=owners,
         total=len(owners),

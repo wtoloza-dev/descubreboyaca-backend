@@ -3,11 +3,11 @@
 This package contains SQLite and PostgreSQL implementations for restaurant owner persistence.
 """
 
-from .postgresql import RestaurantOwnerRepositoryPostgreSQL
-from .sqlite import RestaurantOwnerRepositorySQLite
+from .postgresql import PostgreSQLRestaurantOwnerRepository
+from .sqlite import SQLiteRestaurantOwnerRepository
 
 
 __all__ = [
-    "RestaurantOwnerRepositorySQLite",
-    "RestaurantOwnerRepositoryPostgreSQL",
+    "SQLiteRestaurantOwnerRepository",
+    "PostgreSQLRestaurantOwnerRepository",
 ]

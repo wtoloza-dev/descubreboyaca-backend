@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
 from app.domains.restaurants.dependencies import get_dish_service_dependency
-from app.domains.restaurants.schemas.dish import GetDishSchemaResponse
+from app.domains.restaurants.schemas.dish.public.get import GetDishSchemaResponse
 from app.domains.restaurants.services.dish import DishService
 
 
@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 @router.get(
-    path="/dishes/{dish_id}",
+    path="/dishes/{dish_id}/",
     status_code=status.HTTP_200_OK,
     summary="Get a dish by ID",
     description="Retrieve complete information about a single dish using its unique ID.",

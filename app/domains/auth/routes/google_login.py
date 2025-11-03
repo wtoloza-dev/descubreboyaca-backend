@@ -3,6 +3,8 @@
 This module handles the initiation of Google OAuth authentication flow.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
 
 from app.domains.auth.dependencies.security import get_google_oauth_client_dependency
@@ -14,15 +16,15 @@ router = APIRouter()
 
 
 @router.get(
-    path="/google/login",
+    path="/google/login/",
     status_code=status.HTTP_200_OK,
     summary="Initiate Google OAuth login",
     description="Get the Google OAuth authorization URL to redirect the user to",
 )
 async def handle_google_login(
-    google_oauth_client: GoogleOAuthClient = Depends(
-        get_google_oauth_client_dependency
-    ),
+    google_oauth_client: Annotated[
+        GoogleOAuthClient, Depends(get_google_oauth_client_dependency)
+    ],
 ) -> GoogleLoginUserSchemaResponse:
     """Initiate Google OAuth login flow.
 

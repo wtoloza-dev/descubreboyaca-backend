@@ -1,6 +1,6 @@
-"""SQLite client dependency factories.
+"""SQLite adapter dependency factories.
 
-This module provides generic factory functions to create SQLite client instances
+This module provides generic factory functions to create SQLite adapter instances
 and session dependencies. These factories are app-agnostic and accept all
 configuration as parameters.
 
@@ -12,31 +12,36 @@ from collections.abc import AsyncGenerator, Generator
 from sqlmodel import Session
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.clients.sql.adapters import AsyncSQLiteClient, SQLiteClient
+from app.clients.sql.adapters import (
+    SQLiteAsynchronousAdapter,
+    SQLiteSynchronousAdapter,
+)
 
 
-def create_sqlite_client(database_url: str, echo: bool = False) -> SQLiteClient:
-    """Create a SQLite client instance.
+def create_sqlite_adapter(
+    database_url: str, echo: bool = False
+) -> SQLiteSynchronousAdapter:
+    """Create a SQLite synchronous adapter instance.
 
     Args:
         database_url: SQLite database URL (e.g., "sqlite:///./database.db")
         echo: Whether to echo SQL statements (useful for debugging)
 
     Returns:
-        SQLiteClient: Configured SQLite client
+        SQLiteSynchronousAdapter: Configured SQLite synchronous adapter
 
     Example:
-        >>> client = create_sqlite_client("sqlite:///./test.db", echo=True)
-        >>> with client.get_session() as session:
+        >>> adapter = create_sqlite_adapter("sqlite:///./test.db", echo=True)
+        >>> with adapter.get_session() as session:
         ...     restaurants = session.exec(select(Restaurant)).all()
     """
-    return SQLiteClient(database_url=database_url, echo=echo)
+    return SQLiteSynchronousAdapter(database_url=database_url, echo=echo)
 
 
-def create_async_sqlite_client(
+def create_async_sqlite_adapter(
     database_url: str, echo: bool = False
-) -> AsyncSQLiteClient:
-    """Create an async SQLite client instance.
+) -> SQLiteAsynchronousAdapter:
+    """Create an async SQLite adapter instance.
 
     Args:
         database_url: SQLite database URL with async driver
@@ -44,16 +49,16 @@ def create_async_sqlite_client(
         echo: Whether to echo SQL statements (useful for debugging)
 
     Returns:
-        AsyncSQLiteClient: Configured async SQLite client
+        SQLiteAsynchronousAdapter: Configured async SQLite adapter
 
     Example:
-        >>> client = create_async_sqlite_client(
+        >>> adapter = create_async_sqlite_adapter(
         ...     "sqlite+aiosqlite:///./test.db", echo=True
         ... )
-        >>> async with client.get_session() as session:
+        >>> async with adapter.get_session() as session:
         ...     result = await session.exec(select(Restaurant))
     """
-    return AsyncSQLiteClient(database_url=database_url, echo=echo)
+    return SQLiteAsynchronousAdapter(database_url=database_url, echo=echo)
 
 
 def create_sqlite_session_dependency(
@@ -79,8 +84,8 @@ def create_sqlite_session_dependency(
         >>> def get_restaurants(session: Session = Depends(get_session)):
         ...     return session.exec(select(Restaurant)).all()
     """
-    client = create_sqlite_client(database_url=database_url, echo=echo)
-    with client.get_session() as session:
+    adapter = create_sqlite_adapter(database_url=database_url, echo=echo)
+    with adapter.get_session() as session:
         yield session
 
 
@@ -112,6 +117,6 @@ async def create_async_sqlite_session_dependency(
         ...     result = await session.exec(select(Restaurant))
         ...     return result.all()
     """
-    client = create_async_sqlite_client(database_url=database_url, echo=echo)
-    async with client.get_session() as session:
+    adapter = create_async_sqlite_adapter(database_url=database_url, echo=echo)
+    async with adapter.get_session() as session:
         yield session

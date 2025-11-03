@@ -10,8 +10,8 @@ from app.domains.auth.services.token import JWTTokenProvider
 
 
 __all__ = [
-    "BcryptPasswordHasher",
-    "JWTTokenProvider",
-    "GoogleOAuthClient",
     "AuthService",
+    "BcryptPasswordHasher",
+    "GoogleOAuthClient",
+    "JWTTokenProvider",
 ]

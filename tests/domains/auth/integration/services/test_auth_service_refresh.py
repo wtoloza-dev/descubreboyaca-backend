@@ -32,8 +32,8 @@ class TestAuthServiceRefreshAccessToken:
         Then: Returns new TokenData with fresh access token
         """
         # Arrange
-        
-        user = await create_test_user(
+
+        await create_test_user(
             email="refresh@example.com",
         )
 
@@ -120,8 +120,8 @@ class TestAuthServiceRefreshAccessToken:
         Then: Raises InvalidTokenException (wrong token type)
         """
         # Arrange
-        
-        user = await create_test_user(
+
+        await create_test_user(
             email="wrongtype@example.com",
         )
 
@@ -175,7 +175,7 @@ class TestAuthServiceRefreshAccessToken:
         Then: Raises UserInactiveException
         """
         # Arrange
-        
+
         user = await create_test_user(
             email="deactivated@example.com",
             is_active=True,
@@ -206,8 +206,8 @@ class TestAuthServiceRefreshAccessToken:
         Then: Returns new tokens different from original
         """
         # Arrange
-        
-        user = await create_test_user(
+
+        await create_test_user(
             email="newtokens@example.com",
         )
 
@@ -246,7 +246,7 @@ class TestAuthServiceRefreshAccessToken:
         Then: New tokens can be successfully verified
         """
         # Arrange
-        
+
         user = await create_test_user(
             email="valid@example.com",
         )

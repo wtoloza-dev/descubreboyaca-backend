@@ -4,11 +4,26 @@
 
 | Name | Layer | Architecture |
 |------|-------|--------------|
-| **Database Repositories** | `Infrastructure Layer` | `DDD` `Repository Pattern` `Ports & Adapters` |
+| **Database Repositories** | `Infrastructure Layer` | `DDD` `Repository Pattern` `Ports & Adapters` `Archive Pattern` |
 
 ## Definition
 
 Database Repositories are **concrete implementations** of repository interfaces that handle persistence operations using specific database technologies. They act as the bridge between the domain layer (entities) and the infrastructure layer (ORM models), implementing the Repository Pattern and Ports & Adapters architecture.
+
+## ⚠️ Important: Archive Pattern (Not Soft Delete)
+
+**This project uses the Archive Pattern instead of soft delete:**
+
+- ✅ **Archive Pattern**: When deleting, entities are copied to an `archive` table, then permanently deleted from their original table
+- ❌ **NOT Soft Delete**: No `is_deleted` flags, no filtering of soft-deleted records
+- ✅ **Unit of Work**: Archive + Delete operations are atomic (both succeed or both fail)
+- ✅ **Service Layer**: Deletion logic (archive + delete) is coordinated by the Service layer, not Repository layer
+
+**Key Implications:**
+- Repository `delete()` methods perform **hard delete** (permanent removal)
+- No `is_deleted` filtering in queries (deleted records don't exist)
+- Service layer must archive before calling repository delete
+- `commit=False` support is critical for atomic operations
 
 ## Architecture Overview
 
@@ -233,6 +248,57 @@ entity_model = EntityModel.model_validate(entity)
 entity = Entity.model_validate(model)
 ```
 
+### 1.1. Archive Pattern (Not Soft Delete)
+
+This project uses an **Archive Pattern** instead of soft delete. When an entity is deleted:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                     Archive Pattern Flow                         │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Step 1: Get entity to delete                                    │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │  entity = await repository.get_by_id(id)                   │  │
+│  │  if not entity:                                            │  │
+│  │      raise NotFoundException()                             │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  Step 2: Create archive record (commit=False)                    │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │  archive_data = ArchiveData(                               │  │
+│  │      original_table="entities",                            │  │
+│  │      original_id=entity.id,                                │  │
+│  │      data=entity.model_dump(mode="json"),                  │  │
+│  │      note="Deletion reason",                               │  │
+│  │  )                                                         │  │
+│  │  await archive_repo.create(                                │  │
+│  │      archive_data, deleted_by=user_id, commit=False        │  │
+│  │  )                                                         │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  Step 3: Hard delete from original table (commit=False)          │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │  await repository.delete(id, commit=False)                 │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  Step 4: Commit atomically (Unit of Work)                        │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │  await uow.commit()                                        │  │
+│  │  # Both archive and delete succeed together or fail together│  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Key Points:**
+- ✅ No `is_deleted` flags or soft delete fields
+- ✅ No filtering of soft-deleted records needed
+- ✅ Deleted records are physically removed from tables
+- ✅ Archive table preserves complete entity data as JSON
+- ✅ Uses Unit of Work for atomicity
+- ✅ Archive contains: `original_table`, `original_id`, `data`, `deleted_at`, `deleted_by`, `note`
+
 ### 2. CRUD Operations
 
 #### Find (List with Filters)
@@ -249,10 +315,11 @@ async def find(
 
     Returns:
         list[Entity]: List of entities matching the filters. Empty list if none found.
+    
+    Note: No soft-delete filtering needed since this project uses the Archive pattern.
+    Deleted records are physically removed from tables.
     """
-    statement = select(EntityModel).where(
-        EntityModel.is_deleted == False,  # noqa: E712
-    )
+    statement = select(EntityModel)
 
     # Apply filters if provided
     if filters:
@@ -286,14 +353,12 @@ async def count(self, filters: dict[str, Any]) -> int:
 
     Returns:
         int: Total number of entities matching the filters.
+    
+    Note: No soft-delete filtering needed since this project uses the Archive pattern.
     """
     from sqlmodel import func
 
-    statement = (
-        select(func.count())
-        .select_from(EntityModel)
-        .where(EntityModel.is_deleted == False)  # noqa: E712
-    )
+    statement = select(func.count()).select_from(EntityModel)
 
     # Apply filters if provided
     if filters:
@@ -320,11 +385,10 @@ async def get_by_id(self, id: str) -> Entity | None:
 
     Returns:
         Entity | None: The entity if found, None otherwise.
+    
+    Note: No soft-delete filtering needed since this project uses the Archive pattern.
     """
-    statement = select(EntityModel).where(
-        EntityModel.id == id,
-        EntityModel.is_deleted == False,  # noqa: E712
-    )
+    statement = select(EntityModel).where(EntityModel.id == id)
     result = await self.session.exec(statement)
     model = result.first()
     return Entity.model_validate(model) if model else None
@@ -394,12 +458,11 @@ async def update(
 
     Returns:
         Entity | None: The updated entity if found, None otherwise.
+    
+    Note: No soft-delete filtering needed since this project uses the Archive pattern.
     """
     # Get the ORM model
-    statement = select(EntityModel).where(
-        EntityModel.id == id,
-        EntityModel.is_deleted == False,  # noqa: E712
-    )
+    statement = select(EntityModel).where(EntityModel.id == id)
     result = await self.session.exec(statement)
     entity_model = result.first()
 
@@ -431,63 +494,36 @@ async def update(
     return Entity.model_validate(entity_model)
 ```
 
-#### Delete (Soft Delete)
+#### Delete (Hard Delete with Archive)
 ```python
-async def delete(self, id: str, deleted_by: str, commit: bool = True) -> bool:
-    """Delete an entity.
+async def delete(self, id: str, commit: bool = True) -> bool:
+    """Delete an entity permanently from the database.
 
-    Performs a soft delete by marking the entity as deleted.
+    This project uses the Archive Pattern instead of soft delete:
+    1. The entity should be archived FIRST (handled by Service layer)
+    2. Then this method permanently deletes from the table
+    3. Both operations are atomic (Unit of Work pattern)
+
+    Important: This is a HARD DELETE. The Service layer is responsible
+    for archiving the entity before calling this method.
 
     Args:
-        id: The unique identifier of the entity.
-        deleted_by: User identifier for audit trail.
-        commit: Whether to commit the transaction.
+        id: The unique identifier of the entity to delete.
+        commit: Whether to commit the transaction (default: True).
+                Set to False when using Unit of Work pattern.
 
     Returns:
         bool: True if the entity was deleted, False if not found.
+
+    Example (Service Layer):
+        >>> # Step 1: Archive (commit=False)
+        >>> await archive_repo.create(archive_data, deleted_by=user, commit=False)
+        >>> # Step 2: Delete (commit=False)
+        >>> await entity_repo.delete(id, commit=False)
+        >>> # Step 3: Commit both atomically
+        >>> await uow.commit()
     """
     # Get the ORM model
-    statement = select(EntityModel).where(
-        EntityModel.id == id,
-        EntityModel.is_deleted == False,  # noqa: E712
-    )
-    result = await self.session.exec(statement)
-    entity_model = result.first()
-
-    if not entity_model:
-        return False
-
-    # Soft delete with audit
-    entity_model.is_deleted = True
-    entity_model.deleted_at = datetime.now(UTC)
-    entity_model.deleted_by = deleted_by
-
-    self.session.add(entity_model)
-
-    if commit:
-        await self.session.commit()
-    else:
-        await self.session.flush()
-
-    return True
-```
-
-#### Hard Delete
-```python
-async def hard_delete(self, id: str) -> bool:
-    """Permanently delete an entity from storage.
-
-    Warning: This operation cannot be undone. Use with extreme caution.
-    This is intended for administrative purposes only, such as cleanup
-    scripts or test data removal.
-
-    Args:
-        id: The unique identifier of the entity to permanently delete.
-
-    Returns:
-        bool: True if the entity was deleted, False if not found.
-    """
-    # Get the ORM model (include soft-deleted items)
     statement = select(EntityModel).where(EntityModel.id == id)
     result = await self.session.exec(statement)
     entity_model = result.first()
@@ -497,7 +533,11 @@ async def hard_delete(self, id: str) -> bool:
 
     # Permanently delete from database
     await self.session.delete(entity_model)
-    await self.session.commit()
+
+    if commit:
+        await self.session.commit()
+    else:
+        await self.session.flush()
 
     return True
 ```
@@ -700,10 +740,7 @@ class SQLPromptOwnershipRepository:
         """Find all ownership records for a prompt."""
         statement = (
             select(PromptOwnershipModel)
-            .where(
-                PromptOwnershipModel.prompt_id == prompt_id,
-                PromptOwnershipModel.is_deleted == False,
-            )
+            .where(PromptOwnershipModel.prompt_id == prompt_id)
             .order_by(desc(PromptOwnershipModel.is_primary))
         )
         models = await self.session.exec(statement)
@@ -718,7 +755,6 @@ class SQLPromptOwnershipRepository:
             .where(
                 PromptOwnershipModel.owner_type == owner_type.value,
                 PromptOwnershipModel.owner_id == owner_id,
-                PromptOwnershipModel.is_deleted == False,
             )
             .order_by(desc(PromptOwnershipModel.id))
         )
@@ -747,8 +783,11 @@ async def find(
     limit: int = 10,
     order: str | None = None,
 ) -> list[Entity]:
-    """Find with flexible ordering."""
-    statement = select(EntityModel).where(EntityModel.is_deleted == False)
+    """Find with flexible ordering.
+    
+    Note: No soft-delete filtering needed since this project uses the Archive pattern.
+    """
+    statement = select(EntityModel)
 
     # Apply filters
     for key, value in filters.items():
@@ -781,12 +820,13 @@ async def find(
 - ✅ Class named `SQL{Entity}Repository`
 - ✅ `__init__` accepts `AsyncSession`
 - ✅ All methods are `async`
-- ✅ All queries filter `is_deleted == False` (except hard_delete)
+- ✅ **NO soft-delete filtering** (this project uses Archive Pattern)
 - ✅ Use `AUDIT_FIELDS_EXCLUDE` in create method
 - ✅ Support `commit` parameter (default `True`) in mutating operations
 - ✅ Return domain entities (not ORM models)
 - ✅ Return `None` for not found (not exceptions)
 - ✅ Include `commit()` and `rollback()` methods
+- ✅ `delete()` method performs **hard delete** (archiving handled by Service layer)
 
 ### Database-Specific Repository (`mysql.py`, `sqlite.py`)
 - ✅ Module docstring explaining it's database-specific
@@ -939,18 +979,24 @@ class MySQLEntityRepository(SQLEntityRepository):
 
 ## Best Practices
 
-### 1. Always Filter Soft-Deleted Records
+### 1. No Soft-Delete Filtering (Archive Pattern)
 
 ```python
-# ✅ CORRECT - Filter soft-deleted records
+# ✅ CORRECT - No soft-delete filtering needed (Archive Pattern)
+statement = select(EntityModel).where(EntityModel.id == id)
+
+# ❌ INCORRECT - Don't filter is_deleted (field doesn't exist)
 statement = select(EntityModel).where(
     EntityModel.id == id,
-    EntityModel.is_deleted == False,  # noqa: E712
+    EntityModel.is_deleted == False,  # ❌ This field doesn't exist!
 )
-
-# ❌ INCORRECT - Missing soft-delete filter
-statement = select(EntityModel).where(EntityModel.id == id)
 ```
+
+**Why?** This project uses the Archive Pattern:
+- Deleted records are physically removed from tables
+- A copy is saved to the `archive` table before deletion
+- No `is_deleted` flags exist on entity models
+- Queries naturally only return existing records
 
 ### 2. Use AUDIT_FIELDS_EXCLUDE in Create
 
@@ -993,10 +1039,10 @@ result = await self.session.exec(statement)
 return result.first()
 ```
 
-### 5. Support commit Parameter for Transactions
+### 5. Support commit Parameter for Transactions (Required for Archive Pattern)
 
 ```python
-# ✅ CORRECT - Support commit parameter
+# ✅ CORRECT - Support commit parameter for Unit of Work
 async def create(
     self, entity_data: EntityData, created_by: str, commit: bool = True
 ) -> Entity:
@@ -1010,13 +1056,45 @@ async def create(
     
     return Entity.model_validate(entity_model)
 
-# ❌ INCORRECT - Always commit (can't use in transactions)
+# ❌ INCORRECT - Always commit (breaks Archive Pattern)
 async def create(self, entity_data: EntityData, created_by: str) -> Entity:
     # ... create logic ...
-    await self.session.commit()  # Always commits!
+    await self.session.commit()  # ❌ Can't use with Unit of Work!
 ```
 
-### 6. Validate Filter Fields
+**Why?** The Archive Pattern requires:
+- `commit=False` when archiving + deleting atomically
+- Unit of Work manages the final commit
+
+### 6. Archive Before Delete (Service Layer Responsibility)
+
+```python
+# ✅ CORRECT - Service coordinates Archive + Delete
+async def delete_entity(self, id: str, deleted_by: str, note: str | None) -> None:
+    entity = await self.repo.get_by_id(id)
+    if not entity:
+        raise NotFoundException()
+    
+    # Prepare archive data
+    archive_data = ArchiveData(
+        original_table="entities",
+        original_id=id,
+        data=entity.model_dump(mode="json"),
+        note=note,
+    )
+    
+    # Use Unit of Work for atomicity
+    async with AsyncUnitOfWork(self.repo.session) as uow:
+        await self.archive_repo.create(archive_data, deleted_by, commit=False)
+        await self.repo.delete(id, commit=False)
+        await uow.commit()  # Both succeed or both fail
+
+# ❌ INCORRECT - Delete without archiving
+async def delete_entity(self, id: str) -> None:
+    await self.repo.delete(id)  # ❌ Lost data forever!
+```
+
+### 7. Validate Filter Fields
 
 ```python
 # ✅ CORRECT - Validate filter fields
@@ -1034,7 +1112,7 @@ for key, value in filters.items():
     statement = statement.where(getattr(EntityModel, key) == value)
 ```
 
-### 7. Use Proper Ordering
+### 8. Use Proper Ordering
 
 ```python
 # ✅ CORRECT - Order by ULID (chronological) or created_at
@@ -1105,18 +1183,31 @@ async def create(self, entity_data: EntityData, created_by: str) -> Entity:
     return Entity.model_validate(entity_model)
 ```
 
-### ❌ Forgetting Soft Delete Filter
+### ❌ Deleting Without Archiving
 
 ```python
-# DON'T - Query without soft-delete filter
-statement = select(EntityModel).where(EntityModel.id == id)  # ❌
-# Will return soft-deleted records!
+# DON'T - Delete directly from repository without archiving
+async def delete_entity(self, id: str) -> None:
+    await self.repo.delete(id)  # ❌ Data lost forever!
 
-# DO - Always filter soft-deleted records
-statement = select(EntityModel).where(
-    EntityModel.id == id,
-    EntityModel.is_deleted == False,  # ✅ noqa: E712
-)
+# DO - Archive first, then delete (Service layer)
+async def delete_entity(self, id: str, deleted_by: str) -> None:
+    entity = await self.repo.get_by_id(id)
+    if not entity:
+        raise NotFoundException()
+    
+    # Create archive
+    archive_data = ArchiveData(
+        original_table="entities",
+        original_id=id,
+        data=entity.model_dump(mode="json"),
+    )
+    
+    # Atomic archive + delete
+    async with AsyncUnitOfWork(self.repo.session) as uow:
+        await self.archive_repo.create(archive_data, deleted_by, commit=False)
+        await self.repo.delete(id, commit=False)
+        await uow.commit()  # ✅ Atomic operation
 ```
 
 ### ❌ Not Using AsyncSession
@@ -1143,33 +1234,38 @@ class SQLEntityRepository:
         ...
 ```
 
-### ❌ Hard Delete by Default
+### ❌ Not Supporting commit=False (Breaks Archive Pattern)
 
 ```python
-# DON'T - Hard delete in standard delete method
+# DON'T - Always commit in repository methods
 async def delete(self, id: str) -> bool:
     entity_model = result.first()
-    await self.session.delete(entity_model)  # ❌ Hard delete!
-    await self.session.commit()
+    await self.session.delete(entity_model)
+    await self.session.commit()  # ❌ Always commits, can't use in Unit of Work
     return True
 
-# DO - Soft delete by default, separate hard_delete method
-async def delete(self, id: str, deleted_by: str, commit: bool = True) -> bool:
+# DO - Support commit parameter for transactions
+async def delete(self, id: str, commit: bool = True) -> bool:
     entity_model = result.first()
-    entity_model.is_deleted = True  # ✅ Soft delete
-    entity_model.deleted_at = datetime.now(UTC)
-    entity_model.deleted_by = deleted_by
-    self.session.add(entity_model)
+    if not entity_model:
+        return False
+    
+    await self.session.delete(entity_model)
+    
     if commit:
         await self.session.commit()
+    else:
+        await self.session.flush()  # ✅ Allows Unit of Work coordination
+    
     return True
+```
 
-async def hard_delete(self, id: str) -> bool:  # ✅ Separate method
-    """Permanently delete (admin only)."""
-    entity_model = result.first()
-    await self.session.delete(entity_model)
-    await self.session.commit()
-    return True
+**Why?** The Archive Pattern requires `commit=False` to coordinate atomic operations:
+```python
+async with AsyncUnitOfWork(session) as uow:
+    await archive_repo.create(data, deleted_by=user, commit=False)  # Step 1
+    await entity_repo.delete(id, commit=False)  # Step 2
+    await uow.commit()  # Step 3: Both succeed or fail together
 ```
 
 ## Checklist
@@ -1183,13 +1279,14 @@ async def hard_delete(self, id: str) -> bool:  # ✅ Separate method
 - [ ] Imports entities from domain layer
 - [ ] Imports models from models layer
 - [ ] Uses `AUDIT_FIELDS_EXCLUDE` in create
-- [ ] Filters `is_deleted == False` in all queries (except hard_delete)
+- [ ] **NO soft-delete filtering** (uses Archive Pattern)
 - [ ] Returns domain entities (not ORM models)
 - [ ] Returns `None` for not found (not exceptions)
 - [ ] Supports `commit` parameter in mutating operations (default `True`)
 - [ ] Supports partial updates with `exclude_unset=True`
 - [ ] Validates filter fields
 - [ ] Includes `commit()` and `rollback()` methods
+- [ ] `delete()` method performs hard delete (archiving is Service layer responsibility)
 - [ ] Proper docstrings for all methods
 - [ ] Database-specific repository inherits from common
 - [ ] Exported in package `__init__.py`
@@ -1197,8 +1294,22 @@ async def hard_delete(self, id: str) -> bool:  # ✅ Separate method
 ## Example: Complete Repository
 
 See the actual implementation files for complete examples:
-- **Common:** `app/domains/prompt/repositories/prompt/common/sql.py`
-- **MySQL:** `app/domains/prompt/repositories/prompt/mysql.py`
-- **SQLite:** `app/domains/prompt/repositories/prompt/sqlite.py`
-- **Complex:** `app/domains/prompt/repositories/prompt_ownership/common/sql.py`
+- **User Repository:** `app/domains/auth/repositories/user/`
+  - Common: `common/sql.py` (SQLUserRepository)
+  - SQLite: `sqlite.py` (UserRepositorySQLite)
+  - PostgreSQL: `postgresql.py` (UserRepositoryPostgreSQL)
+- **Restaurant Repository:** `app/domains/restaurants/repositories/restaurant/`
+  - Common: `common/sql.py` (SQLRestaurantRepository)
+  - SQLite: `sqlite.py` (RestaurantRepositorySQLite)
+  - PostgreSQL: `postgresql.py` (RestaurantRepositoryPostgreSQL)
+- **Archive Repository:** `app/domains/audit/repositories/archive/`
+  - SQLite: `sqlite.py` (ArchiveRepositorySQLite)
+  - PostgreSQL: `postgresql.py` (ArchiveRepositoryPostgreSQL)
+
+## Related Documentation
+
+- **Archive Pattern:** `project/AUDIT_SYSTEM_PROPOSAL.md` - Explanation of Archive vs Soft Delete
+- **Unit of Work:** `app/shared/domain/patterns/unit_of_work.py` - Atomic transaction coordination
+- **Repository Interfaces:** `docs/code/Repository_Interfaces.md` - Interface definitions
+- **Service Layer:** `docs/code/Services.md` - How services coordinate archive + delete
 

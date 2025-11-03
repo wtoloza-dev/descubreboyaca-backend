@@ -4,8 +4,10 @@ This module provides service layer fixtures for testing restaurant domain busine
 """
 
 import pytest
+from app.shared.services import ArchiveService
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.domains.audit.repositories import SQLiteArchiveRepository
 from app.domains.restaurants.repositories.dish import DishRepositorySQLite
 from app.domains.restaurants.repositories.restaurant import (
     RestaurantRepositorySQLite,
@@ -16,8 +18,6 @@ from app.domains.restaurants.repositories.restaurant_owner import (
 from app.domains.restaurants.services.dish import DishService
 from app.domains.restaurants.services.restaurant import RestaurantService
 from app.domains.restaurants.services.restaurant_owner import RestaurantOwnerService
-from app.shared.repositories.archive import ArchiveRepositorySQLite
-from app.shared.services import ArchiveService
 
 
 @pytest.fixture(name="restaurant_service")
@@ -40,7 +40,7 @@ def fixture_restaurant_service(test_session: AsyncSession) -> RestaurantService:
         ...     assert restaurant.name == "Test"
     """
     repository = RestaurantRepositorySQLite(test_session)
-    archive_repository = ArchiveRepositorySQLite(test_session)
+    archive_repository = SQLiteArchiveRepository(test_session)
     archive_service = ArchiveService(archive_repository)
     return RestaurantService(repository, archive_service)
 
@@ -67,7 +67,7 @@ def fixture_dish_service(test_session: AsyncSession) -> DishService:
     """
     dish_repository = DishRepositorySQLite(test_session)
     restaurant_repository = RestaurantRepositorySQLite(test_session)
-    archive_repository = ArchiveRepositorySQLite(test_session)
+    archive_repository = SQLiteArchiveRepository(test_session)
     archive_service = ArchiveService(archive_repository)
     return DishService(dish_repository, restaurant_repository, archive_service)
 

@@ -7,6 +7,8 @@ from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.settings import settings
+from app.domains.audit.dependencies import get_async_archive_repository_dependency
+from app.domains.audit.domain import AsyncArchiveRepositoryInterface
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_repository_dependency,
 )
@@ -15,12 +17,10 @@ from app.domains.restaurants.domain.interfaces import (
     RestaurantRepositoryInterface,
 )
 from app.domains.restaurants.repositories.dish import (
-    DishRepositoryPostgreSQL,
-    DishRepositorySQLite,
+    PostgreSQLDishRepository,
+    SQLiteDishRepository,
 )
 from app.domains.restaurants.services.dish import DishService
-from app.domains.audit.dependencies import get_async_archive_repository_dependency
-from app.domains.audit.domain import AsyncArchiveRepositoryInterface
 from app.shared.dependencies.sql import get_async_session_dependency
 
 
@@ -39,9 +39,9 @@ def get_dish_repository_dependency(
         DishRepositoryInterface: Repository instance (SQLite or PostgreSQL)
     """
     if settings.SCOPE == "local":
-        return DishRepositorySQLite(session)
+        return SQLiteDishRepository(session)
     else:
-        return DishRepositoryPostgreSQL(session)
+        return PostgreSQLDishRepository(session)
 
 
 def get_dish_service_dependency(

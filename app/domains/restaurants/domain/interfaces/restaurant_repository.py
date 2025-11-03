@@ -84,11 +84,17 @@ class RestaurantRepositoryInterface(Protocol):
         """
         ...
 
-    async def delete(self, restaurant_id: str, commit: bool = True) -> bool:
+    async def delete(
+        self,
+        restaurant_id: str,
+        deleted_by: str,
+        commit: bool = True,
+    ) -> bool:
         """Delete a restaurant asynchronously (hard delete).
 
         Args:
             restaurant_id: ULID of the restaurant to delete
+            deleted_by: User identifier for audit trail
             commit: Whether to commit the transaction immediately
 
         Returns:

@@ -3,12 +3,11 @@
 This package contains concrete implementations of the dish repository interface.
 """
 
-from .postgresql import DishRepositoryPostgreSQL
-from .sqlite import DishRepositorySQLite
+from .postgresql import PostgreSQLDishRepository
+from .sqlite import SQLiteDishRepository
 
 
 __all__ = [
-    "DishRepositoryPostgreSQL",
-    "DishRepositorySQLite",
+    "SQLiteDishRepository",
+    "PostgreSQLDishRepository",
 ]
-

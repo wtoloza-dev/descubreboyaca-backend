@@ -132,7 +132,7 @@ class TestUserRepositoryCreate:
 
         # Assert - should not be visible without commit
         # Need to query in same session
-        retrieved = await user_repository.get_by_email("uncommitted@example.com")
+        await user_repository.get_by_email("uncommitted@example.com")
         # In same session, it might be visible depending on isolation level
         # But after explicit commit it should definitely be visible
         await user_repository.commit()

@@ -51,9 +51,7 @@ class TestRegisterUser:
         Then: Returns 409 Conflict
         """
         # Arrange
-        existing_user = pytest.helpers.run_async(
-            create_test_user(email="existing@example.com")
-        )
+        pytest.helpers.run_async(create_test_user(email="existing@example.com"))
         payload = {
             "email": "existing@example.com",
             "password": "SecurePassword123!",

@@ -10,15 +10,21 @@
 
 Models are SQLModel/SQLAlchemy classes that represent database tables and handle persistence. They act as the bridge between domain entities and the database, managing data serialization, type conversion, and database-specific concerns.
 
+**Important:** `SQLModel` inheritance is **required** for all models. It provides the ORM functionality that:
+- Maps Python classes to database tables
+- Handles database operations (CRUD)
+- Provides type validation and serialization
+- Integrates with SQLAlchemy and Pydantic
+
 ## Pattern
 
-**Model = AuditModel + Business Fields + Database Metadata**
+**Model = AuditMixin + SQLModel + Business Fields + Database Metadata**
 
 ```
-Business Fields + AuditModel (id, timestamps, user tracking, soft delete) = xxxModel
+Business Fields + AuditMixin (id, timestamps, user tracking) + SQLModel = xxxModel
 ```
 
-Models inherit audit capabilities and add domain-specific fields with database types.
+Models inherit audit capabilities from mixins and add domain-specific fields with database types.
 
 ## File & Naming Rules
 
@@ -32,7 +38,10 @@ Models inherit audit capabilities and add domain-specific fields with database t
 
 ### Model Structure
 ```python
-class XxxModel(AuditModel, table=True):
+from sqlmodel import Field, SQLModel
+from app.shared.models import AuditMixin
+
+class XxxModel(AuditMixin, SQLModel, table=True):
     """Xxx model for database persistence.
     
     [One sentence explaining what it represents].
@@ -49,33 +58,61 @@ class XxxModel(AuditModel, table=True):
 ```
 
 **Key Points:**
-- Always inherit from `AuditModel` with `table=True`
+- Always inherit from `AuditMixin` (or `AuditBasicMixin`), `SQLModel`, with `table=True`
+- `SQLModel` is required for ORM functionality - it's what makes the class a database table
 - Define `__tablename__` immediately after docstring
-- Inherit id, timestamps, user tracking, and soft delete from `AuditModel`
+- Inherit id, timestamps, and user tracking from `AuditMixin` (or just id+timestamps from `AuditBasicMixin`)
 - Only define business-specific fields in the model
 - Use appropriate SQLAlchemy types when needed (`sa_type` parameter)
 
-### AuditModel Inheritance
+### Audit Mixin Inheritance
 
-All models inherit these fields from `AuditModel`:
+Choose the appropriate mixin based on your needs:
+
+#### **AuditMixin** (Full Audit Trail)
+Use for core business entities that need complete audit tracking:
 
 ```python
 # From ULIDMixin
 id: str  # ULID identifier (primary key)
 
-# From DatetimeMixin
+# From TimestampMixin
 created_at: datetime  # Creation timestamp
 updated_at: datetime  # Last update timestamp
 
 # From UserTrackingMixin
-created_by: str  # User who created the record
-updated_by: str  # User who last updated the record
-
-# From SoftDeleteMixin
-deleted_at: datetime | None  # Deletion timestamp
-deleted_by: str | None  # User who deleted the record
-is_deleted: bool  # Soft deletion flag
+created_by: str | None  # User who created the record
+updated_by: str | None  # User who last updated the record
 ```
+
+Examples: `UserModel`, `RestaurantModel`, `DishModel`
+
+#### **AuditBasicMixin** (ID + Timestamps Only)
+Use for user-generated content where user relationship is explicit via foreign key:
+
+```python
+# From ULIDMixin
+id: str  # ULID identifier (primary key)
+
+# From TimestampMixin
+created_at: datetime  # Creation timestamp
+updated_at: datetime  # Last update timestamp
+```
+
+Examples: `ReviewModel`, `FavoriteModel` (user tracked via `user_id` foreign key)
+
+#### **Other Mixins** (Custom Combinations)
+For special cases like junction tables:
+
+```python
+# TimestampMixin + UserTrackingMixin (no ULID, uses composite PK)
+created_at: datetime
+updated_at: datetime
+created_by: str | None
+updated_by: str | None
+```
+
+Examples: `RestaurantOwnerModel` (uses composite primary key: `restaurant_id` + `owner_id`)
 
 **Never redefine these fields in your models.**
 
@@ -98,11 +135,25 @@ is_deleted: bool  # Soft deletion flag
 
 #### Foreign Key References (ULID)
 ```python
-# ✅ CORRECT - Use ULIDType for ULID references
-from app.shared.models.sqlalchemy import ULIDType
-
-prompt_id: str = Field(sa_type=ULIDType, description="Reference to prompt")
+# ✅ RECOMMENDED - Use max_length=26 for ULID references (human-readable in DB)
+restaurant_id: str = Field(
+    foreign_key="restaurants.id",
+    max_length=26,
+    index=True,
+    description="Reference to restaurant"
+)
 ```
+
+**Why VARCHAR(26) instead of BINARY(16)?**
+
+While BINARY(16) saves 10 bytes per ULID and offers slightly better index performance, VARCHAR(26) is preferred because:
+- ✅ **Human-readable in database** - ULIDs appear as `01JBQZ8X9M...` not `0x0192E7A3...`
+- ✅ **Easy debugging** - Can copy/paste ULIDs directly from logs to SQL queries
+- ✅ **Better DX** - Works seamlessly with DB admin tools (TablePlus, pgAdmin, DataGrip)
+- ✅ **No conversion needed** - Direct queries without UNHEX() or conversion functions
+- ⚠️ **Space trade-off acceptable** - 10 bytes per record (~10MB per million records)
+
+**Note:** `ULIDType` with binary storage is available but not recommended unless you have tens of millions of records where space/performance becomes critical.
 
 #### JSON Fields
 ```python
@@ -230,7 +281,10 @@ class XxxModel(AuditModel, table=True):
 
 ### Class Structure Order (Standard)
 ```python
-class XxxModel(AuditModel, table=True):
+from sqlmodel import Field, SQLModel
+from app.shared.models import AuditMixin
+
+class XxxModel(AuditMixin, SQLModel, table=True):
     """Docstring with purpose and key attributes."""
     
     __tablename__ = "xxx"  # ← Always first
@@ -252,10 +306,12 @@ class XxxModel(AuditModel, table=True):
 ### Required Elements
 - ✅ Module docstring with "model for database persistence"
 - ✅ Class docstring explaining purpose
-- ✅ Import `AuditModel` from `app.shared.models`
+- ✅ Import appropriate mixin (`AuditMixin`, `AuditBasicMixin`, etc.) from `app.shared.models`
+- ✅ Import `SQLModel` from `sqlmodel`
+- ✅ Multiple inheritance: `(AuditMixin, SQLModel, table=True)` or `(AuditBasicMixin, SQLModel, table=True)`
 - ✅ `table=True` parameter in class definition
 - ✅ `__tablename__` definition
-- ✅ Use `sa_type=ULIDType` for ULID foreign keys
+- ✅ Use `max_length=26` with `foreign_key` for ULID references
 - ✅ Use `sa_type=JSON` for dict/list fields
 - ✅ Use `sa_type=Text` for large text content
 - ✅ All fields have `description` parameter
@@ -269,13 +325,12 @@ class XxxModel(AuditModel, table=True):
 from typing import Any
 
 from sqlalchemy import JSON, Text
-from sqlmodel import Field
+from sqlmodel import Field, SQLModel
 
-from app.shared.models import AuditModel
-from app.shared.models.sqlalchemy import ULIDType
+from app.shared.models import AuditMixin
 
 
-class XxxModel(AuditModel, table=True):
+class XxxModel(AuditMixin, SQLModel, table=True):
     """[Entity] model for database persistence.
     
     [One sentence explaining what it represents].
@@ -288,8 +343,13 @@ class XxxModel(AuditModel, table=True):
     
     __tablename__ = "xxx"
     
-    # Foreign keys (ULID references)
-    parent_id: str = Field(sa_type=ULIDType, description="Reference to parent entity")
+    # Foreign keys (ULID references as VARCHAR(26) for readability)
+    parent_id: str = Field(
+        foreign_key="parent_table.id",
+        max_length=26,
+        index=True,
+        description="Reference to parent entity"
+    )
     
     # String fields
     name: str = Field(description="Name")
@@ -316,10 +376,19 @@ class XxxModel(AuditModel, table=True):
 
 ### Reference to Parent Entity
 ```python
-prompt_id: str = Field(
-    sa_type=ULIDType,
+# Standard ULID foreign key (VARCHAR(26) for human-readability)
+restaurant_id: str = Field(
+    foreign_key="restaurants.id",
+    max_length=26,
     index=True,  # Often indexed for queries
-    description="Reference to prompt"
+    description="Reference to restaurant"
+)
+
+# Without foreign key constraint (for polymorphic references)
+entity_id: str = Field(
+    max_length=26,
+    index=True,
+    description="ULID of the entity"
 )
 ```
 
@@ -391,36 +460,40 @@ is_primary: bool = Field(description="Is primary owner")
 | Python Type | SQLAlchemy Type | Needs sa_type? | Example |
 |-------------|-----------------|----------------|---------|
 | `str` | VARCHAR | No | `name: str` |
+| `str` | VARCHAR(26) | No | `user_id: str = Field(max_length=26)` (ULID) |
 | `str` | TEXT | Yes | `content: str = Field(sa_type=Text)` |
-| `str` | BINARY(16) | Yes | `id: str = Field(sa_type=ULIDType)` |
 | `int` | INTEGER | No | `count: int` |
 | `bool` | BOOLEAN | No | `is_active: bool` |
 | `datetime` | DATETIME | No | `created_at: datetime` |
 | `dict[str, Any]` | JSON | Yes | `config: dict = Field(sa_type=JSON)` |
+| `list[str]` | JSON | Yes | `tags: list = Field(sa_type=JSON)` |
 
 ## Checklist
 
-- [ ] Inherits from `AuditModel` with `table=True`
+- [ ] Inherits from appropriate mixin (`AuditMixin`, `AuditBasicMixin`, etc.) + `SQLModel` with `table=True`
 - [ ] Has `__tablename__` defined
 - [ ] Has proper module and class docstrings
 - [ ] All fields have `description` parameter
-- [ ] Uses `sa_type=ULIDType` for ULID references
+- [ ] Uses `max_length=26` for ULID references (foreign keys and regular fields)
 - [ ] Uses `sa_type=JSON` for dict/list fields
 - [ ] Uses `sa_type=Text` for large text content
 - [ ] Uses `default_factory=dict` for mutable defaults (dict/list)
 - [ ] **Does NOT use** `sa_type` for basic types (int, bool, str→VARCHAR, datetime)
 - [ ] Foreign keys are indexed when appropriate
-- [ ] No redefinition of audit fields (id, timestamps, etc.)
+- [ ] No redefinition of audit fields (id, timestamps, user tracking)
 - [ ] Exported in `__init__.py`
 
 ## Anti-Patterns (Avoid)
 
 ### ❌ Redefining Audit Fields
 ```python
-# DON'T - AuditModel already provides these
-class XxxModel(AuditModel, table=True):
-    id: str = Field(...)  # ❌ Already in AuditModel
-    created_at: datetime = Field(...)  # ❌ Already in AuditModel
+# DON'T - AuditMixin already provides these
+from sqlmodel import SQLModel
+from app.shared.models import AuditMixin
+
+class XxxModel(AuditMixin, SQLModel, table=True):
+    id: str = Field(...)  # ❌ Already in AuditMixin
+    created_at: datetime = Field(...)  # ❌ Already in AuditMixin
 ```
 
 ### ❌ Missing sa_type for JSON
@@ -441,19 +514,33 @@ variables: dict[str, Any] = Field(default={}, sa_type=JSON)  # ❌
 variables: dict[str, Any] = Field(default_factory=dict, sa_type=JSON)  # ✅
 ```
 
-### ❌ Not Using ULIDType for References
+### ❌ Missing ULID Specifications
 ```python
-# DON'T - Wrong type for ULID storage
-prompt_id: str = Field(description="Prompt ID")  # ❌ No sa_type
+# DON'T - Missing max_length for ULID field
+prompt_id: str = Field(description="Prompt ID")  # ❌ No max_length
 
-# DO - Use ULIDType for proper ULID handling
-prompt_id: str = Field(sa_type=ULIDType, description="Prompt ID")  # ✅
+# DO - Specify max_length=26 for ULID references
+prompt_id: str = Field(
+    foreign_key="prompts.id",
+    max_length=26,
+    description="Prompt ID"
+)  # ✅
+
+# DO - For polymorphic references (no FK constraint)
+entity_id: str = Field(
+    max_length=26,
+    index=True,
+    description="ULID of the entity"
+)  # ✅
 ```
 
 ### ❌ Missing table=True
 ```python
 # DON'T - Won't create database table
-class XxxModel(AuditModel):  # ❌ Missing table=True
+from sqlmodel import SQLModel
+from app.shared.models import AuditMixin
+
+class XxxModel(AuditMixin, SQLModel):  # ❌ Missing table=True
     __tablename__ = "xxx"
 ```
 
@@ -476,67 +563,144 @@ is_active: bool = Field(description="Active")  # ✅
 
 ## Examples from Codebase
 
-### Simple Model (PromptModel)
+### Simple Model with AuditMixin (UserModel)
 ```python
-class PromptModel(AuditModel, table=True):
-    """Prompt model."""
+from sqlmodel import Field, SQLModel
+from app.shared.models import AuditMixin
 
-    __tablename__ = "prompt"
+class UserModel(AuditMixin, SQLModel, table=True):
+    """User model for database persistence."""
 
-    name: str = Field(default=..., description="Prompt name")
-    description: str | None = Field(default=None, description="Prompt description")
-    system_prompt: str | None = Field(default=None, description="System prompt")
-    user_prompt: str | None = Field(default=None, description="User prompt")
-    variables: dict[str, Any] = Field(
-        default_factory=dict, sa_type=JSON, description="JSON variables"
-    )
-    current_version: str = Field(default="0.0.0", description="Current version")
-```
+    __tablename__ = "users"
 
-### Model with Foreign Key (PromptVersionModel)
-```python
-class PromptVersionModel(AuditModel, table=True):
-    """Prompt version model."""
-
-    __tablename__ = "prompt_version"
-
-    prompt_id: str = Field(sa_type=ULIDType, description="Prompt ID")
-    comment: str | None = Field(default=None, description="Version Comment")
-    system_prompt: str | None = Field(default=None, description="System prompt")
-    variables: dict[str, Any] = Field(
-        default_factory=dict,
-        sa_type=JSON,
-        description="JSON variables"
-    )
-    iteration: int = Field(default=0, description="Iteration")
-```
-
-### Model with Complex Constraints (PromptOwnershipModel)
-```python
-class PromptOwnershipModel(AuditModel, table=True):
-    """Prompt ownership and access control model."""
-
-    __tablename__ = "prompt_ownership"
-
-    prompt_id: str = Field(
-        sa_type=ULIDType,
+    email: str = Field(
+        unique=True,
         index=True,
-        description="Reference to the prompt"
+        max_length=255,
+        description="User's email address",
     )
-    owner_type: str = Field(max_length=20, description="Type of owner")
-    owner_id: str = Field(max_length=255, index=True, description="Owner ID")
-    access_level: str = Field(max_length=20, description="Access level")
-    is_primary: bool = Field(description="Is primary owner")
+    full_name: str = Field(
+        max_length=255,
+        description="User's full name",
+    )
+    hashed_password: str | None = Field(
+        default=None,
+        max_length=255,
+        description="Bcrypt hashed password (nullable for OAuth users)",
+    )
+    role: str = Field(
+        default="user",
+        max_length=50,
+        description="User's role in the system",
+    )
+    is_active: bool = Field(
+        default=True,
+        description="Whether the user account is active",
+    )
+```
+
+### Model with JSON Fields (RestaurantModel)
+```python
+from sqlalchemy import JSON
+from sqlmodel import Field, SQLModel
+from app.shared.models import AuditMixin
+
+class RestaurantModel(AuditMixin, SQLModel, table=True):
+    """Restaurant model for database persistence."""
+
+    __tablename__ = "restaurants"
+
+    name: str = Field(
+        max_length=255,
+        index=True,
+        description="Restaurant name",
+    )
+    description: str | None = Field(
+        default=None,
+        max_length=1000,
+        description="Restaurant description",
+    )
+    location: dict[str, float] | None = Field(
+        default=None,
+        sa_type=JSON,
+        description="Geographic coordinates as JSON object",
+    )
+    establishment_types: list[str] = Field(
+        default_factory=list,
+        sa_type=JSON,
+        description="Array of establishment types",
+    )
+```
+
+### Model with AuditBasicMixin (FavoriteModel)
+```python
+from sqlalchemy import Index, UniqueConstraint
+from sqlmodel import Field, SQLModel
+from app.shared.models import AuditBasicMixin
+
+class FavoriteModel(AuditBasicMixin, SQLModel, table=True):
+    """Favorite model for database persistence."""
+
+    __tablename__ = "favorites"
+
+    user_id: str = Field(
+        foreign_key="users.id",
+        max_length=26,
+        index=True,
+        description="User who created the favorite",
+    )
+    entity_type: str = Field(
+        max_length=50,
+        index=True,
+        description="Type of entity being favorited",
+    )
+    entity_id: str = Field(
+        max_length=26,
+        index=True,
+        description="ULID of the favorited entity",
+    )
 
     __table_args__ = (
-        Index(
-            "idx_prompt_ownership_unique",
-            "prompt_id",
-            "owner_type",
-            "owner_id",
-            unique=True,
+        UniqueConstraint(
+            "user_id",
+            "entity_type",
+            "entity_id",
+            name="uq_favorites_user_entity",
         ),
-        Index("idx_prompt_ownership_owner", "owner_type", "owner_id"),
+        Index("ix_favorites_user_type", "user_id", "entity_type"),
+    )
+```
+
+### Model with Composite Primary Key (RestaurantOwnerModel)
+```python
+from sqlmodel import Field, SQLModel
+from app.shared.models import TimestampMixin, UserTrackingMixin
+
+class RestaurantOwnerModel(TimestampMixin, UserTrackingMixin, SQLModel, table=True):
+    """Restaurant ownership relationship model."""
+
+    __tablename__ = "restaurant_owners"
+
+    restaurant_id: str = Field(
+        foreign_key="restaurants.id",
+        primary_key=True,
+        max_length=26,
+        description="ULID of the restaurant",
+    )
+    owner_id: str = Field(
+        foreign_key="users.id",
+        primary_key=True,
+        max_length=26,
+        description="ULID of the owner/manager user",
+    )
+    role: str = Field(
+        default="owner",
+        max_length=50,
+        description="Role in restaurant management",
+    )
+    is_primary: bool = Field(
+        default=False,
+        description="Whether this is the primary owner",
     )
 ```
 
@@ -547,10 +711,25 @@ Models serve as the persistence layer for domain entities:
 ```
 Domain Entity ──(mapper)──> Database Model ──(SQLAlchemy)──> Database
      ↓                              ↓                            ↓
-PromptVersion          PromptVersionModel              prompt_version (table)
+Restaurant            RestaurantModel              restaurants (table)
+User                  UserModel                    users (table)
+Dish                  DishModel                    dishes (table)
+Review                ReviewModel                  reviews (table)
+Favorite              FavoriteModel                favorites (table)
 ```
 
 - **Entities**: Business logic and domain rules (domain layer)
 - **Models**: Data persistence and database mapping (infrastructure layer)
 - **Repositories**: Handle conversion between entities and models
+
+## Mixin Selection Guide
+
+Choose the right mixin based on your model's requirements:
+
+| Use Case | Mixin | Provides | Example |
+|----------|-------|----------|---------|
+| Core business entities | `AuditMixin` | id + timestamps + user tracking | `UserModel`, `RestaurantModel`, `DishModel` |
+| User-generated content (explicit FK) | `AuditBasicMixin` | id + timestamps only | `ReviewModel`, `FavoriteModel` |
+| Junction tables with composite PK | `TimestampMixin + UserTrackingMixin` | timestamps + user tracking | `RestaurantOwnerModel` |
+| Archival/logging | `ULIDMixin` | id only | `ArchiveModel` |
 

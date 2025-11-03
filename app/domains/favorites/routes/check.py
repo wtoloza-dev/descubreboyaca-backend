@@ -11,7 +11,7 @@ from app.domains.auth.dependencies.auth import get_current_user_dependency
 from app.domains.auth.domain import User
 from app.domains.favorites.dependencies import get_favorite_service_dependency
 from app.domains.favorites.domain.enums import EntityType
-from app.domains.favorites.schemas import CheckFavoriteResponse
+from app.domains.favorites.schemas import CheckFavoriteSchemaResponse
 from app.domains.favorites.services import FavoriteService
 
 
@@ -19,7 +19,7 @@ router = APIRouter()
 
 
 @router.get(
-    path="/{entity_type}/{entity_id}/is-favorite",
+    path="/{entity_type}/{entity_id}/is-favorite/",
     status_code=status.HTTP_200_OK,
     summary="Check if entity is favorited",
     description="Check whether a specific entity is in user's favorites.",
@@ -31,7 +31,7 @@ async def handle_check_favorite(
     entity_id: Annotated[str, Path(description="ULID of the entity")],
     current_user: Annotated[User, Depends(get_current_user_dependency)],
     service: Annotated[FavoriteService, Depends(get_favorite_service_dependency)],
-) -> CheckFavoriteResponse:
+) -> CheckFavoriteSchemaResponse:
     """Check if an entity is favorited by the user.
 
     Args:
@@ -50,7 +50,7 @@ async def handle_check_favorite(
         entity_id=entity_id,
     )
 
-    return CheckFavoriteResponse(
+    return CheckFavoriteSchemaResponse(
         is_favorite=favorite is not None,
         favorite_id=favorite.id if favorite else None,
     )

@@ -10,9 +10,9 @@ from fastapi import APIRouter, Depends, Path, status
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.list import (
-    ListRestaurantsSchemaResponse,
-    RestaurantSchemaListItem,
+from app.domains.restaurants.schemas.restaurant.public.list_by_city import (
+    ListRestaurantsByCitySchemaItem,
+    ListRestaurantsByCitySchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantService
 from app.shared.dependencies import get_pagination_dependency
@@ -23,7 +23,7 @@ router = APIRouter()
 
 
 @router.get(
-    path="/city/{city}",
+    path="/city/{city}/",
     status_code=status.HTTP_200_OK,
     summary="List restaurants by city",
     description="Retrieve a paginated list of restaurants filtered by city name.",
@@ -38,7 +38,7 @@ async def handle_list_restaurants_by_city(
     ],
     pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
     service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
-) -> ListRestaurantsSchemaResponse:
+) -> ListRestaurantsByCitySchemaResponse:
     """List restaurants by city with pagination.
 
     Args:
@@ -58,11 +58,11 @@ async def handle_list_restaurants_by_city(
 
     # Convert entities to dicts with JSON-compatible types (HttpUrl → str)
     items = [
-        RestaurantSchemaListItem.model_validate(r.model_dump(mode="json"))
+        ListRestaurantsByCitySchemaItem.model_validate(r.model_dump(mode="json"))
         for r in restaurants
     ]
 
-    return ListRestaurantsSchemaResponse(
+    return ListRestaurantsByCitySchemaResponse(
         items=items,
         page=pagination.page,
         page_size=pagination.page_size,

@@ -14,11 +14,11 @@ from app.domains.restaurants.domain import (
 )
 from app.domains.restaurants.models.restaurant import RestaurantModel
 from app.domains.restaurants.repositories import (
-    RestaurantRepositoryPostgreSQL,
-    RestaurantRepositorySQLite,
+    PostgreSQLRestaurantRepository,
+    SQLiteRestaurantRepository,
 )
 from app.domains.restaurants.routes import router
-from app.domains.restaurants.schemas import (
+from app.domains.restaurants.schemas.restaurant.admin.create import (
     CreateRestaurantSchemaRequest,
     CreateRestaurantSchemaResponse,
 )
@@ -36,8 +36,8 @@ __all__ = [
     "PriceLevel",
     "RestaurantFeature",
     # Repositories
-    "RestaurantRepositorySQLite",
-    "RestaurantRepositoryPostgreSQL",
+    "SQLiteRestaurantRepository",
+    "PostgreSQLRestaurantRepository",
     # Services
     "RestaurantService",
     # Schemas

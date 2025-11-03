@@ -9,7 +9,7 @@ from app.domains.restaurants.schemas.dish.create import (
 )
 from app.domains.restaurants.schemas.dish.get import GetDishSchemaResponse
 from app.domains.restaurants.schemas.dish.list import (
-    DishSchemaListItem,
+    ListDishesSchemaItem,
     ListDishesSchemaResponse,
 )
 from app.domains.restaurants.schemas.dish.update import UpdateDishSchemaRequest
@@ -24,6 +24,6 @@ __all__ = [
     # Get
     "GetDishSchemaResponse",
     # List
-    "DishSchemaListItem",
+    "ListDishesSchemaItem",
     "ListDishesSchemaResponse",
 ]

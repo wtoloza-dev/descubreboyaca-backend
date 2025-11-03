@@ -11,7 +11,6 @@ from app.domains.auth.dependencies.auth import get_current_user_dependency
 from app.domains.auth.domain import User
 from app.domains.favorites.dependencies import get_favorite_service_dependency
 from app.domains.favorites.domain.enums import EntityType
-from app.domains.favorites.domain.exceptions import FavoriteNotFoundException
 from app.domains.favorites.services import FavoriteService
 
 
@@ -19,7 +18,7 @@ router = APIRouter()
 
 
 @router.delete(
-    path="/{entity_type}/{entity_id}",
+    path="/{entity_type}/{entity_id}/",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Remove entity from favorites",
     description="Remove a restaurant, dish, or other entity from user's favorites.",
@@ -43,13 +42,9 @@ async def handle_remove_favorite(
     Raises:
         FavoriteNotFoundException: If favorite not found (404 Not Found)
     """
-    # Remove favorite
-    try:
-        await service.remove_favorite(
-            user_id=current_user.id,
-            entity_type=entity_type,
-            entity_id=entity_id,
-        )
-    except FavoriteNotFoundException:
-        # Re-raise to be handled by error handler
-        raise
+    # Remove favorite (domain exceptions propagate to global handler)
+    await service.remove_favorite(
+        user_id=current_user.id,
+        entity_type=entity_type,
+        entity_id=entity_id,
+    )
