@@ -18,6 +18,11 @@
 2. 💻 **[Ejemplo Comparativo](../../examples/lifespan_comparison.py)** - Código real
 3. 📋 **[Cheat Sheet](./Cheat_Sheet_ES.md)** - Para copiar/pegar
 
+### Si quieres entender el Pool de Conexiones:
+1. ⚡ **[Referencia Rápida Pool](./Connection_Pool_Quick_Reference_ES.md)** - 5 minutos
+2. 🔌 **[Guía Completa Pool](./Connection_Pool_Guide_ES.md)** - 30 minutos
+3. 📊 **[Comparación SQLite vs PostgreSQL](./Connection_Pool_Guide_ES.md#comparación-sqlite-vs-postgresql)** - Decisiones
+
 ---
 
 ## 📁 Documentación Disponible
@@ -67,9 +72,37 @@ $ cat docs/code/Lifespan_Explained_ES.md
 $ cat docs/code/Flujo_Visual_ES.md
 ```
 
+#### 4️⃣ **Connection_Pool_Quick_Reference_ES.md** ⚡
+**Para:** Entender rápido Engine y Pool  
+**Tiempo:** 5 minutos  
+**Contenido:**
+- ✅ ¿Dónde crear el Engine?
+- ✅ Diagrama visual
+- ✅ Configuración del pool
+- ✅ Anti-patrones comunes
+
+```bash
+# Ver la referencia rápida
+$ cat docs/code/Connection_Pool_Quick_Reference_ES.md
+```
+
+#### 5️⃣ **Connection_Pool_Guide_ES.md** 🔌
+**Para:** Dominar el pool de conexiones  
+**Tiempo:** 30 minutos  
+**Contenido:**
+- ✅ Pool de conexiones explicado
+- ✅ Parámetros detallados
+- ✅ SQLite vs PostgreSQL
+- ✅ Troubleshooting completo
+
+```bash
+# Leer la guía completa
+$ cat docs/code/Connection_Pool_Guide_ES.md
+```
+
 ### 🇬🇧 En Inglés
 
-#### 4️⃣ **Database_Best_Practices.md** 📚
+#### 6️⃣ **Database_Best_Practices.md** 📚
 **Para:** Implementación profesional  
 **Tiempo:** 30 minutos  
 **Contenido:**
@@ -194,6 +227,10 @@ Si quieres dominarlo:
 | ¿Cómo probar? | test_lifespan.py |
 | ¿Best practices? | Database_Best_Practices.md |
 | ¿FAQ? | Cheat_Sheet_ES.md → Preguntas Frecuentes |
+| **¿Engine en Lifespan o Dependency?** | **Connection_Pool_Quick_Reference_ES.md** |
+| **¿Qué es el pool de conexiones?** | **Connection_Pool_Guide_ES.md → Pool Explicado** |
+| **¿Configurar pool_size?** | **Connection_Pool_Guide_ES.md → Configuración** |
+| **¿Problemas con conexiones?** | **Connection_Pool_Guide_ES.md → Troubleshooting** |
 
 ---
 

@@ -7,7 +7,6 @@ required middleware, routers, and settings using the Application Factory pattern
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.errors import register_exception_handlers
 from app.core.lifespan import lifespan
 from app.core.routes import router as core_router
 from app.core.settings import settings
@@ -75,7 +74,7 @@ def create_app() -> FastAPI:
     register_cors(app)
 
     # Register exception handlers
-    register_exception_handlers(app)
+    # register_exception_handlers(app)
 
     # Register all routers
     register_routers(app)

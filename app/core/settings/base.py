@@ -30,6 +30,7 @@ class BaseAppSettings(BaseSettings):
     CORS_ORIGINS: str = "*"  # Allow all origins
 
     # Database settings
-    DATABASE_URL: str = "sqlite:///./local.db"
-    DATABASE_ASYNC_URL: str = "sqlite+aiosqlite:///./local.db"
-    DATABASE_ECHO: bool = False
+    # DSN (Data Source Name) without driver prefix
+    # SQLite example: "./local.db"
+    # PostgreSQL example: "user:password@host:port/database"
+    DATABASE_DSN: str = ""

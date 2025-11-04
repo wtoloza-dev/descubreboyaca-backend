@@ -73,11 +73,11 @@ class TestListFavorites:
         assert "total" in data
         assert "page" in data
         assert "page_size" in data
-        assert isinstance(data["items"], list)
-        assert len(data["items"]) == 0
-        assert data["total"] == 0
-        assert data["page"] == 1
-        assert data["page_size"] == 20
+        assert isinstance(data["data"], list)
+        assert len(data["data"]) == 0
+        assert data["pagination"]["total"] == 0
+        assert data["pagination"]["page"] == 1
+        assert data["pagination"]["page_size"] == 20
 
     @pytest.mark.asyncio
     async def test_list_favorites_with_results(
@@ -114,9 +114,9 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 3
-        assert data["total"] == 3
-        names = [r["name"] for r in data["items"]]
+        assert len(data["data"]) == 3
+        assert data["pagination"]["total"] == 3
+        names = [r["name"] for r in data["data"]]
         assert "Favorite 1" in names
         assert "Favorite 2" in names
         assert "Favorite 3" in names
@@ -157,8 +157,8 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 1
-        item = data["items"][0]
+        assert len(data["data"]) == 1
+        item = data["data"][0]
         # Verify all fields from RestaurantSchemaListItem
         assert "id" in item
         assert "name" in item
@@ -203,10 +203,10 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 3
-        assert data["page"] == 2
-        assert data["page_size"] == 3
-        assert data["total"] == 10
+        assert len(data["data"]) == 3
+        assert data["pagination"]["page"] == 2
+        assert data["pagination"]["page_size"] == 3
+        assert data["pagination"]["total"] == 10
 
     @pytest.mark.asyncio
     async def test_list_favorites_only_returns_restaurants(
@@ -247,10 +247,10 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 2
-        assert data["total"] == 2
+        assert len(data["data"]) == 2
+        assert data["pagination"]["total"] == 2
         # Verify all returned items are restaurants
-        names = [r["name"] for r in data["items"]]
+        names = [r["name"] for r in data["data"]]
         assert "Restaurant 1" in names
         assert "Restaurant 2" in names
 
@@ -289,11 +289,11 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 3
+        assert len(data["data"]) == 3
         # Most recent favorite should be first
-        assert data["items"][0]["name"] == "Third Added"
-        assert data["items"][1]["name"] == "Second Added"
-        assert data["items"][2]["name"] == "First Added"
+        assert data["data"][0]["name"] == "Third Added"
+        assert data["data"][1]["name"] == "Second Added"
+        assert data["data"][2]["name"] == "First Added"
 
     @pytest.mark.asyncio
     async def test_list_favorites_skips_deleted_restaurants(
@@ -332,7 +332,7 @@ class TestListFavorites:
         assert response.status_code == HTTPStatus.OK
         data = response.json()
         # Should only return the restaurant that still exists
-        assert len(data["items"]) == 1
-        assert data["items"][0]["name"] == "Still Exists"
+        assert len(data["data"]) == 1
+        assert data["data"][0]["name"] == "Still Exists"
         # Note: total still reflects the favorite count, but items are filtered
-        assert data["total"] == 2  # Favorite records still exist
+        assert data["pagination"]["total"] == 2  # Favorite records still exist

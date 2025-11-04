@@ -27,29 +27,45 @@ class PostgreSQLAsynchronousAdapter:
     Example:
         >>> url = "postgresql+asyncpg://user:pass@localhost/dbname"
         >>> adapter = PostgreSQLAsynchronousAdapter(url)
+        >>> adapter.connect()
         >>> async with adapter.get_session() as session:
         ...     result = await session.exec(select(Restaurant))
         ...     restaurants = result.all()
     """
 
-    def __init__(self, database_url: str, echo: bool = False) -> None:
+    def __init__(
+        self,
+        database_url: str,
+        echo: bool = False,
+        pool_size: int = 5,
+        max_overflow: int = 10,
+        pool_recycle: int = 3600,
+        pool_pre_ping: bool = True,
+    ) -> None:
         """Initialize async PostgreSQL adapter.
 
         Args:
             database_url: PostgreSQL database URL with async driver
                 Format: "postgresql+asyncpg://username:password@host:port/database"
             echo: Whether to echo SQL statements (useful for debugging)
+            pool_size: Number of permanent connections in the pool (default: 5)
+            max_overflow: Maximum additional connections allowed (default: 10)
+            pool_recycle: Recycle connections after N seconds (default: 3600)
+            pool_pre_ping: Verify connection before using (default: True)
 
         Example:
             >>> url = "postgresql+asyncpg://user:pass@localhost:5432/mydb"
-            >>> adapter = PostgreSQLAsynchronousAdapter(url, echo=True)
+            >>> adapter = PostgreSQLAsynchronousAdapter(
+            ...     url, echo=True, pool_size=10, max_overflow=20
+            ... )
         """
         self.engine: AsyncEngine = create_async_engine(
             database_url,
             echo=echo,
-            pool_pre_ping=True,
-            pool_size=5,
-            max_overflow=10,
+            pool_pre_ping=pool_pre_ping,
+            pool_size=pool_size,
+            max_overflow=max_overflow,
+            pool_recycle=pool_recycle,
         )
         self.async_session = async_sessionmaker(
             self.engine,

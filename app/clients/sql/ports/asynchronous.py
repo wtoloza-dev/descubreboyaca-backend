@@ -10,6 +10,7 @@ Best Practices:
     - No manual close() needed - engines dispose automatically on shutdown
 """
 
+from collections.abc import AsyncGenerator
 from typing import Protocol
 
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -25,7 +26,7 @@ class AsyncSQLClientPort(Protocol):
     should be performed using the async session in repositories.
     """
 
-    async def get_session(self) -> AsyncSession:
+    async def get_session(self) -> AsyncGenerator[AsyncSession]:
         """Get an async database session context manager.
 
         Yields:

@@ -21,10 +21,10 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert data["items"] == []
-        assert data["total"] == 0
-        assert data["page"] == 1
-        assert data["page_size"] == 20
+        assert data["data"] == []
+        assert data["pagination"]["total"] == 0
+        assert data["pagination"]["page"] == 1
+        assert data["pagination"]["page_size"] == 20
 
     def test_list_favorites_with_results(self, user_client, mock_regular_user):
         """Test listing favorites with multiple items.
@@ -57,9 +57,9 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 3
-        assert data["total"] == 3
-        assert all(item["user_id"] == mock_regular_user.id for item in data["items"])
+        assert len(data["data"]) == 3
+        assert data["pagination"]["total"] == 3
+        assert all(item["user_id"] == mock_regular_user.id for item in data["data"])
 
     def test_list_favorites_filter_by_entity_type(self, user_client):
         """Test filtering favorites by entity type.
@@ -92,9 +92,9 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 2
-        assert data["total"] == 2
-        assert all(item["entity_type"] == "restaurant" for item in data["items"])
+        assert len(data["data"]) == 2
+        assert data["pagination"]["total"] == 2
+        assert all(item["entity_type"] == "restaurant" for item in data["data"])
 
     def test_list_favorites_with_pagination(self, user_client):
         """Test listing favorites with pagination.
@@ -117,10 +117,10 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 2
-        assert data["page"] == 2
-        assert data["page_size"] == 2
-        assert data["total"] == 5
+        assert len(data["data"]) == 2
+        assert data["pagination"]["page"] == 2
+        assert data["pagination"]["page_size"] == 2
+        assert data["pagination"]["total"] == 5
 
     def test_list_favorites_requires_authentication(self, test_client):
         """Test listing favorites requires authentication.
@@ -156,10 +156,10 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 3
+        assert len(data["data"]) == 3
 
         # Verify ordering (newest first)
-        created_dates = [item["created_at"] for item in data["items"]]
+        created_dates = [item["created_at"] for item in data["data"]]
         assert created_dates == sorted(created_dates, reverse=True)
 
     def test_list_favorites_includes_all_fields(self, user_client, mock_regular_user):
@@ -182,9 +182,9 @@ class TestListFavorites:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert len(data["items"]) == 1
+        assert len(data["data"]) == 1
 
-        item = data["items"][0]
+        item = data["data"][0]
         assert "id" in item
         assert "user_id" in item
         assert "entity_type" in item

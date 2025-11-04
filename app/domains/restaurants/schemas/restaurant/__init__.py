@@ -3,25 +3,35 @@
 This package contains schemas for restaurant operations.
 """
 
-from app.domains.restaurants.schemas.restaurant.create import (
+from app.domains.restaurants.schemas.restaurant.admin.assign_owner import (
+    AssignOwnerSchemaRequest,
+)
+from app.domains.restaurants.schemas.restaurant.admin.create import (
     CreateRestaurantSchemaRequest,
     CreateRestaurantSchemaResponse,
 )
-from app.domains.restaurants.schemas.restaurant.delete import (
+from app.domains.restaurants.schemas.restaurant.admin.delete import (
     DeleteRestaurantSchemaRequest,
 )
-from app.domains.restaurants.schemas.restaurant.get import GetRestaurantSchemaResponse
-from app.domains.restaurants.schemas.restaurant.list import (
+from app.domains.restaurants.schemas.restaurant.admin.list_owners import (
+    ListOwnershipsSchemaResponse,
+)
+from app.domains.restaurants.schemas.restaurant.admin.update_owner_role import (
+    UpdateOwnerRoleSchemaRequest,
+)
+from app.domains.restaurants.schemas.restaurant.common.ownership import (
+    OwnershipSchemaResponse,
+)
+from app.domains.restaurants.schemas.restaurant.owner.list_my_restaurants import (
+    ListMyRestaurantsSchemaItem,
+    ListMyRestaurantsSchemaResponse,
+)
+from app.domains.restaurants.schemas.restaurant.public.find_all import (
     ListRestaurantsSchemaItem,
     ListRestaurantsSchemaResponse,
 )
-from app.domains.restaurants.schemas.restaurant.ownership import (
-    AssignOwnerSchemaRequest,
-    ListMyRestaurantsSchemaItem,
-    ListMyRestaurantsSchemaResponse,
-    ListOwnershipsSchemaResponse,
-    OwnershipSchemaResponse,
-    UpdateOwnerRoleSchemaRequest,
+from app.domains.restaurants.schemas.restaurant.public.get import (
+    GetRestaurantSchemaResponse,
 )
 
 

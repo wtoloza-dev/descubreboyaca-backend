@@ -58,7 +58,7 @@ class TestListMyTeam:
         assert "total" in data
         assert "restaurant_id" in data
         assert data["restaurant_id"] == restaurant.id
-        assert data["total"] == 3
+        assert data["pagination"]["total"] == 3
         assert len(data["team"]) == 3
 
         # Verify team members have expected fields
@@ -158,7 +158,7 @@ class TestListMyTeam:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert data["total"] == 5
+        assert data["pagination"]["total"] == 5
         assert len(data["team"]) == 5
 
         # Verify all owner IDs are present

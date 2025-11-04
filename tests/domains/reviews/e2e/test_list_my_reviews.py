@@ -19,10 +19,10 @@ class TestListMyReviews:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert data["items"] == []
-        assert data["total"] == 0
-        assert data["page"] == 1
-        assert data["page_size"] == 20
+        assert data["data"] == []
+        assert data["pagination"]["total"] == 0
+        assert data["pagination"]["page"] == 1
+        assert data["pagination"]["page_size"] == 20
 
     def test_list_my_reviews_requires_authentication(self, test_client):
         """Test listing reviews requires authentication.

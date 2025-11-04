@@ -45,13 +45,13 @@ class TestListMyRestaurants:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert "items" in data
-        assert "total" in data
-        assert data["total"] == 2
-        assert len(data["items"]) == 2
+        assert "data" in data
+        assert "pagination" in data
+        assert data["pagination"]["total"] == 2
+        assert len(data["data"]) == 2
 
         # Verify items contain expected fields
-        item = data["items"][0]
+        item = data["data"][0]
         assert "restaurant_id" in item
         assert "restaurant_name" in item
         assert "role" in item
@@ -76,8 +76,8 @@ class TestListMyRestaurants:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert data["total"] == 0
-        assert len(data["items"]) == 0
+        assert data["pagination"]["total"] == 0
+        assert len(data["data"]) == 0
 
     @pytest.mark.asyncio
     async def test_list_my_restaurants_multiple(
@@ -117,11 +117,11 @@ class TestListMyRestaurants:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert data["total"] == 4
-        assert len(data["items"]) == 4
+        assert data["pagination"]["total"] == 4
+        assert len(data["data"]) == 4
 
         # Verify all restaurant IDs are present
-        returned_ids = {item["restaurant_id"] for item in data["items"]}
+        returned_ids = {item["restaurant_id"] for item in data["data"]}
         expected_ids = {r.id for r in restaurants}
         assert returned_ids == expected_ids
 
@@ -168,7 +168,7 @@ class TestListMyRestaurants:
         data = response.json()
 
         # Find each restaurant in the response
-        items_by_id = {item["restaurant_id"]: item for item in data["items"]}
+        items_by_id = {item["restaurant_id"]: item for item in data["data"]}
 
         # Verify primary restaurant
         primary_item = items_by_id[primary_restaurant.id]

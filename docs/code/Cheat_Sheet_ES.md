@@ -220,3 +220,4 @@ R: No obligatorio, pero **altamente recomendado** para performance.
 
 ¡Listo! Ya entiendes lifespan. 🚀
 
+

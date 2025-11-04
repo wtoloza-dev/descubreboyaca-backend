@@ -4,6 +4,7 @@ This package contains constants shared across multiple bounded contexts.
 Constants represent fixed values used throughout the application.
 """
 
+from .audit import AUDIT_FIELDS_EXCLUDE
 from .defaults import (
     DEFAULT_COUNTRY,
     DEFAULT_CURRENCY,
@@ -37,4 +38,6 @@ __all__ = [
     "MAX_DESCRIPTION_LENGTH",
     "MAX_ADDRESS_LENGTH",
     "MAX_NOTE_LENGTH",
+    # Audit
+    "AUDIT_FIELDS_EXCLUDE",
 ]

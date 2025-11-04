@@ -35,24 +35,39 @@ class PostgreSQLSynchronousAdapter:
         ...     session.commit()
     """
 
-    def __init__(self, database_url: str, echo: bool = False) -> None:
+    def __init__(
+        self,
+        database_url: str,
+        echo: bool = False,
+        pool_size: int = 5,
+        max_overflow: int = 10,
+        pool_recycle: int = 3600,
+        pool_pre_ping: bool = True,
+    ) -> None:
         """Initialize PostgreSQL adapter.
 
         Args:
             database_url: PostgreSQL database URL
                 Format: "postgresql://username:password@host:port/database"
             echo: Whether to echo SQL statements (useful for debugging)
+            pool_size: Number of permanent connections in the pool (default: 5)
+            max_overflow: Maximum additional connections allowed (default: 10)
+            pool_recycle: Recycle connections after N seconds (default: 3600)
+            pool_pre_ping: Verify connection before using (default: True)
 
         Example:
             >>> url = "postgresql://myuser:mypass@localhost:5432/mydb"
-            >>> adapter = PostgreSQLSynchronousAdapter(url, echo=True)
+            >>> adapter = PostgreSQLSynchronousAdapter(
+            ...     url, echo=True, pool_size=10, max_overflow=20
+            ... )
         """
         self.engine: Engine = create_engine(
             database_url,
             echo=echo,
-            pool_pre_ping=True,  # Verify connections before using
-            pool_size=5,  # Connection pool size
-            max_overflow=10,  # Additional connections when pool is full
+            pool_pre_ping=pool_pre_ping,
+            pool_size=pool_size,
+            max_overflow=max_overflow,
+            pool_recycle=pool_recycle,
         )
 
     @contextmanager

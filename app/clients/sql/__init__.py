@@ -64,9 +64,7 @@ from app.clients.sql.adapters import (
 )
 from app.clients.sql.dependencies import (
     create_async_sqlite_adapter,
-    create_async_sqlite_session_dependency,
     create_sqlite_adapter,
-    create_sqlite_session_dependency,
 )
 from app.clients.sql.ports import AsyncSQLClientPort, SQLClientPort
 
@@ -83,6 +81,4 @@ __all__ = [
     # Generic Factories (app-agnostic)
     "create_sqlite_adapter",
     "create_async_sqlite_adapter",
-    "create_sqlite_session_dependency",
-    "create_async_sqlite_session_dependency",
 ]

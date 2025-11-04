@@ -7,3 +7,4 @@ class LocalSettings(BaseAppSettings):
     """Local development settings."""
 
     SCOPE: str = "local"
+    DATABASE_DSN: str = "./local.db"
