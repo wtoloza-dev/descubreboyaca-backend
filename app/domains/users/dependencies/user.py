@@ -7,7 +7,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.domains.audit.dependencies import get_async_archive_repository_dependency
+from app.domains.audit.dependencies import get_archive_repository_dependency
 from app.domains.audit.domain.interfaces import ArchiveRepositoryInterface
 from app.domains.auth.dependencies.security import get_password_hasher_dependency
 from app.domains.auth.dependencies.sql import get_user_repository_dependency
@@ -21,7 +21,7 @@ def get_user_service_dependency(
         UserRepositoryInterface, Depends(get_user_repository_dependency)
     ],
     archive_repository: Annotated[
-        ArchiveRepositoryInterface, Depends(get_async_archive_repository_dependency)
+        ArchiveRepositoryInterface, Depends(get_archive_repository_dependency)
     ],
     password_hasher: Annotated[
         BcryptPasswordHasher, Depends(get_password_hasher_dependency)

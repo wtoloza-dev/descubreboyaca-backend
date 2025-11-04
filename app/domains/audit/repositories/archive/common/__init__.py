@@ -1,9 +1,8 @@
 """Common archive repository implementations."""
 
-from .sql import AsyncSQLArchiveRepository, SQLArchiveRepository
+from .sql import SQLArchiveRepository
 
 
 __all__ = [
     "SQLArchiveRepository",
-    "AsyncSQLArchiveRepository",
 ]

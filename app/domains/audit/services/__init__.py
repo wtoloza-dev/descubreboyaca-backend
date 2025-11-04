@@ -1,10 +1,8 @@
 """Audit services."""
 
-from .archive import ArchiveService, AsyncArchiveService
+from .archive import ArchiveService
 
 
 __all__ = [
     "ArchiveService",
-    "AsyncArchiveService",
 ]
-

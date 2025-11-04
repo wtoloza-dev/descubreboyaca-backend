@@ -7,8 +7,8 @@ from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.settings import settings
-from app.domains.audit.dependencies import get_async_archive_repository_dependency
-from app.domains.audit.domain import AsyncArchiveRepositoryInterface
+from app.domains.audit.dependencies import get_archive_repository_dependency
+from app.domains.audit.domain import ArchiveRepositoryInterface
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_repository_dependency,
 )
@@ -49,8 +49,8 @@ def get_dish_service_dependency(
     restaurant_repo: RestaurantRepositoryInterface = Depends(
         get_restaurant_repository_dependency
     ),
-    archive_repo: AsyncArchiveRepositoryInterface = Depends(
-        get_async_archive_repository_dependency
+    archive_repo: ArchiveRepositoryInterface = Depends(
+        get_archive_repository_dependency
     ),
 ) -> DishService:
     """Factory to create a dish service with dependencies.

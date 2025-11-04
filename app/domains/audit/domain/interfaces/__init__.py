@@ -1,13 +1,8 @@
 """Audit domain interfaces."""
 
-from .archive import (
-    ArchiveRepositoryInterface,
-    AsyncArchiveRepositoryInterface,
-)
+from .archive_repository import ArchiveRepositoryInterface
 
 
 __all__ = [
     "ArchiveRepositoryInterface",
-    "AsyncArchiveRepositoryInterface",
 ]
-

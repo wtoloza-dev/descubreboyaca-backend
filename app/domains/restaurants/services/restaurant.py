@@ -6,7 +6,7 @@ Services coordinate between repositories and contain domain logic.
 
 from typing import Any
 
-from app.domains.audit.domain import AsyncArchiveRepositoryInterface
+from app.domains.audit.domain import ArchiveRepositoryInterface
 from app.domains.favorites.domain.enums import EntityType
 from app.domains.favorites.domain.interfaces import FavoriteRepositoryInterface
 from app.domains.restaurants.domain import (
@@ -37,7 +37,7 @@ class RestaurantService:
     def __init__(
         self,
         repository: RestaurantRepositoryInterface,
-        archive_repository: AsyncArchiveRepositoryInterface,
+        archive_repository: ArchiveRepositoryInterface,
         favorite_repository: FavoriteRepositoryInterface | None = None,
     ) -> None:
         """Initialize restaurant service.

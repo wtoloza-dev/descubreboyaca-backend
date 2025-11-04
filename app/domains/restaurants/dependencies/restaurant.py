@@ -8,8 +8,8 @@ from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.settings import settings
-from app.domains.audit.dependencies import get_async_archive_repository_dependency
-from app.domains.audit.domain import AsyncArchiveRepositoryInterface
+from app.domains.audit.dependencies import get_archive_repository_dependency
+from app.domains.audit.domain import ArchiveRepositoryInterface
 from app.domains.favorites.dependencies import get_favorite_repository_dependency
 from app.domains.favorites.domain.interfaces import FavoriteRepositoryInterface
 from app.domains.restaurants.domain.interfaces import RestaurantRepositoryInterface
@@ -82,8 +82,8 @@ def get_restaurant_service_dependency(
     restaurant_repository: RestaurantRepositoryInterface = Depends(
         get_restaurant_repository_dependency
     ),
-    archive_repository: AsyncArchiveRepositoryInterface = Depends(
-        get_async_archive_repository_dependency
+    archive_repository: ArchiveRepositoryInterface = Depends(
+        get_archive_repository_dependency
     ),
     favorite_repository: FavoriteRepositoryInterface = Depends(
         get_favorite_repository_dependency

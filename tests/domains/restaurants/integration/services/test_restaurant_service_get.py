@@ -9,7 +9,7 @@ This module tests the get_restaurant_by_id method with focus on:
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.audit.repositories import AsyncSQLiteArchiveRepository
+from app.domains.audit.repositories import SQLiteArchiveRepository
 from app.domains.restaurants.domain.exceptions import RestaurantNotFoundException
 from app.domains.restaurants.repositories import SQLiteRestaurantRepository
 from app.domains.restaurants.services import RestaurantService
@@ -30,7 +30,7 @@ class TestRestaurantServiceGet:
         """
         # Arrange
         restaurant_repo = SQLiteRestaurantRepository(test_session)
-        archive_repo = AsyncSQLiteArchiveRepository(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 
         created = await create_test_restaurant(
@@ -58,7 +58,7 @@ class TestRestaurantServiceGet:
         """
         # Arrange
         restaurant_repo = SQLiteRestaurantRepository(test_session)
-        archive_repo = AsyncSQLiteArchiveRepository(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 
         nonexistent_id = "01K8E0Z3SRNDMSZPN91V7A64T3"

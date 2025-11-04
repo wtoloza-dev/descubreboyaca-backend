@@ -6,7 +6,7 @@ Services coordinate between repositories and contain domain logic.
 
 from typing import Any
 
-from app.domains.audit.domain import AsyncArchiveRepositoryInterface
+from app.domains.audit.domain import ArchiveRepositoryInterface
 from app.domains.restaurants.domain import Dish, DishData
 from app.domains.restaurants.domain.exceptions import (
     DishNotFoundException,
@@ -38,7 +38,7 @@ class DishService:
         self,
         dish_repository: DishRepositoryInterface,
         restaurant_repository: RestaurantRepositoryInterface,
-        archive_repository: AsyncArchiveRepositoryInterface,
+        archive_repository: ArchiveRepositoryInterface,
     ) -> None:
         """Initialize dish service.
 

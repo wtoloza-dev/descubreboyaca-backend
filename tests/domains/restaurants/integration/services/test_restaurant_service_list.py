@@ -10,7 +10,7 @@ This module tests the find and count methods with focus on:
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.audit.repositories import AsyncSQLiteArchiveRepository
+from app.domains.audit.repositories import SQLiteArchiveRepository
 from app.domains.restaurants.repositories import SQLiteRestaurantRepository
 from app.domains.restaurants.services import RestaurantService
 
@@ -30,7 +30,7 @@ class TestRestaurantServiceList:
         """
         # Arrange
         restaurant_repo = SQLiteRestaurantRepository(test_session)
-        archive_repo = AsyncSQLiteArchiveRepository(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 
         await create_test_restaurant(name="Restaurant 1", city="Tunja")
@@ -62,7 +62,7 @@ class TestRestaurantServiceList:
         """
         # Arrange
         restaurant_repo = SQLiteRestaurantRepository(test_session)
-        archive_repo = AsyncSQLiteArchiveRepository(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 
         await create_test_restaurant(name="Tunja 1", city="Tunja")
@@ -91,7 +91,7 @@ class TestRestaurantServiceList:
         """
         # Arrange
         restaurant_repo = SQLiteRestaurantRepository(test_session)
-        archive_repo = AsyncSQLiteArchiveRepository(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 
         for i in range(10):
@@ -116,7 +116,7 @@ class TestRestaurantServiceList:
         """
         # Arrange
         restaurant_repo = SQLiteRestaurantRepository(test_session)
-        archive_repo = AsyncSQLiteArchiveRepository(test_session)
+        archive_repo = SQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 
         await create_test_restaurant(name="Tunja 1", city="Tunja")
