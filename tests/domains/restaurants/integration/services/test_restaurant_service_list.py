@@ -38,10 +38,13 @@ class TestRestaurantServiceList:
         await create_test_restaurant(name="Restaurant 3", city="Duitama")
 
         # Act
-        results = await service.find_restaurants(filters=None, offset=0, limit=10)
+        results, total = await service.find_restaurants(
+            filters=None, offset=0, limit=10
+        )
 
         # Assert
         assert len(results) == 3
+        assert total == 3
         names = [r.name for r in results]
         assert "Restaurant 1" in names
         assert "Restaurant 2" in names
@@ -67,12 +70,13 @@ class TestRestaurantServiceList:
         await create_test_restaurant(name="Sogamoso 1", city="Sogamoso")
 
         # Act
-        results = await service.find_restaurants(
+        results, total = await service.find_restaurants(
             filters={"city": "Tunja"}, offset=0, limit=10
         )
 
         # Assert
         assert len(results) == 2
+        assert total == 2
         assert all(r.city == "Tunja" for r in results)
 
     @pytest.mark.asyncio
@@ -94,10 +98,11 @@ class TestRestaurantServiceList:
             await create_test_restaurant(name=f"Restaurant {i:02d}", city="Tunja")
 
         # Act
-        results = await service.find_restaurants(filters=None, offset=5, limit=3)
+        results, total = await service.find_restaurants(filters=None, offset=5, limit=3)
 
         # Assert
         assert len(results) == 3
+        assert total == 10  # Total de todos los restaurantes, no solo los devueltos
 
     @pytest.mark.asyncio
     async def test_count_restaurants_with_filter(

@@ -50,12 +50,10 @@ async def handle_list_restaurants_by_city(
     Returns:
         ListRestaurantsSchemaResponse: Paginated list of restaurants in the specified city
     """
-    # Get restaurants and total count sequentially to avoid session concurrency issues
-    # SQLAlchemy async sessions don't support concurrent operations
-    restaurants = await service.list_restaurants_by_city(
+    # Get restaurants and total count in one call (more efficient)
+    restaurants, total = await service.list_restaurants_by_city(
         city, offset=pagination.offset, limit=pagination.limit
     )
-    total = await service.count_restaurants_by_city(city)
 
     # Convert entities to dicts with JSON-compatible types (HttpUrl → str)
     items = [

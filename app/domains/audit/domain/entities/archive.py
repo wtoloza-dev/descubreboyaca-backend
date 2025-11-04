@@ -4,11 +4,12 @@ This module defines the Archive entities representing a deleted record
 stored for historical purposes.
 """
 
+from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from app.shared.domain.entities.audit import Identity, Timestamp
+from app.shared.domain.entities.audit import Identity
 
 
 class ArchiveData(BaseModel):
@@ -32,21 +33,24 @@ class ArchiveData(BaseModel):
     note: str | None = None
 
 
-class Archive(ArchiveData, Identity, Timestamp):
-    """Archive entity with database identity and system metadata.
+class Archive(ArchiveData, Identity):
+    """Archive entity with database identity and deletion metadata.
 
-    Extends ArchiveData with database primary key and system-generated fields.
-    The entity generates its own identity (ULID) and timestamps following DDD principles.
+    Extends ArchiveData with database primary key and deletion tracking fields.
+    The entity generates its own identity (ULID) and deletion timestamp following DDD principles.
 
-    Note: Uses Identity and Timestamp (not full Audit) because archived records
+    Note: Uses Identity (not full Audit/Timestamp) because archived records
     use deleted_at/deleted_by instead of created_at/updated_at/created_by/updated_by.
 
     Attributes:
         id: ULID primary key (auto-generated, inherited from Identity)
-        created_at: Maps to deleted_at (inherited from Timestamp)
-        updated_at: Not used for archives (inherited from Timestamp)
+        deleted_at: Timestamp when the record was deleted (auto-generated)
+        deleted_by: ULID of user who deleted the record
         original_table: Name of the source table (inherited from ArchiveData)
         original_id: ID from the original record (inherited from ArchiveData)
         data: Complete record data as dictionary (inherited from ArchiveData)
         note: Optional note or reason for deletion (inherited from ArchiveData)
     """
+
+    deleted_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    deleted_by: str | None = None

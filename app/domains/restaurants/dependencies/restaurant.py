@@ -10,11 +10,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.core.settings import settings
 from app.domains.audit.dependencies import get_async_archive_repository_dependency
 from app.domains.audit.domain import AsyncArchiveRepositoryInterface
+from app.domains.favorites.dependencies import get_favorite_repository_dependency
 from app.domains.favorites.domain.interfaces import FavoriteRepositoryInterface
-from app.domains.favorites.repositories import (
-    PostgreSQLFavoriteRepository,
-    SQLiteFavoriteRepository,
-)
 from app.domains.restaurants.domain.interfaces import RestaurantRepositoryInterface
 from app.domains.restaurants.repositories import (
     PostgreSQLRestaurantOwnerRepository,
@@ -27,6 +24,11 @@ from app.domains.restaurants.services import (
     RestaurantService,
 )
 from app.shared.dependencies.sql import get_async_session_dependency
+
+
+# ================================
+# Repositories
+# ================================
 
 
 def get_restaurant_repository_dependency(
@@ -52,63 +54,6 @@ def get_restaurant_repository_dependency(
         return PostgreSQLRestaurantRepository(session)
 
 
-def get_favorite_repository_for_restaurant_dependency(
-    session: AsyncSession = Depends(get_async_session_dependency),
-) -> FavoriteRepositoryInterface:
-    """Factory to create a favorite repository for restaurant operations.
-
-    This dependency is specifically used by the restaurant service when it needs
-    to interact with favorites. It uses the same session as other repositories
-    to ensure transaction consistency.
-
-    Args:
-        session: Async database session (injected via Depends)
-
-    Returns:
-        FavoriteRepositoryInterface: Repository instance
-    """
-    if settings.SCOPE == "local":
-        return SQLiteFavoriteRepository(session)
-    else:
-        return PostgreSQLFavoriteRepository(session)
-
-
-def get_restaurant_service_dependency(
-    restaurant_repo: RestaurantRepositoryInterface = Depends(
-        get_restaurant_repository_dependency
-    ),
-    archive_repo: AsyncArchiveRepositoryInterface = Depends(
-        get_async_archive_repository_dependency
-    ),
-    favorite_repo: FavoriteRepositoryInterface = Depends(
-        get_favorite_repository_for_restaurant_dependency
-    ),
-) -> RestaurantService:
-    """Factory to create a restaurant service with dependencies.
-
-    The service depends only on repository interfaces, maintaining clean architecture.
-    When the service needs the database session for Unit of Work operations,
-    it obtains it from the repository itself.
-
-    This follows Dependency Inversion Principle and proper layering:
-    - Service depends on Repository (one level below)
-    - Service does NOT depend on Session (infrastructure detail)
-
-    Args:
-        restaurant_repo: Restaurant repository (injected via Depends)
-        archive_repo: Archive repository (injected via Depends)
-        favorite_repo: Favorite repository (injected via Depends)
-
-    Returns:
-        RestaurantService: Configured service instance with repositories
-
-    Note:
-        All repositories receive the same session from their respective factories,
-        ensuring they participate in the same transaction.
-    """
-    return RestaurantService(restaurant_repo, archive_repo, favorite_repo)
-
-
 def get_restaurant_owner_repository_dependency(
     session: AsyncSession = Depends(get_async_session_dependency),
 ) -> SQLiteRestaurantOwnerRepository | PostgreSQLRestaurantOwnerRepository:
@@ -128,8 +73,51 @@ def get_restaurant_owner_repository_dependency(
         return PostgreSQLRestaurantOwnerRepository(session)
 
 
+# ================================
+# Services
+# ================================
+
+
+def get_restaurant_service_dependency(
+    restaurant_repository: RestaurantRepositoryInterface = Depends(
+        get_restaurant_repository_dependency
+    ),
+    archive_repository: AsyncArchiveRepositoryInterface = Depends(
+        get_async_archive_repository_dependency
+    ),
+    favorite_repository: FavoriteRepositoryInterface = Depends(
+        get_favorite_repository_dependency
+    ),
+) -> RestaurantService:
+    """Factory to create a restaurant service with dependencies.
+
+    The service depends only on repository interfaces, maintaining clean architecture.
+    When the service needs the database session for Unit of Work operations,
+    it obtains it from the repository itself.
+
+    This follows Dependency Inversion Principle and proper layering:
+    - Service depends on Repository (one level below)
+    - Service does NOT depend on Session (infrastructure detail)
+
+    Args:
+        restaurant_repository: Restaurant repository (injected via Depends)
+        archive_repository: Archive repository (injected via Depends)
+        favorite_repository: Favorite repository (injected via Depends)
+
+    Returns:
+        RestaurantService: Configured service instance with repositories
+
+    Note:
+        All repositories receive the same session from their respective factories,
+        ensuring they participate in the same transaction.
+    """
+    return RestaurantService(
+        restaurant_repository, archive_repository, favorite_repository
+    )
+
+
 def get_restaurant_owner_service_dependency(
-    owner_repo: SQLiteRestaurantOwnerRepository
+    owner_repository: SQLiteRestaurantOwnerRepository
     | PostgreSQLRestaurantOwnerRepository = Depends(
         get_restaurant_owner_repository_dependency
     ),
@@ -140,9 +128,9 @@ def get_restaurant_owner_service_dependency(
     This follows Dependency Inversion Principle and makes testing easier.
 
     Args:
-        owner_repo: Restaurant owner repository (injected via Depends)
+        owner_repository: Restaurant owner repository (injected via Depends)
 
     Returns:
         RestaurantOwnerService: Configured service instance with repositories
     """
-    return RestaurantOwnerService(owner_repo)
+    return RestaurantOwnerService(owner_repository)

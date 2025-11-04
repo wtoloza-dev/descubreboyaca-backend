@@ -41,8 +41,9 @@ def upgrade() -> None:
         # Polymorphic fields for any entity type
         sa.Column("entity_type", sa.String(length=50), nullable=False),
         sa.Column("entity_id", sa.String(length=26), nullable=False),
-        # Timestamp
+        # Timestamps
         sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(), nullable=False),
         # Constraints
         sa.PrimaryKeyConstraint("id", name=op.f("pk_favorites")),
         sa.ForeignKeyConstraint(

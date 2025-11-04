@@ -52,18 +52,12 @@ async def handle_list_restaurants(
         GET /restaurants?city=Tunja&page=1&page_size=20
         GET /restaurants?city=Tunja&price_level=2&page=1&page_size=10
     """
-    # Convert filters to dictionary, excluding None values (using Pydantic native method)
-    filter_dict = filters.model_dump(exclude_none=True)
-
-    # Get restaurants with filters through service layer
-    restaurants = await service.find_restaurants(
-        filters=filter_dict or None,
+    # Get restaurants and total count in one call (more efficient)
+    restaurants, total = await service.find_restaurants(
+        filters=filters.model_dump(exclude_none=True),
         offset=pagination.offset,
         limit=pagination.limit,
     )
-
-    # Get total count with same filters through service layer
-    total = await service.count_restaurants(filters=filter_dict or None)
 
     # Convert entities to dicts with JSON-compatible types (HttpUrl → str)
     items = [

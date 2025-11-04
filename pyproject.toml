@@ -47,6 +47,10 @@ testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "workflow: marks tests as workflow tests (deselected by default)",
+]
+addopts = "-m 'not workflow'"
 
 [tool.coverage.run]
 source = ["app"]

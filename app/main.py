@@ -14,6 +14,7 @@ from app.domains.auth.routes import router as auth_router
 from app.domains.favorites.routes import router as favorites_router
 from app.domains.restaurants.routes import router as restaurants_router
 from app.domains.reviews.routes import router as reviews_router
+from app.domains.users.routes.admin import router as users_admin_router
 
 
 def register_routers(app: FastAPI) -> None:
@@ -33,6 +34,7 @@ def register_routers(app: FastAPI) -> None:
     api_v1_router.include_router(restaurants_router)
     api_v1_router.include_router(favorites_router)
     api_v1_router.include_router(reviews_router)
+    api_v1_router.include_router(users_admin_router, prefix="/users", tags=["Users"])
     app.include_router(api_v1_router)
 
 

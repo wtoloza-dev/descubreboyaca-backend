@@ -1,4 +1,4 @@
-"""SQL dependency factories for favorites.
+"""Favorite dependency factories.
 
 This module provides factory functions for creating favorite repositories
 and services with their dependencies.

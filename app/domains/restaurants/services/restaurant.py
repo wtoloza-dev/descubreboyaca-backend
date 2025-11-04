@@ -90,7 +90,7 @@ class RestaurantService:
         filters: dict[str, Any] | None = None,
         offset: int = 0,
         limit: int = 20,
-    ) -> list[Restaurant]:
+    ) -> tuple[list[Restaurant], int]:
         """Find restaurants with dynamic filters and pagination.
 
         Args:
@@ -99,16 +99,20 @@ class RestaurantService:
             limit: Maximum number of records to return
 
         Returns:
-            List of restaurants matching the filters
+            Tuple of (list of restaurants, total count)
 
         Example:
-            >>> restaurants = await service.find_restaurants()
-            >>> restaurants = await service.find_restaurants({"city": "Tunja"})
-            >>> restaurants = await service.find_restaurants(
+            >>> restaurants, total = await service.find_restaurants()
+            >>> restaurants, total = await service.find_restaurants({"city": "Tunja"})
+            >>> restaurants, total = await service.find_restaurants(
             ...     {"city": "Tunja", "price_level": 2}, offset=0, limit=10
             ... )
         """
-        return await self.repository.find(filters=filters, offset=offset, limit=limit)
+        restaurants = await self.repository.find(
+            filters=filters, offset=offset, limit=limit
+        )
+        total = await self.repository.count(filters=filters)
+        return restaurants, total
 
     async def count_restaurants(self, filters: dict[str, Any] | None = None) -> int:
         """Count restaurants with dynamic filters.
@@ -130,7 +134,7 @@ class RestaurantService:
 
     async def list_restaurants(
         self, offset: int = 0, limit: int = 20
-    ) -> list[Restaurant]:
+    ) -> tuple[list[Restaurant], int]:
         """List all restaurants with pagination.
 
         Args:
@@ -138,13 +142,13 @@ class RestaurantService:
             limit: Maximum number of records to return
 
         Returns:
-            List of restaurants
+            Tuple of (list of restaurants, total count)
         """
         return await self.find_restaurants(offset=offset, limit=limit)
 
     async def list_restaurants_by_city(
         self, city: str, offset: int = 0, limit: int = 20
-    ) -> list[Restaurant]:
+    ) -> tuple[list[Restaurant], int]:
         """List restaurants by city.
 
         Args:
@@ -283,7 +287,9 @@ class RestaurantService:
             )
 
             # Delete WITHOUT committing (managed by UoW)
-            await self.repository.delete(restaurant_id, commit=False)
+            await self.repository.delete(
+                restaurant_id, deleted_by=deleted_by, commit=False
+            )
 
             # Single atomic commit through UoW
             await uow.commit()

@@ -7,8 +7,9 @@ database-specific behavior is required.
 """
 
 from datetime import UTC, datetime
+from typing import Any
 
-from sqlmodel import select
+from sqlmodel import func, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.auth.domain import User, UserData
@@ -50,7 +51,7 @@ class SQLUserRepository:
     async def create(
         self,
         user_data: UserData,
-        created_by: str,
+        created_by: str | None = None,
         commit: bool = True,
     ) -> User:
         """Create a new user.
@@ -59,7 +60,7 @@ class SQLUserRepository:
 
         Args:
             user_data: User data without system metadata
-            created_by: User identifier for audit trail
+            created_by: User identifier for audit trail (None for self-registration)
             commit: Whether to commit the transaction immediately
 
         Returns:
@@ -72,6 +73,11 @@ class SQLUserRepository:
             created_by=created_by,
             updated_by=created_by,
         )
+
+        # For self-registration, use user's own ID as created_by
+        if created_by is None:
+            user.created_by = user.id
+            user.updated_by = user.id
 
         # Convert to ORM model
         model = UserModel.model_validate(user)
@@ -141,11 +147,99 @@ class SQLUserRepository:
 
         return User.model_validate(model)
 
+    async def find(
+        self,
+        filters: dict[str, Any] | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> list[User]:
+        """Find users with dynamic filters and pagination.
+
+        This method allows querying users with any combination of filters
+        by dynamically building the WHERE clause using model attributes.
+
+        Args:
+            filters: Dictionary of field names and their values to filter by.
+                    Keys should match UserModel attribute names.
+                    Example: {"role": "admin", "is_active": True}
+            offset: Number of records to offset (skip)
+            limit: Maximum number of records to return
+
+        Returns:
+            List of users matching the filters
+
+        Raises:
+            AttributeError: If a filter key doesn't match any model attribute
+
+        Example:
+            >>> users = await repo.find()  # Get all
+            >>> users = await repo.find({"role": "admin"})
+            >>> users = await repo.find(
+            ...     {"role": "owner", "is_active": True}, offset=0, limit=10
+            ... )
+        """
+        statement = select(UserModel)
+
+        # Apply dynamic filters if provided
+        if filters:
+            for field_name, value in filters.items():
+                # Get the model attribute dynamically
+                if not hasattr(UserModel, field_name):
+                    raise AttributeError(f"UserModel has no attribute '{field_name}'")
+
+                model_field = getattr(UserModel, field_name)
+                statement = statement.where(model_field == value)
+
+        # Apply pagination
+        statement = statement.offset(offset).limit(limit)
+
+        result = await self.session.exec(statement)
+        models = result.all()
+
+        return [User.model_validate(model) for model in models]
+
+    async def count(self, filters: dict[str, Any] | None = None) -> int:
+        """Count users with dynamic filters.
+
+        This method allows counting users with any combination of filters
+        by dynamically building the WHERE clause using model attributes.
+
+        Args:
+            filters: Dictionary of field names and their values to filter by.
+                    Keys should match UserModel attribute names.
+                    Example: {"role": "admin", "is_active": True}
+
+        Returns:
+            Count of users matching the filters
+
+        Raises:
+            AttributeError: If a filter key doesn't match any model attribute
+
+        Example:
+            >>> total = await repo.count()  # Count all users
+            >>> admins = await repo.count({"role": "admin"})
+            >>> active_owners = await repo.count({"role": "owner", "is_active": True})
+        """
+        statement = select(func.count()).select_from(UserModel)
+
+        # Apply dynamic filters if provided
+        if filters:
+            for field_name, value in filters.items():
+                # Get the model attribute dynamically
+                if not hasattr(UserModel, field_name):
+                    raise AttributeError(f"UserModel has no attribute '{field_name}'")
+
+                model_field = getattr(UserModel, field_name)
+                statement = statement.where(model_field == value)
+
+        result = await self.session.exec(statement)
+        return result.one()
+
     async def update(
         self,
         user_id: str,
         user_data: UserData,
-        updated_by: str,
+        updated_by: str | None = None,
         commit: bool = True,
     ) -> User | None:
         """Update an existing user.
@@ -153,7 +247,7 @@ class SQLUserRepository:
         Args:
             user_id: ULID of the user to update
             user_data: Updated user data
-            updated_by: User identifier for audit trail
+            updated_by: User identifier for audit trail (None for self-update)
             commit: Whether to commit the transaction immediately
 
         Returns:
@@ -173,7 +267,8 @@ class SQLUserRepository:
 
         # Update audit fields
         model.updated_at = datetime.now(UTC)
-        model.updated_by = updated_by
+        # For self-update, use user's own ID as updated_by
+        model.updated_by = updated_by if updated_by is not None else user_id
 
         if commit:
             await self.session.commit()

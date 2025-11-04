@@ -56,6 +56,19 @@ test-watch: ## Run tests in watch mode (requires pytest-watch)
 	@echo "$(BLUE)Running tests in watch mode...$(NC)"
 	uv run ptw tests/ -- -n auto
 
+test-workflow: ## Run workflow tests (requires running server)
+	@echo "$(BLUE)Running workflow tests...$(NC)"
+	@echo "$(YELLOW)Note: Ensure server is running on localhost:8000$(NC)"
+	uv run pytest -m workflow -v
+
+test-workflow-fast: ## Run workflow tests with minimal output
+	@echo "$(BLUE)Running workflow tests (fast mode)...$(NC)"
+	uv run pytest -m workflow -q
+
+test-all: ## Run ALL tests including workflow tests
+	@echo "$(BLUE)Running all tests (including workflow)...$(NC)"
+	uv run pytest -m "" -n auto -v
+
 # =============================================================================
 # Code Quality
 # =============================================================================
