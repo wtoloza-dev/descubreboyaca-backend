@@ -24,6 +24,7 @@ async def fixture_test_engine():
         AsyncEngine: Async engine for testing
     """
     # Import all models to ensure they're registered with SQLModel
+    from app.domains.audit.models import ArchiveModel  # noqa: F401
     from app.domains.auth.models import UserModel  # noqa: F401
     from app.domains.favorites.models import FavoriteModel  # noqa: F401
     from app.domains.restaurants.models import (  # noqa: F401
@@ -31,7 +32,6 @@ async def fixture_test_engine():
         RestaurantModel,
         RestaurantOwnerModel,
     )
-    from app.shared.models import ArchiveModel  # noqa: F401
 
     # Create temporary file for test database
     db_fd, db_path = tempfile.mkstemp(suffix=".db")

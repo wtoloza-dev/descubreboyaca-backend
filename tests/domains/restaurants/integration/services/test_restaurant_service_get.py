@@ -11,7 +11,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.audit.repositories import AsyncSQLiteArchiveRepository
 from app.domains.restaurants.domain.exceptions import RestaurantNotFoundException
-from app.domains.restaurants.repositories import RestaurantRepositorySQLite
+from app.domains.restaurants.repositories import SQLiteRestaurantRepository
 from app.domains.restaurants.services import RestaurantService
 
 
@@ -29,7 +29,7 @@ class TestRestaurantServiceGet:
         Then: Returns the restaurant entity with correct data
         """
         # Arrange
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = AsyncSQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 
@@ -57,7 +57,7 @@ class TestRestaurantServiceGet:
         Then: Raises RestaurantNotFoundException
         """
         # Arrange
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = AsyncSQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 

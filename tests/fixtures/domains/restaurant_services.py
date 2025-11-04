@@ -4,16 +4,16 @@ This module provides service layer fixtures for testing restaurant domain busine
 """
 
 import pytest
-from app.shared.services import ArchiveService
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.audit.repositories import SQLiteArchiveRepository
-from app.domains.restaurants.repositories.dish import DishRepositorySQLite
+from app.domains.audit.services import ArchiveService
+from app.domains.restaurants.repositories.dish import SQLiteDishRepository
 from app.domains.restaurants.repositories.restaurant import (
-    RestaurantRepositorySQLite,
+    SQLiteRestaurantRepository,
 )
 from app.domains.restaurants.repositories.restaurant_owner import (
-    RestaurantOwnerRepositorySQLite,
+    SQLiteRestaurantOwnerRepository,
 )
 from app.domains.restaurants.services.dish import DishService
 from app.domains.restaurants.services.restaurant import RestaurantService
@@ -39,7 +39,7 @@ def fixture_restaurant_service(test_session: AsyncSession) -> RestaurantService:
         ...     restaurant = await restaurant_service.create_restaurant(data)
         ...     assert restaurant.name == "Test"
     """
-    repository = RestaurantRepositorySQLite(test_session)
+    repository = SQLiteRestaurantRepository(test_session)
     archive_repository = SQLiteArchiveRepository(test_session)
     archive_service = ArchiveService(archive_repository)
     return RestaurantService(repository, archive_service)
@@ -65,8 +65,8 @@ def fixture_dish_service(test_session: AsyncSession) -> DishService:
         ...     dish = await dish_service.create_dish(data, restaurant.id)
         ...     assert dish.name == "Test Dish"
     """
-    dish_repository = DishRepositorySQLite(test_session)
-    restaurant_repository = RestaurantRepositorySQLite(test_session)
+    dish_repository = SQLiteDishRepository(test_session)
+    restaurant_repository = SQLiteRestaurantRepository(test_session)
     archive_repository = SQLiteArchiveRepository(test_session)
     archive_service = ArchiveService(archive_repository)
     return DishService(dish_repository, restaurant_repository, archive_service)
@@ -91,6 +91,6 @@ def fixture_owner_service(test_session: AsyncSession) -> RestaurantOwnerService:
         ...         restaurant_id="123", owner_id="456", role="owner"
         ...     )
     """
-    owner_repository = RestaurantOwnerRepositorySQLite(test_session)
-    restaurant_repository = RestaurantRepositorySQLite(test_session)
+    owner_repository = SQLiteRestaurantOwnerRepository(test_session)
+    restaurant_repository = SQLiteRestaurantRepository(test_session)
     return RestaurantOwnerService(owner_repository, restaurant_repository)

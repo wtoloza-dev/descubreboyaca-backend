@@ -10,7 +10,7 @@ import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.restaurants.domain import RestaurantData
-from app.domains.restaurants.repositories import RestaurantRepositorySQLite
+from app.domains.restaurants.repositories import SQLiteRestaurantRepository
 
 
 class TestRestaurantRepositoryCreate:
@@ -27,7 +27,7 @@ class TestRestaurantRepositoryCreate:
         Then: Restaurant is saved and can be retrieved
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         restaurant_data = RestaurantData(
             name="New Restaurant",
             address="Calle 1 #2-3",

@@ -7,7 +7,7 @@ import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.auth.domain.enums import AuthProvider
-from app.domains.auth.repositories.user import UserRepositorySQLite
+from app.domains.auth.repositories.user import SQLiteUserRepository
 
 
 class TestUserRepositoryGet:
@@ -17,7 +17,7 @@ class TestUserRepositoryGet:
     async def test_get_by_id_existing_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test getting existing user by ID returns user.
@@ -41,7 +41,7 @@ class TestUserRepositoryGet:
     async def test_get_by_id_nonexistent_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test getting non-existent user by ID returns None.
 
@@ -64,7 +64,7 @@ class TestUserRepositoryGet:
     async def test_get_by_email_existing_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test getting existing user by email returns user.
@@ -89,7 +89,7 @@ class TestUserRepositoryGet:
     async def test_get_by_email_nonexistent_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test getting non-existent user by email returns None.
 
@@ -107,7 +107,7 @@ class TestUserRepositoryGet:
     async def test_get_by_email_case_sensitive(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test email lookup is case-sensitive.
@@ -129,7 +129,7 @@ class TestUserRepositoryGet:
     async def test_get_by_google_id_existing_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test getting existing user by Google ID returns user.
@@ -157,7 +157,7 @@ class TestUserRepositoryGet:
     async def test_get_by_google_id_nonexistent_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test getting non-existent user by Google ID returns None.
 
@@ -175,7 +175,7 @@ class TestUserRepositoryGet:
     async def test_get_by_id_returns_all_user_fields(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test get_by_id returns user with all fields populated.
@@ -211,7 +211,7 @@ class TestUserRepositoryGet:
     async def test_get_inactive_user_by_email(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test getting inactive user by email returns user.
@@ -237,7 +237,7 @@ class TestUserRepositoryGet:
     async def test_get_by_email_with_special_characters(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test getting user with special characters in email.

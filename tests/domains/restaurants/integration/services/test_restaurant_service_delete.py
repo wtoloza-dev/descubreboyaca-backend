@@ -12,12 +12,12 @@ import pytest
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.domains.audit.models import ArchiveModel
 from app.domains.audit.repositories import AsyncSQLiteArchiveRepository
 from app.domains.restaurants.domain.exceptions import RestaurantNotFoundException
 from app.domains.restaurants.models import RestaurantModel
-from app.domains.restaurants.repositories import RestaurantRepositorySQLite
+from app.domains.restaurants.repositories import SQLiteRestaurantRepository
 from app.domains.restaurants.services import RestaurantService
-from app.shared.models import ArchiveModel
 
 
 class TestRestaurantServiceDeleteSuccess:
@@ -37,7 +37,7 @@ class TestRestaurantServiceDeleteSuccess:
         restaurant = await create_test_restaurant(name="Test Restaurant")
         restaurant_id = restaurant.id
 
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = AsyncSQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 
@@ -86,7 +86,7 @@ class TestRestaurantServiceDeleteAtomicity:
         restaurant = await create_test_restaurant(name="Test Rollback")
         restaurant_id = restaurant.id
 
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
 
         # Mock archive repository to fail
         mock_archive_repo = Mock()
@@ -196,7 +196,7 @@ class TestRestaurantServiceDeleteValidation:
         # Arrange
         nonexistent_id = "01K8E0Z3SRNDMSZPN91V7A64T3"
 
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = AsyncSQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 
@@ -222,7 +222,7 @@ class TestRestaurantServiceDeleteValidation:
         restaurant = await create_test_restaurant(name="No Note Test")
         restaurant_id = restaurant.id
 
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = AsyncSQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 
@@ -261,7 +261,7 @@ class TestRestaurantServiceDeleteValidation:
         )
         restaurant_id = restaurant.id
 
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = AsyncSQLiteArchiveRepository(test_session)
         service = RestaurantService(restaurant_repo, archive_repo)
 

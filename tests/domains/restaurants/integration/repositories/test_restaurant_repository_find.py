@@ -11,7 +11,7 @@ This module tests the find method with focus on:
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories import RestaurantRepositorySQLite
+from app.domains.restaurants.repositories import SQLiteRestaurantRepository
 
 
 class TestRestaurantRepositoryFind:
@@ -28,7 +28,7 @@ class TestRestaurantRepositoryFind:
         Then: Returns all restaurants
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         await create_test_restaurant(name="Restaurant 1", city="Tunja")
         await create_test_restaurant(name="Restaurant 2", city="Sogamoso")
         await create_test_restaurant(name="Restaurant 3", city="Duitama")
@@ -54,7 +54,7 @@ class TestRestaurantRepositoryFind:
         Then: Returns only restaurants from specified city
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         await create_test_restaurant(name="Tunja 1", city="Tunja")
         await create_test_restaurant(name="Tunja 2", city="Tunja")
         await create_test_restaurant(name="Sogamoso 1", city="Sogamoso")
@@ -81,7 +81,7 @@ class TestRestaurantRepositoryFind:
         Then: Returns only restaurants with specified price level
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         await create_test_restaurant(name="Budget", city="Tunja", price_level=1)
         await create_test_restaurant(name="Moderate 1", city="Tunja", price_level=2)
         await create_test_restaurant(name="Moderate 2", city="Tunja", price_level=2)
@@ -105,7 +105,7 @@ class TestRestaurantRepositoryFind:
         Then: Returns only restaurants matching all filters
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         # This should match
         await create_test_restaurant(name="Match Both", city="Tunja", price_level=2)
         # These should NOT match
@@ -134,7 +134,7 @@ class TestRestaurantRepositoryFind:
         Then: Returns 2 restaurants starting from 4th
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         for i in range(10):
             await create_test_restaurant(name=f"Restaurant {i:02d}", city="Tunja")
 
@@ -153,7 +153,7 @@ class TestRestaurantRepositoryFind:
         Then: Returns empty list
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
 
         # Act
         results = await repository.find(

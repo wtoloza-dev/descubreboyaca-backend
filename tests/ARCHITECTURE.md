@@ -794,7 +794,7 @@ assert len(results) == 3
 
 # ❌ Bad - unclear what failed
 assert result
-assert data["items"]
+assert data["data"]
 ```
 
 ### 3. One Concept Per Test
@@ -946,10 +946,10 @@ class TestListRestaurants:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert len(data["items"]) == 3
-        assert data["page"] == 2
-        assert data["page_size"] == 3
-        assert data["total"] == 10
+        assert len(data["data"]) == 3
+        assert data["pagination"]["page"] == 2
+        assert data["pagination"]["page_size"] == 3
+        assert data["pagination"]["total"] == 10
 
     def test_list_filter_by_city(
         self, test_client: TestClient, create_test_restaurant
@@ -971,8 +971,8 @@ class TestListRestaurants:
         # Assert
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert len(data["items"]) == 2
-        assert all(r["city"] == "Tunja" for r in data["items"])
+        assert len(data["data"]) == 2
+        assert all(r["city"] == "Tunja" for r in data["data"])
 ```
 
 ### Complete Integration Test

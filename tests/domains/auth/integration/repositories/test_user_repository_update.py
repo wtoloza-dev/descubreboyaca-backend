@@ -8,7 +8,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.auth.domain import UserData
 from app.domains.auth.domain.enums import AuthProvider, UserRole
-from app.domains.auth.repositories.user import UserRepositorySQLite
+from app.domains.auth.repositories.user import SQLiteUserRepository
 
 
 class TestUserRepositoryUpdate:
@@ -18,7 +18,7 @@ class TestUserRepositoryUpdate:
     async def test_update_user_with_new_data(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test updating user with new data.
@@ -52,7 +52,7 @@ class TestUserRepositoryUpdate:
     async def test_update_nonexistent_user_returns_none(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test updating non-existent user returns None.
 
@@ -80,7 +80,7 @@ class TestUserRepositoryUpdate:
     async def test_update_user_role(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test updating user role.
@@ -113,7 +113,7 @@ class TestUserRepositoryUpdate:
     async def test_update_user_oauth_fields(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test updating user with OAuth provider information.
@@ -150,7 +150,7 @@ class TestUserRepositoryUpdate:
     async def test_update_sets_updated_at_timestamp(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test update sets updated_at timestamp.
@@ -181,7 +181,7 @@ class TestUserRepositoryUpdate:
     async def test_update_without_commit(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test updating user without auto-commit.
@@ -219,7 +219,7 @@ class TestUserRepositoryDeactivate:
     async def test_deactivate_existing_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test deactivating existing user.
@@ -247,7 +247,7 @@ class TestUserRepositoryDeactivate:
     async def test_deactivate_nonexistent_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test deactivating non-existent user returns False.
 
@@ -270,7 +270,7 @@ class TestUserRepositoryDeactivate:
     async def test_deactivate_sets_updated_at(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test deactivate updates the updated_at timestamp.
@@ -295,7 +295,7 @@ class TestUserRepositoryDeactivate:
     async def test_deactivate_already_inactive_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test deactivating already inactive user.

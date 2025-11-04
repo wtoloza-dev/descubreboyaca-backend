@@ -11,9 +11,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.domains.audit.repositories import SQLiteArchiveRepository
 from app.domains.restaurants.domain import DishData
 from app.domains.restaurants.domain.exceptions import RestaurantNotFoundException
-from app.domains.restaurants.repositories.dish.sqlite import DishRepositorySQLite
+from app.domains.restaurants.repositories.dish.sqlite import SQLiteDishRepository
 from app.domains.restaurants.repositories.restaurant.sqlite import (
-    RestaurantRepositorySQLite,
+    SQLiteRestaurantRepository,
 )
 from app.domains.restaurants.services.dish import DishService
 from app.shared.domain.factories import generate_ulid
@@ -36,8 +36,8 @@ class TestDishServiceCreate:
         Then: Dish is created with ID and metadata
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
@@ -69,8 +69,8 @@ class TestDishServiceCreate:
         Then: Raises RestaurantNotFoundException
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
@@ -95,8 +95,8 @@ class TestDishServiceCreate:
         Then: Dish is created with defaults for optional fields
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
@@ -133,8 +133,8 @@ class TestDishServiceCreate:
         Then: Audit trail includes created_by user ID
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 

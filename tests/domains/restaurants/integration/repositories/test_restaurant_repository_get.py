@@ -8,7 +8,7 @@ This module tests the get_by_id method with focus on:
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories import RestaurantRepositorySQLite
+from app.domains.restaurants.repositories import SQLiteRestaurantRepository
 
 
 class TestRestaurantRepositoryGet:
@@ -25,7 +25,7 @@ class TestRestaurantRepositoryGet:
         Then: Returns the restaurant entity
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         created = await create_test_restaurant(
             name="Test Restaurant",
             city="Tunja",
@@ -51,7 +51,7 @@ class TestRestaurantRepositoryGet:
         Then: Returns None
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         nonexistent_id = "01K8E0Z3SRNDMSZPN91V7A64T3"
 
         # Act

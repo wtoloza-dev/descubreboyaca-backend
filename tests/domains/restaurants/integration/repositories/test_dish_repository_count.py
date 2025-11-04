@@ -6,7 +6,7 @@ This module tests the count and count_by_restaurant_id methods of DishRepository
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories.dish.sqlite import DishRepositorySQLite
+from app.domains.restaurants.repositories.dish.sqlite import SQLiteDishRepository
 
 
 class TestDishRepositoryCount:
@@ -26,7 +26,7 @@ class TestDishRepositoryCount:
         Then: Returns total count of all dishes
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         await create_test_dish(restaurant_id=restaurant.id, name="Dish 1")
         await create_test_dish(restaurant_id=restaurant.id, name="Dish 2")
@@ -47,7 +47,7 @@ class TestDishRepositoryCount:
         Then: Returns 0
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
 
         # Act
         result = await repository.count()
@@ -69,7 +69,7 @@ class TestDishRepositoryCount:
         Then: Returns count of dishes in that category
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         await create_test_dish(
             restaurant_id=restaurant.id, name="Appetizer", category="appetizer"
@@ -101,7 +101,7 @@ class TestDishRepositoryCount:
         Then: Returns count of only restaurant 1 dishes
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant1 = await create_test_restaurant(name="Restaurant 1")
         restaurant2 = await create_test_restaurant(name="Restaurant 2")
 
@@ -129,7 +129,7 @@ class TestDishRepositoryCount:
         Then: Returns count matching both criteria
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         await create_test_dish(
             restaurant_id=restaurant.id, name="Appetizer", category="appetizer"
@@ -163,7 +163,7 @@ class TestDishRepositoryCount:
         Then: Returns count of dishes matching all filters
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         await create_test_dish(
             restaurant_id=restaurant.id,

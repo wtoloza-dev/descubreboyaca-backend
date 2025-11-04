@@ -10,7 +10,7 @@ This module tests edge cases and special scenarios:
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories import RestaurantRepositorySQLite
+from app.domains.restaurants.repositories import SQLiteRestaurantRepository
 
 
 class TestRestaurantRepositorySpecialCases:
@@ -27,7 +27,7 @@ class TestRestaurantRepositorySpecialCases:
         Then: Returns restaurant with exact match
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         await create_test_restaurant(name="Villa Restaurant", city="Villa de Leyva")
         await create_test_restaurant(name="Tunja Restaurant", city="Tunja")
 
@@ -52,7 +52,7 @@ class TestRestaurantRepositorySpecialCases:
         Then: Returns restaurant with exact match
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         await create_test_restaurant(name="Bogotá Restaurant", city="Bogotá")
         await create_test_restaurant(name="Other Restaurant", city="Bogota")
 
@@ -74,7 +74,7 @@ class TestRestaurantRepositorySpecialCases:
         Then: Returns exactly 3 restaurants
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         for i in range(10):
             await create_test_restaurant(name=f"Restaurant {i:02d}", city="Tunja")
 

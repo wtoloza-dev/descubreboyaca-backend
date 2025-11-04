@@ -1,6 +1,6 @@
-"""E2E tests for GET /restaurants/ endpoint.
+"""E2E tests for GET /restaurants/ endpoint (find_all).
 
-Tests the list all restaurants endpoint with pagination.
+Tests the find all restaurants endpoint with pagination.
 """
 
 from http import HTTPStatus
@@ -9,10 +9,10 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-class TestListRestaurants:
-    """Test suite for GET /api/v1/restaurants/ endpoint."""
+class TestFindAllRestaurants:
+    """Test suite for GET /api/v1/restaurants/ endpoint (find_all)."""
 
-    def test_list_empty(self, test_client: TestClient):
+    def test_find_all_empty(self, test_client: TestClient):
         """Test listing restaurants when database is empty.
 
         Given: No restaurants in the database
@@ -28,19 +28,19 @@ class TestListRestaurants:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert "items" in data
-        assert "total" in data
-        assert "page" in data
-        assert "page_size" in data
+        assert "data" in data
+        assert "pagination" in data
         assert isinstance(data["data"], list)
         assert len(data["data"]) == 0
         assert data["pagination"]["total"] == 0
+        assert data["pagination"]["page"] == 1
+        assert data["pagination"]["page_size"] == 20
 
     @pytest.mark.asyncio
-    async def test_list_with_restaurants(
+    async def test_find_all_with_restaurants(
         self, test_client: TestClient, create_test_restaurant
     ):
-        """Test listing multiple restaurants.
+        """Test finding all restaurants.
 
         Given: Multiple restaurants in the database
         When: GET /api/v1/restaurants/
@@ -65,7 +65,7 @@ class TestListRestaurants:
         assert "Restaurant 3" in names
 
     @pytest.mark.asyncio
-    async def test_list_includes_all_fields(
+    async def test_find_all_includes_all_fields(
         self, test_client: TestClient, create_test_restaurant
     ):
         """Test that response includes all expected fields.
@@ -108,7 +108,7 @@ class TestListRestaurants:
         # Note: 'address' and 'email' are NOT in RestaurantListItem
 
     @pytest.mark.asyncio
-    async def test_list_with_pagination(
+    async def test_find_all_with_pagination(
         self, test_client: TestClient, create_test_restaurant
     ):
         """Test pagination works correctly.
@@ -133,7 +133,7 @@ class TestListRestaurants:
         assert data["pagination"]["total"] == 15
 
     @pytest.mark.asyncio
-    async def test_list_filter_by_city(
+    async def test_find_all_filter_by_city(
         self, test_client: TestClient, create_test_restaurant
     ):
         """Test filtering by city.
@@ -158,7 +158,7 @@ class TestListRestaurants:
         assert all(r["city"] == "Tunja" for r in data["data"])
 
     @pytest.mark.asyncio
-    async def test_list_filter_by_price_level(
+    async def test_find_all_filter_by_price_level(
         self, test_client: TestClient, create_test_restaurant
     ):
         """Test filtering by price level.
@@ -184,7 +184,7 @@ class TestListRestaurants:
         assert all(r["price_level"] == 2 for r in data["data"])
 
     @pytest.mark.asyncio
-    async def test_list_filter_combined(
+    async def test_find_all_filter_combined(
         self, test_client: TestClient, create_test_restaurant
     ):
         """Test combining multiple filters.
@@ -212,7 +212,7 @@ class TestListRestaurants:
         assert data["data"][0]["price_level"] == 2
 
     @pytest.mark.asyncio
-    async def test_list_pagination_large_page_size(
+    async def test_find_all_pagination_large_page_size(
         self, test_client: TestClient, create_test_restaurant
     ):
         """Test that page_size has a reasonable maximum limit.

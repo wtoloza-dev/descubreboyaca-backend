@@ -8,9 +8,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.audit.repositories import SQLiteArchiveRepository
 from app.domains.restaurants.domain.exceptions import RestaurantNotFoundException
-from app.domains.restaurants.repositories.dish.sqlite import DishRepositorySQLite
+from app.domains.restaurants.repositories.dish.sqlite import SQLiteDishRepository
 from app.domains.restaurants.repositories.restaurant.sqlite import (
-    RestaurantRepositorySQLite,
+    SQLiteRestaurantRepository,
 )
 from app.domains.restaurants.services.dish import DishService
 from app.shared.domain.factories import generate_ulid
@@ -33,8 +33,8 @@ class TestDishServiceList:
         Then: Returns list of dishes and correct total count
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
@@ -64,8 +64,8 @@ class TestDishServiceList:
         Then: Returns empty list and count of 0
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
@@ -89,8 +89,8 @@ class TestDishServiceList:
         Then: Raises RestaurantNotFoundException
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
@@ -116,8 +116,8 @@ class TestDishServiceList:
         Then: Returns 2 dishes starting from position 3
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
@@ -152,8 +152,8 @@ class TestDishServiceList:
         Then: Returns only dessert dishes
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
@@ -192,8 +192,8 @@ class TestDishServiceList:
         Then: Returns only available dishes
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 
@@ -232,8 +232,8 @@ class TestDishServiceList:
         Then: Returns only dishes matching all filters
         """
         # Arrange
-        dish_repo = DishRepositorySQLite(test_session)
-        restaurant_repo = RestaurantRepositorySQLite(test_session)
+        dish_repo = SQLiteDishRepository(test_session)
+        restaurant_repo = SQLiteRestaurantRepository(test_session)
         archive_repo = SQLiteArchiveRepository(test_session)
         service = DishService(dish_repo, restaurant_repo, archive_repo)
 

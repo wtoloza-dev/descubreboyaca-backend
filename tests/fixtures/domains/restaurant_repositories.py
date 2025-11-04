@@ -6,19 +6,19 @@ This module provides repository layer fixtures for testing restaurant domain dat
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories.dish import DishRepositorySQLite
+from app.domains.restaurants.repositories.dish import SQLiteDishRepository
 from app.domains.restaurants.repositories.restaurant import (
-    RestaurantRepositorySQLite,
+    SQLiteRestaurantRepository,
 )
 from app.domains.restaurants.repositories.restaurant_owner import (
-    RestaurantOwnerRepositorySQLite,
+    SQLiteRestaurantOwnerRepository,
 )
 
 
 @pytest.fixture(name="restaurant_repository")
 def fixture_restaurant_repository(
     test_session: AsyncSession,
-) -> RestaurantRepositorySQLite:
+) -> SQLiteRestaurantRepository:
     """Create a restaurant repository instance for testing.
 
     This fixture provides a configured RestaurantRepository for testing
@@ -28,7 +28,7 @@ def fixture_restaurant_repository(
         test_session: Database session
 
     Returns:
-        RestaurantRepositorySQLite: Configured restaurant repository
+        SQLiteRestaurantRepository: Configured restaurant repository
 
     Example:
         >>> async def test_find_by_city(restaurant_repository, create_test_restaurant):
@@ -36,11 +36,11 @@ def fixture_restaurant_repository(
         ...     restaurants = await restaurant_repository.find_by_city("Tunja")
         ...     assert len(restaurants) == 1
     """
-    return RestaurantRepositorySQLite(test_session)
+    return SQLiteRestaurantRepository(test_session)
 
 
 @pytest.fixture(name="dish_repository")
-def fixture_dish_repository(test_session: AsyncSession) -> DishRepositorySQLite:
+def fixture_dish_repository(test_session: AsyncSession) -> SQLiteDishRepository:
     """Create a dish repository instance for testing.
 
     This fixture provides a configured DishRepository for testing
@@ -50,7 +50,7 @@ def fixture_dish_repository(test_session: AsyncSession) -> DishRepositorySQLite:
         test_session: Database session
 
     Returns:
-        DishRepositorySQLite: Configured dish repository
+        SQLiteDishRepository: Configured dish repository
 
     Example:
         >>> async def test_find_by_restaurant(
@@ -61,13 +61,13 @@ def fixture_dish_repository(test_session: AsyncSession) -> DishRepositorySQLite:
         ...     dishes = await dish_repository.find_by_restaurant(restaurant.id)
         ...     assert len(dishes) == 1
     """
-    return DishRepositorySQLite(test_session)
+    return SQLiteDishRepository(test_session)
 
 
 @pytest.fixture(name="owner_repository")
 def fixture_owner_repository(
     test_session: AsyncSession,
-) -> RestaurantOwnerRepositorySQLite:
+) -> SQLiteRestaurantOwnerRepository:
     """Create an owner repository instance for testing.
 
     This fixture provides a configured RestaurantOwnerRepository for testing
@@ -77,7 +77,7 @@ def fixture_owner_repository(
         test_session: Database session
 
     Returns:
-        RestaurantOwnerRepositorySQLite: Configured owner repository
+        SQLiteRestaurantOwnerRepository: Configured owner repository
 
     Example:
         >>> async def test_find_by_owner(
@@ -87,5 +87,4 @@ def fixture_owner_repository(
         ...     ownerships = await owner_repository.find_by_owner(mock_owner_user.id)
         ...     assert len(ownerships) > 0
     """
-    return RestaurantOwnerRepositorySQLite(test_session)
-
+    return SQLiteRestaurantOwnerRepository(test_session)

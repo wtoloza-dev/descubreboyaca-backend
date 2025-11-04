@@ -6,7 +6,7 @@ This module tests the find and get_by_restaurant_id methods of DishRepositorySQL
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories.dish.sqlite import DishRepositorySQLite
+from app.domains.restaurants.repositories.dish.sqlite import SQLiteDishRepository
 
 
 class TestDishRepositoryFind:
@@ -26,7 +26,7 @@ class TestDishRepositoryFind:
         Then: Returns all dishes
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         await create_test_dish(restaurant_id=restaurant.id, name="Dish 1")
         await create_test_dish(restaurant_id=restaurant.id, name="Dish 2")
@@ -52,7 +52,7 @@ class TestDishRepositoryFind:
         Then: Returns only dishes in that category
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         await create_test_dish(
             restaurant_id=restaurant.id, name="Appetizer", category="appetizer"
@@ -85,7 +85,7 @@ class TestDishRepositoryFind:
         Then: Returns 2 dishes starting from position 3
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         for i in range(10):
             await create_test_dish(
@@ -114,7 +114,7 @@ class TestDishRepositoryFind:
         Then: Results sorted by display_order (asc), then name (asc)
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         await create_test_dish(
             restaurant_id=restaurant.id, name="Zebra", display_order=2
@@ -149,7 +149,7 @@ class TestDishRepositoryFind:
         Then: Returns only dishes from restaurant 1
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant1 = await create_test_restaurant(name="Restaurant 1")
         restaurant2 = await create_test_restaurant(name="Restaurant 2")
 
@@ -178,7 +178,7 @@ class TestDishRepositoryFind:
         Then: Returns only dishes matching restaurant and category
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         await create_test_dish(
             restaurant_id=restaurant.id, name="Appetizer", category="appetizer"
@@ -214,7 +214,7 @@ class TestDishRepositoryFind:
         Then: Returns only dishes matching all filters
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         await create_test_dish(
             restaurant_id=restaurant.id,

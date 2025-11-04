@@ -6,7 +6,7 @@ This module tests the get_by_id method of DishRepositorySQLite.
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories.dish.sqlite import DishRepositorySQLite
+from app.domains.restaurants.repositories.dish.sqlite import SQLiteDishRepository
 from app.shared.domain.factories import generate_ulid
 
 
@@ -27,7 +27,7 @@ class TestDishRepositoryGet:
         Then: Returns dish entity
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         created = await create_test_dish(
             restaurant_id=restaurant.id,
@@ -52,7 +52,7 @@ class TestDishRepositoryGet:
         Then: Returns None
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         nonexistent_id = generate_ulid()
 
         # Act

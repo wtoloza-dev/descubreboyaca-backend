@@ -33,10 +33,8 @@ class TestListRestaurantsByCity:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert "items" in data
-        assert "total" in data
-        assert "page" in data
-        assert "page_size" in data
+        assert "data" in data
+        assert "pagination" in data
         assert len(data["data"]) == 2
         assert data["pagination"]["total"] == 2
         assert all(r["city"] == "Tunja" for r in data["data"])
@@ -60,7 +58,8 @@ class TestListRestaurantsByCity:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert "items" in data
+        assert "data" in data
+        assert "pagination" in data
         assert isinstance(data["data"], list)
         assert len(data["data"]) == 0
         assert data["pagination"]["total"] == 0

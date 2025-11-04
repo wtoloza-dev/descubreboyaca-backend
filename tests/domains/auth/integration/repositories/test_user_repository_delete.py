@@ -6,7 +6,7 @@ These tests verify user deletion (hard delete) through the repository layer with
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.auth.repositories.user import UserRepositorySQLite
+from app.domains.auth.repositories.user import SQLiteUserRepository
 
 
 class TestUserRepositoryDelete:
@@ -16,7 +16,7 @@ class TestUserRepositoryDelete:
     async def test_delete_existing_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test deleting existing user removes it from database.
@@ -40,7 +40,7 @@ class TestUserRepositoryDelete:
     async def test_delete_nonexistent_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test deleting non-existent user returns False.
 
@@ -63,7 +63,7 @@ class TestUserRepositoryDelete:
     async def test_delete_removes_user_permanently(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test delete is permanent (hard delete).
@@ -95,7 +95,7 @@ class TestUserRepositoryDelete:
     async def test_delete_without_commit(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test deleting user without auto-commit.
@@ -121,7 +121,7 @@ class TestUserRepositoryDelete:
     async def test_delete_twice_returns_false_second_time(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test deleting same user twice returns False second time.
@@ -149,7 +149,7 @@ class TestUserRepositoryTransactions:
     async def test_commit_persists_changes(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test commit persists pending changes.
@@ -180,7 +180,7 @@ class TestUserRepositoryTransactions:
     async def test_rollback_reverts_changes(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
         create_test_user,
     ):
         """Test rollback reverts pending changes.

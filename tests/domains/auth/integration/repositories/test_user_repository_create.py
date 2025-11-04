@@ -8,7 +8,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.auth.domain import UserData
 from app.domains.auth.domain.enums import AuthProvider, UserRole
-from app.domains.auth.repositories.user import UserRepositorySQLite
+from app.domains.auth.repositories.user import SQLiteUserRepository
 
 
 class TestUserRepositoryCreate:
@@ -18,7 +18,7 @@ class TestUserRepositoryCreate:
     async def test_create_user_with_minimal_data(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test creating user with minimal required data.
 
@@ -50,7 +50,7 @@ class TestUserRepositoryCreate:
     async def test_create_user_with_all_fields(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test creating user with all optional fields.
 
@@ -84,7 +84,7 @@ class TestUserRepositoryCreate:
     async def test_create_user_persists_to_database(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test created user can be retrieved from database.
 
@@ -112,7 +112,7 @@ class TestUserRepositoryCreate:
     async def test_create_user_without_commit(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test creating user without auto-commit.
 
@@ -146,7 +146,7 @@ class TestUserRepositoryCreate:
     async def test_create_user_generates_unique_ulid(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test each created user gets unique ULID.
 
@@ -179,7 +179,7 @@ class TestUserRepositoryCreate:
     async def test_create_oauth_user_without_password(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test creating OAuth user without password.
 
@@ -208,7 +208,7 @@ class TestUserRepositoryCreate:
     async def test_create_owner_user(
         self,
         test_session: AsyncSession,
-        user_repository: UserRepositorySQLite,
+        user_repository: SQLiteUserRepository,
     ):
         """Test creating user with OWNER role.
 

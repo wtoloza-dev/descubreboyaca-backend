@@ -10,7 +10,7 @@ This module tests the count method with focus on:
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories import RestaurantRepositorySQLite
+from app.domains.restaurants.repositories import SQLiteRestaurantRepository
 
 
 class TestRestaurantRepositoryCount:
@@ -27,7 +27,7 @@ class TestRestaurantRepositoryCount:
         Then: Returns total count
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         await create_test_restaurant(name="Restaurant 1")
         await create_test_restaurant(name="Restaurant 2")
         await create_test_restaurant(name="Restaurant 3")
@@ -49,7 +49,7 @@ class TestRestaurantRepositoryCount:
         Then: Returns count for specified city only
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         await create_test_restaurant(name="Tunja 1", city="Tunja")
         await create_test_restaurant(name="Tunja 2", city="Tunja")
         await create_test_restaurant(name="Tunja 3", city="Tunja")
@@ -72,7 +72,7 @@ class TestRestaurantRepositoryCount:
         Then: Returns count matching all filters
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
         await create_test_restaurant(name="Match 1", city="Tunja", price_level=2)
         await create_test_restaurant(name="Match 2", city="Tunja", price_level=2)
         await create_test_restaurant(name="No Match", city="Tunja", price_level=1)
@@ -93,7 +93,7 @@ class TestRestaurantRepositoryCount:
         Then: Returns 0
         """
         # Arrange
-        repository = RestaurantRepositorySQLite(test_session)
+        repository = SQLiteRestaurantRepository(test_session)
 
         # Act
         count = await repository.count(filters=None)

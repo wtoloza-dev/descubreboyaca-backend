@@ -12,7 +12,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.domains.auth.domain import User, UserData
 from app.domains.auth.domain.enums import AuthProvider, UserRole
 from app.domains.auth.models import UserModel
-from app.domains.auth.repositories.user import UserRepositorySQLite
+from app.domains.auth.repositories.user import SQLiteUserRepository
 from app.domains.auth.services import (
     AuthService,
     BcryptPasswordHasher,
@@ -175,7 +175,7 @@ def fixture_auth_service(
         ...     )
         ...     assert user.email == "test@example.com"
     """
-    user_repository = UserRepositorySQLite(test_session)
+    user_repository = SQLiteUserRepository(test_session)
     return AuthService(
         user_repository=user_repository,
         token_provider=token_provider,
@@ -184,17 +184,17 @@ def fixture_auth_service(
 
 
 @pytest.fixture(name="user_repository")
-def fixture_user_repository(test_session: AsyncSession) -> UserRepositorySQLite:
+def fixture_user_repository(test_session: AsyncSession) -> SQLiteUserRepository:
     """Create a user repository instance for testing.
 
     Args:
         test_session: Database session
 
     Returns:
-        UserRepositorySQLite: Configured user repository
+        SQLiteUserRepository: Configured user repository
 
     Example:
         >>> async def test_user_lookup(user_repository):
         ...     user = await user_repository.get_by_email("test@example.com")
     """
-    return UserRepositorySQLite(test_session)
+    return SQLiteUserRepository(test_session)

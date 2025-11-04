@@ -1,6 +1,6 @@
-"""E2E tests for GET /restaurants/{restaurant_id}/dishes endpoint.
+"""E2E tests for GET /restaurants/{restaurant_id}/dishes endpoint (find_all).
 
-This module tests the public endpoint for listing dishes of a restaurant.
+This module tests the public endpoint for finding all dishes of a restaurant.
 """
 
 import pytest
@@ -10,11 +10,11 @@ from fastapi.testclient import TestClient
 from app.shared.domain.factories import generate_ulid
 
 
-class TestListRestaurantDishes:
-    """E2E tests for GET /restaurants/{restaurant_id}/dishes endpoint."""
+class TestFindAllRestaurantDishes:
+    """E2E tests for GET /restaurants/{restaurant_id}/dishes endpoint (find_all)."""
 
     @pytest.mark.asyncio
-    async def test_list_dishes_with_results(
+    async def test_find_all_dishes_with_results(
         self,
         test_client: TestClient,
         create_test_restaurant,
@@ -59,7 +59,7 @@ class TestListRestaurantDishes:
         assert data["pagination"]["total"] == 3
 
     @pytest.mark.asyncio
-    async def test_list_dishes_empty(
+    async def test_find_all_dishes_empty(
         self,
         test_client: TestClient,
         create_test_restaurant,
@@ -83,7 +83,9 @@ class TestListRestaurantDishes:
         assert data["pagination"]["total"] == 0
 
     @pytest.mark.asyncio
-    async def test_list_dishes_nonexistent_restaurant(self, test_client: TestClient):
+    async def test_find_all_dishes_nonexistent_restaurant(
+        self, test_client: TestClient
+    ):
         """Test listing dishes for non-existent restaurant returns 404.
 
         Given: A restaurant ID that doesn't exist
@@ -102,7 +104,9 @@ class TestListRestaurantDishes:
         # The API returns structured error response with message field
         assert "message" in data or "detail" in data
 
-    def test_list_dishes_invalid_restaurant_id_format(self, test_client: TestClient):
+    def test_find_all_dishes_invalid_restaurant_id_format(
+        self, test_client: TestClient
+    ):
         """Test listing dishes with invalid restaurant ULID format returns 422.
 
         Given: An invalid ULID format
@@ -119,7 +123,7 @@ class TestListRestaurantDishes:
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
     @pytest.mark.asyncio
-    async def test_list_dishes_with_pagination(
+    async def test_find_all_dishes_with_pagination(
         self,
         test_client: TestClient,
         create_test_restaurant,
@@ -154,7 +158,7 @@ class TestListRestaurantDishes:
         assert data["pagination"]["total"] == 10
 
     @pytest.mark.asyncio
-    async def test_list_dishes_filter_by_category(
+    async def test_find_all_dishes_filter_by_category(
         self,
         test_client: TestClient,
         create_test_restaurant,
@@ -202,7 +206,7 @@ class TestListRestaurantDishes:
         assert all(dish["category"] == "dessert" for dish in data["data"])
 
     @pytest.mark.asyncio
-    async def test_list_dishes_filter_by_availability(
+    async def test_find_all_dishes_filter_by_availability(
         self,
         test_client: TestClient,
         create_test_restaurant,
@@ -245,7 +249,7 @@ class TestListRestaurantDishes:
         assert all(dish["is_available"] is True for dish in data["data"])
 
     @pytest.mark.asyncio
-    async def test_list_dishes_filter_by_featured(
+    async def test_find_all_dishes_filter_by_featured(
         self,
         test_client: TestClient,
         create_test_restaurant,
@@ -288,7 +292,7 @@ class TestListRestaurantDishes:
         assert data["data"][0]["is_featured"] is True
 
     @pytest.mark.asyncio
-    async def test_list_dishes_multiple_filters(
+    async def test_find_all_dishes_multiple_filters(
         self,
         test_client: TestClient,
         create_test_restaurant,
@@ -335,7 +339,7 @@ class TestListRestaurantDishes:
         assert data["data"][0]["is_available"] is True
 
     @pytest.mark.asyncio
-    async def test_list_dishes_ordering(
+    async def test_find_all_dishes_ordering(
         self,
         test_client: TestClient,
         create_test_restaurant,
@@ -380,7 +384,7 @@ class TestListRestaurantDishes:
         assert items[2]["name"] == "Zebra Dish"  # display_order=2
 
     @pytest.mark.asyncio
-    async def test_list_dishes_only_returns_dishes_from_specified_restaurant(
+    async def test_find_all_dishes_only_returns_dishes_from_specified_restaurant(
         self,
         test_client: TestClient,
         create_test_restaurant,

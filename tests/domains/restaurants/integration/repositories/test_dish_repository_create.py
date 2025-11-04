@@ -9,7 +9,7 @@ import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.restaurants.domain import DishData
-from app.domains.restaurants.repositories.dish.sqlite import DishRepositorySQLite
+from app.domains.restaurants.repositories.dish.sqlite import SQLiteDishRepository
 from app.shared.domain.factories import generate_ulid
 
 
@@ -30,7 +30,7 @@ class TestDishRepositoryCreate:
         Then: Dish is persisted with ID and audit fields
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
 
         # Act
@@ -58,7 +58,7 @@ class TestDishRepositoryCreate:
         Then: Dish is persisted with default values for optional fields
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
 
         minimal_data = DishData(
@@ -96,7 +96,7 @@ class TestDishRepositoryCreate:
         Then: Audit trail includes creator ID
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
         creator_id = generate_ulid()
 
@@ -123,7 +123,7 @@ class TestDishRepositoryCreate:
         Then: Each has a different unique ID
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
 
         # Act
@@ -149,7 +149,7 @@ class TestDishRepositoryCreate:
         Then: Returns the same dish with all data intact
         """
         # Arrange
-        repository = DishRepositorySQLite(test_session)
+        repository = SQLiteDishRepository(test_session)
         restaurant = await create_test_restaurant(name="Test Restaurant")
 
         # Act

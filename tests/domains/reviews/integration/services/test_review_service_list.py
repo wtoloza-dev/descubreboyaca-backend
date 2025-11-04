@@ -8,7 +8,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from ulid import ULID
 
 from app.domains.reviews.domain.enums import EntityType
-from app.domains.reviews.repositories.review import ReviewRepositoryPostgreSQL
+from app.domains.reviews.repositories.review import PostgreSQLReviewRepository
 from app.domains.reviews.services import ReviewService
 
 
@@ -21,7 +21,7 @@ async def test_list_user_reviews_empty(test_session: AsyncSession):
     Then: Returns empty list and zero count
     """
     # Arrange
-    repository = ReviewRepositoryPostgreSQL(test_session)
+    repository = PostgreSQLReviewRepository(test_session)
     service = ReviewService(repository)
     user_id = str(ULID())
 
@@ -42,7 +42,7 @@ async def test_list_user_reviews_with_results(test_session: AsyncSession):
     Then: Returns all user's reviews with correct count
     """
     # Arrange
-    repository = ReviewRepositoryPostgreSQL(test_session)
+    repository = PostgreSQLReviewRepository(test_session)
     service = ReviewService(repository)
     user_id = str(ULID())
 
@@ -77,7 +77,7 @@ async def test_list_user_reviews_with_pagination(test_session: AsyncSession):
     Then: Returns 2 reviews (page 2) and total count of 5
     """
     # Arrange
-    repository = ReviewRepositoryPostgreSQL(test_session)
+    repository = PostgreSQLReviewRepository(test_session)
     service = ReviewService(repository)
     user_id = str(ULID())
 
@@ -115,7 +115,7 @@ async def test_list_user_reviews_only_returns_own_reviews(test_session: AsyncSes
     Then: Returns only that user's reviews
     """
     # Arrange
-    repository = ReviewRepositoryPostgreSQL(test_session)
+    repository = PostgreSQLReviewRepository(test_session)
     service = ReviewService(repository)
     user_id_1 = str(ULID())
     user_id_2 = str(ULID())
@@ -153,7 +153,7 @@ async def test_list_user_reviews_ordered_by_created_at_desc(
     Then: Returns reviews ordered by created_at (newest first)
     """
     # Arrange
-    repository = ReviewRepositoryPostgreSQL(test_session)
+    repository = PostgreSQLReviewRepository(test_session)
     service = ReviewService(repository)
     user_id = str(ULID())
 
