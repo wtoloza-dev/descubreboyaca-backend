@@ -130,22 +130,19 @@ class Test[Feature]Lifecycle:
         delete_response = await workflow_admin_client.delete(...)
         assert delete_response.status_code == HTTPStatus.NO_CONTENT
 
-        # Verify archived
-        result = await workflow_db_session.exec(
-            select(ArchiveModel).where(...)
+        # Step 5: Hard delete from archive using endpoint
+        cleanup_response = await workflow_admin_client.delete(
+            "/api/v1/archives",
+            json={
+                "original_table": "restaurants",
+                "original_id": item_id,
+            },
         )
-        archive = result.first()
-        assert archive is not None
-
-        # Step 5: Hard delete from archive
-        await workflow_db_session.delete(archive)
-        await workflow_db_session.commit()
-
-        # Final verification
-        result = await workflow_db_session.exec(
-            select(ArchiveModel).where(...)
-        )
-        assert result.first() is None
+        assert cleanup_response.status_code == HTTPStatus.OK
+        
+        # Verify success message
+        cleanup_data = cleanup_response.json()
+        assert cleanup_data["success"] is True
 ```
 
 ### Available Fixtures
@@ -200,8 +197,8 @@ The `TestRestaurantLifecycleBasic` class demonstrates a complete workflow test:
 3. **Query by City**: Verify restaurant appears in city-filtered query
 4. **Delete**: Admin soft-deletes restaurant (archives it)
 5. **Verify Hidden**: Confirm restaurant no longer appears in public queries
-6. **Hard Delete**: Remove from archive table via direct database operation
-7. **Final Verification**: Confirm complete removal from system
+6. **Hard Delete**: Remove from archive using `/api/v1/archives` endpoint
+7. **Final Verification**: Confirm complete removal via success response
 
 This test validates:
 - Restaurant creation and persistence
@@ -243,9 +240,15 @@ assert create_response.status_code == 201
 
 ### 3. Clean Up After Tests
 ```python
-# Good: Hard delete archives at the end
-await workflow_db_session.delete(archive)
-await workflow_db_session.commit()
+# Good: Use hard delete endpoint to clean up archives
+cleanup_response = await workflow_admin_client.delete(
+    "/api/v1/archives",
+    json={
+        "original_table": "restaurants",
+        "original_id": restaurant_id,
+    },
+)
+assert cleanup_response.status_code == HTTPStatus.OK
 
 # Bad: Leave test data in archive table
 pass  # Don't clean up
@@ -297,10 +300,72 @@ assert restaurant_id in all_ids
 - Check for transaction isolation issues
 - Verify session commits are happening
 
+## Available Admin Tools
+
+### Hard Delete Endpoint
+For cleaning up archived test data:
+
+```python
+# Clean up archived restaurant
+response = await workflow_admin_client.request(
+    "DELETE",
+    "/api/v1/audit/admin/archives",
+    json={
+        "original_table": "restaurants",  # or "users", "dishes", etc.
+        "original_id": "01HZQK9X5M7N8P9Q0R1S2T3U4V",  # ULID
+    },
+)
+assert response.status_code == HTTPStatus.OK
+assert response.json()["success"] is True
+```
+
+### User Management Endpoints
+For creating test users with different roles:
+
+```python
+# Create a test user
+response = await workflow_admin_client.post(
+    "/api/v1/users/admin",
+    json={
+        "email": "testowner@workflow.com",
+        "password": "SecurePass123!",
+        "full_name": "Test Owner",
+        "role": "OWNER",
+        "is_active": True,
+    },
+)
+assert response.status_code == HTTPStatus.CREATED
+user_id = response.json()["id"]
+
+# List all users
+response = await workflow_admin_client.get("/api/v1/users/admin")
+assert response.status_code == HTTPStatus.OK
+
+# Delete test user (soft delete with archiving)
+response = await workflow_admin_client.delete(
+    f"/api/v1/users/admin/{user_id}",
+    json={"note": "Workflow test cleanup"},
+)
+assert response.status_code == HTTPStatus.NO_CONTENT
+
+# Hard delete user from archive
+response = await workflow_admin_client.request(
+    "DELETE",
+    "/api/v1/audit/admin/archives",
+    json={
+        "original_table": "users",
+        "original_id": user_id,
+    },
+)
+assert response.status_code == HTTPStatus.OK
+```
+
 ## Future Enhancements
 
 - [ ] Auto-start application for workflow tests
-- [ ] Real JWT authentication flow for admin client
+- [x] ~~Real JWT authentication flow for admin client~~ ✅ Implemented
+- [x] ~~Hard delete endpoint for cleanup~~ ✅ Implemented
+- [x] ~~Admin user management~~ ✅ Implemented
 - [ ] Support for owner and user client fixtures
 - [ ] Cleanup hooks to prevent test data leakage
 - [ ] Performance monitoring for workflow operations
@@ -310,6 +375,8 @@ assert restaurant_id in all_ids
 
 ## Related Documentation
 
+- [Cleanup Guide](CLEANUP_GUIDE.md) - **NEW!** How to use hard delete and user management for cleanup
+- [Implementation Summary](SUMMARY.md) - Current status and test results
 - [Tests Architecture](../ARCHITECTURE.md) - Overall test organization
 - [E2E Tests](../domains/restaurants/e2e/) - Endpoint-level testing
 - [Integration Tests](../domains/restaurants/integration/) - Service/repository testing

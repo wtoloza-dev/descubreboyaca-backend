@@ -6,7 +6,7 @@ This module provides the user management service for administrative operations.
 from app.domains.audit.domain import Archive, ArchiveData
 from app.domains.audit.domain.interfaces import ArchiveRepositoryInterface
 from app.domains.auth.domain import User, UserData
-from app.domains.auth.domain.enums import AuthProvider, UserRole
+from app.domains.auth.domain.enums import AuthProvider
 from app.domains.auth.domain.exceptions import (
     UserAlreadyExistsException,
     UserNotFoundException,
@@ -15,6 +15,7 @@ from app.domains.auth.domain.interfaces import (
     PasswordHasher,
     UserRepositoryInterface,
 )
+from app.domains.auth.domain.value_objects import CreateUserData
 
 
 class UserService:
@@ -46,24 +47,19 @@ class UserService:
         self.archive_repository = archive_repository
         self.password_hasher = password_hasher
 
-    async def create(
-        self,
-        email: str,
-        password: str,
-        full_name: str,
-        role: UserRole,
-        is_active: bool,
-        created_by: str,
-    ) -> User:
+    async def create(self, user_data: CreateUserData, created_by: str) -> User:
         """Create a new user (admin operation).
 
+        This method follows DDD patterns by:
+        1. Receiving a domain value object (CreateUserData) with user creation data
+        2. Validating business rules (email uniqueness)
+        3. Applying domain logic (password hashing)
+        4. Building the User entity with proper value objects (UserData)
+        5. Persisting through repository
+
         Args:
-            email: User's email address
-            password: Plain text password
-            full_name: User's full name
-            role: User's role in the system
-            is_active: Whether the account is active
-            created_by: Admin user ID who created this user
+            user_data: Value object containing user creation data (before hashing)
+            created_by: Admin user ID who is creating this user
 
         Returns:
             Created User entity
@@ -71,26 +67,28 @@ class UserService:
         Raises:
             UserAlreadyExistsException: If email is already registered
         """
-        # Check if user already exists
-        existing_user = await self.user_repository.get_by_email(email)
+        # Validate business rule: email uniqueness
+        existing_user = await self.user_repository.get_by_email(user_data.email)
         if existing_user:
-            raise UserAlreadyExistsException(email)
+            raise UserAlreadyExistsException(str(user_data.email))
 
-        # Hash password
-        hashed_password = self.password_hasher.hash_password(password)
+        # Apply domain logic: hash password
+        hashed_password = self.password_hasher.hash_password(user_data.password)
 
-        # Create user data
-        user_data = UserData(
-            email=email,
-            full_name=full_name,
+        # Build UserData value object with hashed password
+        user_entity_data = UserData(
+            email=user_data.email,
+            full_name=user_data.full_name,
             hashed_password=hashed_password.value,
-            role=role,
-            is_active=is_active,
+            role=user_data.role,
+            is_active=user_data.is_active,
             auth_provider=AuthProvider.EMAIL,
         )
 
-        # Persist user
-        user = await self.user_repository.create(user_data, created_by=created_by)
+        # Create and persist user entity
+        user = await self.user_repository.create(
+            user_entity_data, created_by=created_by
+        )
 
         return user
 

@@ -9,6 +9,7 @@ from fastapi import APIRouter, Body, Depends, status
 
 from app.domains.auth.dependencies.auth import require_admin_dependency
 from app.domains.auth.domain import User
+from app.domains.auth.domain.value_objects import CreateUserData
 from app.domains.users.dependencies import get_user_service_dependency
 from app.domains.users.schemas.admin import (
     CreateUserSchemaRequest,
@@ -39,8 +40,14 @@ async def handle_create_user(
     This endpoint allows administrators to create new users with custom roles,
     including other administrators, owners, and regular users.
 
+    Following DDD patterns, the route handler:
+    1. Receives the request schema (API contract)
+    2. Converts it to a domain value object (CreateUserData)
+    3. Passes the value object to the service for business logic
+    4. Returns a properly formatted response
+
     Args:
-        request: User creation request with email, password, full_name, role, is_active
+        request: User creation request schema (API layer)
         service: User service dependency
         admin_user: Authenticated admin user from dependency
 
@@ -50,15 +57,13 @@ async def handle_create_user(
     Raises:
         UserAlreadyExistsException: If email already exists (HTTP 409)
     """
-    user = await service.create(
-        email=request.email,
-        password=request.password,
-        full_name=request.full_name,
-        role=request.role,
-        is_active=request.is_active,
-        created_by=admin_user.id,
-    )
+    # Convert request schema to domain value object
+    user_data = CreateUserData(**request.model_dump())
 
+    # Pass domain value object to service for entity construction
+    user = await service.create(user_data=user_data, created_by=admin_user.id)
+
+    # Build response from entity
     return CreateUserSchemaResponse(
         id=user.id,
         email=user.email,

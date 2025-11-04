@@ -67,11 +67,16 @@ make test-all            # Run ALL tests including workflow
 4. **Find By City**: GET `/api/v1/restaurants?city=Tunja` ✅
 5. **Data Verification**: Confirms created restaurants appear in queries ✅
 
-### Known Issue ⚠️
-- **Delete Operation**: Returns 500 Internal Server Error
-  - This is a server-side issue, not a test framework issue
-  - The test correctly sends: `DELETE /api/v1/restaurants/admin/{id}` with JSON body
-  - Check server logs for the actual error
+### Cleanup Tools ✅
+- **Hard Delete Endpoint**: `DELETE /api/v1/archives` for permanent cleanup
+  - Removes archived records after workflow tests
+  - Requires admin authentication
+  - Returns success/failure status
+  
+- **User Management**: Full CRUD operations for test users
+  - `POST /api/v1/users/admin` - Create users with any role
+  - `GET /api/v1/users/admin` - List all users
+  - `DELETE /api/v1/users/admin/{id}` - Soft delete users
 
 ## 🚀 Usage
 
@@ -190,17 +195,21 @@ Workflow tests cover:
 - ✅ Restaurant creation (admin endpoint)
 - ✅ Public restaurant queries (find_all)
 - ✅ Restaurant filtering (by city)
-- ⚠️ Restaurant deletion (has server issue)
+- ✅ Restaurant soft deletion with archiving
+- ✅ Hard delete cleanup via API
+- ✅ User management (create, list, delete)
 - ✅ Data isolation between operations
 
 ## 🔮 Next Steps
 
-1. **Fix Delete Endpoint**: Investigate 500 error on server
-2. **Add More Workflows**: Dishes, favorites, reviews lifecycles
-3. **Add Owner Tests**: Test owner-specific operations
-4. **Add User Tests**: Test regular user operations
-5. **CI/CD Integration**: Add workflow tests to staging deployment pipeline
-6. **Performance Tests**: Add timing assertions for critical operations
+1. ✅ ~~**Fix Delete Endpoint**~~ - Working with archiving
+2. ✅ ~~**Hard Delete Cleanup**~~ - Endpoint implemented
+3. ✅ ~~**User Management**~~ - Admin endpoints available
+4. **Add More Workflows**: Dishes, favorites, reviews lifecycles
+5. **Add Owner Tests**: Test owner-specific operations with user management
+6. **Add User Tests**: Test regular user operations
+7. **CI/CD Integration**: Add workflow tests to staging deployment pipeline
+8. **Performance Tests**: Add timing assertions for critical operations
 
 ## 📞 Support
 

@@ -260,7 +260,7 @@ class TestRestaurantLifecycleBasic:
         print("✓ Deleted Duitama restaurant")
 
         # ================================================================
-        # STEP 9: VERIFY COMPLETE CLEANUP
+        # STEP 9: VERIFY COMPLETE CLEANUP (Soft Delete)
         # ================================================================
         final_response = await workflow_http_client.get(
             "/api/v1/restaurants",
@@ -270,13 +270,53 @@ class TestRestaurantLifecycleBasic:
 
         assert tunja_id not in final_ids, "Tunja should not appear after cleanup"
         assert duitama_id not in final_ids, "Duitama should not appear after cleanup"
+        print("✓ Soft delete verified: Both restaurants removed from active tables")
 
         # ================================================================
-        # SUCCESS: Complete lifecycle validated
+        # STEP 10: HARD DELETE FROM ARCHIVES (Complete Cleanup)
+        # ================================================================
+        # Clean up Tunja restaurant from archive
+        cleanup_tunja_response = await workflow_admin_client.request(
+            "DELETE",
+            "/api/v1/audit/admin/archives",
+            json={
+                "original_table": "restaurants",
+                "original_id": tunja_id,
+            },
+        )
+        assert cleanup_tunja_response.status_code == HTTPStatus.OK, (
+            f"Failed to hard delete Tunja from archive: "
+            f"{cleanup_tunja_response.status_code} - {cleanup_tunja_response.text}"
+        )
+        tunja_cleanup = cleanup_tunja_response.json()
+        assert tunja_cleanup["success"] is True
+        print("✓ Hard deleted Tunja restaurant from archive")
+
+        # Clean up Duitama restaurant from archive
+        cleanup_duitama_response = await workflow_admin_client.request(
+            "DELETE",
+            "/api/v1/audit/admin/archives",
+            json={
+                "original_table": "restaurants",
+                "original_id": duitama_id,
+            },
+        )
+        assert cleanup_duitama_response.status_code == HTTPStatus.OK, (
+            f"Failed to hard delete Duitama from archive: "
+            f"{cleanup_duitama_response.status_code} - {cleanup_duitama_response.text}"
+        )
+        duitama_cleanup = cleanup_duitama_response.json()
+        assert duitama_cleanup["success"] is True
+        print("✓ Hard deleted Duitama restaurant from archive")
+
+        # ================================================================
+        # SUCCESS: Complete lifecycle validated with full cleanup
         # ================================================================
         print("✅ Complete restaurant lifecycle test passed!")
         print("   - Created: 2 restaurants")
         print("   - Tested: CRD + filters + isolation (no U - admin can't update)")
         print("   - Endpoints: POST, GET, GET (filters), DELETE")
-        print("   - Archived: 2 records")
+        print("   - Soft deleted: 2 records (archived)")
+        print("   - Hard deleted: 2 records (permanently removed)")
         print("   - Efficiency: 5 endpoints with only 2 objects")
+        print("   - Cleanup: Complete (no test data persists)")
