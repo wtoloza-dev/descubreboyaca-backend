@@ -151,7 +151,7 @@ Routes are the presentation layer entry points for the application, handling HTT
 
 ```python
 # ❌ BAD - Uses reserved word "list"
-# File: list.py
+# File: list.py or list_all.py
 @router.get("/")
 async def list_prompts():  # Conflicts with list() method
     pass
@@ -160,6 +160,18 @@ async def list_prompts():  # Conflicts with list() method
 # File: find_all.py
 @router.get("/")
 async def handle_find_all():  # Clear and semantic
+    pass
+
+# ❌ BAD - Uses generic "get"
+# File: get.py or get_by_id.py
+@router.get("/{id}/")
+async def get_prompt():  # Too generic and HTTP-specific
+    pass
+
+# ✅ GOOD - Uses semantic "find_by_id"
+# File: find_by_id.py
+@router.get("/{id}/")
+async def handle_find_by_id():  # Clear intent
     pass
 
 # ❌ BAD - Uses reserved word "set"
@@ -172,18 +184,6 @@ async def set_variables():  # Conflicts with set() type
 # File: update_variables.py
 @router.patch("/{id}/variables/")
 async def handle_update_variables():  # Clear and semantic
-    pass
-
-# ❌ BAD - Uses generic "get"
-# File: get.py
-@router.get("/{id}/")
-async def get_prompt():  # Too generic
-    pass
-
-# ✅ GOOD - Uses semantic "find_by_id"
-# File: find_by_id.py
-@router.get("/{id}/")
-async def handle_find_by_id():  # Clear intent
     pass
 ```
 
@@ -523,7 +523,8 @@ async def handle_find_all(
 - ✅ Returns: Array of items + pagination metadata
 - ✅ Uses `get_pagination_dependency`
 - ✅ Transforms list comprehension for items
-- ❌ **NEVER name this `list.py` or `handle_list()`** - use `find_all.py`
+- ❌ **NEVER name this `list.py`, `list_all.py` or `handle_list()`** - use `find_all.py` and `handle_find_all()`
+- ❌ **NEVER use `get.py` or `get_by_id.py`** - use `find_by_id.py` and `handle_find_by_id()`
 
 ### 4. Find Resources by Criteria (GET)
 
@@ -1351,20 +1352,32 @@ async def handle_publish(prompt_id: ULID) -> PublishResponse:
 ### Mistake 2: Using Reserved Words
 
 ```python
-# ❌ BAD
-# File: list.py
+# ❌ BAD - Using "list" (Python reserved word)
+# File: list.py or list_restaurants.py
 @router.get("/")
-async def list():  # Conflicts with Python's list()
+async def list_restaurants():  # Conflicts with Python's list()
     pass
 
-# ✅ GOOD
+# ❌ BAD - Using "get" (too generic, HTTP-specific)
+# File: get.py or get_restaurant.py
+@router.get("/{id}/")
+async def get_restaurant():  # Too generic
+    pass
+
+# ✅ GOOD - Using semantic "find_all"
 # File: find_all.py
 @router.get("/")
-async def handle_find_all():
+async def handle_find_all():  # Clear and semantic
+    pass
+
+# ✅ GOOD - Using semantic "find_by_id"
+# File: find_by_id.py
+@router.get("/{id}/")
+async def handle_find_by_id():  # Clear intent
     pass
 ```
 
-### Mistake 2: Business Logic in Routes
+### Mistake 3: Business Logic in Routes
 
 ```python
 # ❌ BAD
@@ -1389,7 +1402,7 @@ async def handle_create(
     return CreateResponse.model_validate(prompt)
 ```
 
-### Mistake 3: Handling Exceptions in Routes
+### Mistake 4: Handling Exceptions in Routes
 
 ```python
 # ❌ BAD
@@ -1408,7 +1421,7 @@ async def handle_find_by_id(prompt_id: ULID) -> FindByIdResponse:
     return FindByIdResponse.model_validate(prompt)  # Let global handler manage exceptions
 ```
 
-### Mistake 4: Not Converting ULID to String
+### Mistake 5: Not Converting ULID to String
 
 ```python
 # ❌ BAD
@@ -1422,7 +1435,7 @@ async def handle_find_by_id(prompt_id: ULID) -> FindByIdResponse:
     prompt = await service.get_by_id(prompt_id=str(prompt_id))  # Convert to string
 ```
 
-### Mistake 5: Forgetting Audit Fields
+### Mistake 6: Forgetting Audit Fields
 
 ```python
 # ❌ BAD
@@ -1440,7 +1453,7 @@ async def handle_create(
     prompt = await service.create(entity_data, current_user)  # Include current_user
 ```
 
-### Mistake 6: Wrong Status Code for Delete
+### Mistake 7: Wrong Status Code for Delete
 
 ```python
 # ❌ BAD

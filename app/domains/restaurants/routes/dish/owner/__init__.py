@@ -9,7 +9,7 @@ from app.domains.restaurants.routes.dish.owner import create, delete, update
 
 
 # Create router with owner prefix
-router = APIRouter(prefix="/owner", tags=["Owner - Dishes"])
+router = APIRouter(prefix="/owner")
 
 # Include routes
 router.include_router(create.router)

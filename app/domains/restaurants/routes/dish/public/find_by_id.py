@@ -1,6 +1,6 @@
-"""Get dish endpoint (Public).
+"""Find dish by ID endpoint (Public).
 
-This module provides an endpoint for retrieving a single dish by ID.
+This module provides an endpoint for finding a single dish by ID.
 """
 
 from typing import Annotated
@@ -9,7 +9,9 @@ from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
 from app.domains.restaurants.dependencies import get_dish_service_dependency
-from app.domains.restaurants.schemas.dish.public.get import GetDishSchemaResponse
+from app.domains.restaurants.schemas.dish.public.find_by_id import (
+    FindDishSchemaResponse,
+)
 from app.domains.restaurants.services.dish import DishService
 
 
@@ -19,10 +21,10 @@ router = APIRouter()
 @router.get(
     path="/dishes/{dish_id}/",
     status_code=status.HTTP_200_OK,
-    summary="Get a dish by ID",
-    description="Retrieve complete information about a single dish using its unique ID.",
+    summary="Find a dish by ID",
+    description="Find complete information about a single dish using its unique ID.",
 )
-async def handle_get_dish(
+async def handle_find_dish_by_id(
     dish_id: Annotated[
         ULID,
         Path(
@@ -31,20 +33,20 @@ async def handle_get_dish(
         ),
     ],
     service: Annotated[DishService, Depends(get_dish_service_dependency)],
-) -> GetDishSchemaResponse:
-    """Get a single dish by its ID.
+) -> FindDishSchemaResponse:
+    """Find a single dish by its ID.
 
     Args:
         dish_id: ULID of the dish (validated automatically)
         service: Dish service (injected)
 
     Returns:
-        GetDishSchemaResponse: Complete dish information
+        FindDishSchemaResponse: Complete dish information
 
     Raises:
         DishNotFoundException: If dish not found (handled globally)
         HTTPException 422: If dish_id format is invalid (not a valid ULID)
     """
-    dish = await service.get_dish_by_id(str(dish_id))
+    dish = await service.find_dish_by_id(str(dish_id))
 
-    return GetDishSchemaResponse.model_validate(dish.model_dump(mode="json"))
+    return FindDishSchemaResponse.model_validate(dish.model_dump(mode="json"))

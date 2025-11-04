@@ -11,10 +11,10 @@ from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 from app.shared.schemas import PaginationSchemaData, PaginationSchemaResponse
 
 
-class ListDishesSchemaItem(BaseModel):
-    """Dish item in list dishes response.
+class FindDishesSchemaItem(BaseModel):
+    """Dish item in find dishes response.
 
-    Returns essential information for listing dishes.
+    Returns essential information for finding dishes.
 
     Attributes:
         id: Unique dish identifier (ULID)
@@ -58,8 +58,8 @@ class ListDishesSchemaItem(BaseModel):
     display_order: int = Field(description="Display order")
 
 
-class ListDishesSchemaResponse(PaginationSchemaResponse[ListDishesSchemaItem]):
-    """Paginated response for list dishes endpoint.
+class FindDishesSchemaResponse(PaginationSchemaResponse[FindDishesSchemaItem]):
+    """Paginated response for find dishes endpoint.
 
     Attributes:
         data: List of dishes
@@ -84,5 +84,5 @@ class ListDishesSchemaResponse(PaginationSchemaResponse[ListDishesSchemaItem]):
         }
     """
 
-    data: list[ListDishesSchemaItem] = Field(description="List of dishes")
+    data: list[FindDishesSchemaItem] = Field(description="List of dishes")
     pagination: PaginationSchemaData = Field(description="Pagination metadata")

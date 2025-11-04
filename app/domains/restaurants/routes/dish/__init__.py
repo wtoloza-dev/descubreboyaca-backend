@@ -10,6 +10,6 @@ from app.domains.restaurants.routes.dish import admin, owner, public
 
 router = APIRouter()
 
-router.include_router(admin.router)
-router.include_router(owner.router)
-router.include_router(public.router)
+router.include_router(admin.router, tags=["Dishes - Admin"])
+router.include_router(owner.router, tags=["Dishes - Owner"])
+router.include_router(public.router, tags=["Dishes - Public"])

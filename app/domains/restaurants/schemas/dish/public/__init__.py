@@ -1,11 +1,11 @@
 """Public dish schemas package."""
 
-from .find_all import ListDishesSchemaItem, ListDishesSchemaResponse
-from .get import GetDishSchemaResponse
+from .find_all import FindDishesSchemaItem, FindDishesSchemaResponse
+from .find_by_id import FindDishSchemaResponse
 
 
 __all__ = [
-    "GetDishSchemaResponse",
-    "ListDishesSchemaItem",
-    "ListDishesSchemaResponse",
+    "FindDishSchemaResponse",
+    "FindDishesSchemaItem",
+    "FindDishesSchemaResponse",
 ]

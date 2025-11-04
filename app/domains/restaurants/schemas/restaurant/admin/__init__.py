@@ -3,7 +3,7 @@
 from .assign_owner import AssignOwnerSchemaRequest, OwnershipSchemaResponse
 from .create import CreateRestaurantSchemaRequest, CreateRestaurantSchemaResponse
 from .delete import DeleteRestaurantSchemaRequest
-from .list_owners import ListOwnershipsSchemaResponse
+from .find_owners import FindOwnershipsSchemaResponse
 from .remove_owner import RemoveOwnerSchemaResponse
 from .transfer_ownership import (
     OwnershipSchemaResponse as TransferOwnershipSchemaResponse,
@@ -24,8 +24,8 @@ __all__ = [
     "CreateRestaurantSchemaResponse",
     # Delete
     "DeleteRestaurantSchemaRequest",
-    # List Owners
-    "ListOwnershipsSchemaResponse",
+    # Find Owners
+    "FindOwnershipsSchemaResponse",
     # Remove Owner
     "RemoveOwnerSchemaResponse",
     # Transfer Ownership

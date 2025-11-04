@@ -1,6 +1,6 @@
-"""Integration tests for DishService get operations.
+"""Integration tests for DishService find operations.
 
-This module tests the get_dish_by_id method of DishService.
+This module tests the find_dish_by_id method of DishService.
 """
 
 import pytest
@@ -17,19 +17,19 @@ from app.shared.domain.factories import generate_ulid
 
 
 class TestDishServiceGet:
-    """Integration tests for DishService get operations."""
+    """Integration tests for DishService find operations."""
 
     @pytest.mark.asyncio
-    async def test_get_dish_by_id_existing(
+    async def test_find_dish_by_id_existing(
         self,
         test_session: AsyncSession,
         create_test_restaurant,
         create_test_dish,
     ):
-        """Test getting an existing dish through service.
+        """Test finding an existing dish through service.
 
         Given: A dish exists in database
-        When: Calling service.get_dish_by_id()
+        When: Calling service.find_dish_by_id()
         Then: Returns dish entity with correct data
         """
         # Arrange
@@ -45,7 +45,7 @@ class TestDishServiceGet:
         )
 
         # Act
-        result = await service.get_dish_by_id(created_dish.id)
+        result = await service.find_dish_by_id(created_dish.id)
 
         # Assert
         assert result.id == created_dish.id
@@ -53,11 +53,11 @@ class TestDishServiceGet:
         assert result.restaurant_id == restaurant.id
 
     @pytest.mark.asyncio
-    async def test_get_dish_by_id_not_found(self, test_session: AsyncSession):
-        """Test getting non-existent dish raises DishNotFoundException.
+    async def test_find_dish_by_id_not_found(self, test_session: AsyncSession):
+        """Test finding non-existent dish raises DishNotFoundException.
 
         Given: Dish ID that doesn't exist
-        When: Calling service.get_dish_by_id()
+        When: Calling service.find_dish_by_id()
         Then: Raises DishNotFoundException
         """
         # Arrange
@@ -70,6 +70,6 @@ class TestDishServiceGet:
 
         # Act & Assert
         with pytest.raises(DishNotFoundException) as exc_info:
-            await service.get_dish_by_id(nonexistent_id)
+            await service.find_dish_by_id(nonexistent_id)
 
         assert nonexistent_id in str(exc_info.value)

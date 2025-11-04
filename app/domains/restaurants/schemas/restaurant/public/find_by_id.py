@@ -1,7 +1,7 @@
-"""Restaurant schemas for get endpoint.
+"""Restaurant schemas for find by ID endpoint.
 
-This module defines schemas for retrieving a single restaurant.
-Corresponds to: routes/restaurant/public/get.py
+This module defines schemas for finding a single restaurant by ID.
+Corresponds to: routes/restaurant/public/find_by_id.py
 """
 
 from pydantic import BaseModel, ConfigDict
@@ -10,8 +10,8 @@ from app.shared.domain import GeoLocation, SocialMedia
 from app.shared.schemas import AuditSchema
 
 
-class GetRestaurantSchemaResponse(AuditSchema, BaseModel):
-    """Response schema for get restaurant endpoint.
+class FindRestaurantSchemaResponse(AuditSchema, BaseModel):
+    """Response schema for find restaurant by ID endpoint.
 
     Returns complete information about a single restaurant.
     Audit fields (id, created_at, updated_at, created_by, updated_by) are inherited from AuditSchema.

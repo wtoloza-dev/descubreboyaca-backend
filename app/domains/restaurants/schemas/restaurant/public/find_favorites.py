@@ -1,7 +1,7 @@
-"""List restaurants by city schemas.
+"""Find favorite restaurants schemas.
 
-This module contains schemas for listing restaurants filtered by city.
-Corresponds to: routes/restaurant/public/list_by_city.py
+This module contains schemas for finding user's favorite restaurants.
+Corresponds to: routes/restaurant/public/find_favorites.py
 """
 
 from datetime import datetime
@@ -12,10 +12,10 @@ from app.shared.domain import GeoLocation
 from app.shared.schemas import PaginationSchemaData, PaginationSchemaResponse
 
 
-class ListRestaurantsByCitySchemaItem(BaseModel):
-    """Restaurant item in list by city response.
+class FindFavoriteRestaurantsSchemaItem(BaseModel):
+    """Restaurant item in favorites find response.
 
-    Includes essential information optimized for list views.
+    Includes essential information optimized for favorites views.
     """
 
     model_config = ConfigDict(from_attributes=True)
@@ -53,20 +53,20 @@ class ListRestaurantsByCitySchemaItem(BaseModel):
     updated_at: datetime = Field(description="Last update timestamp")
 
 
-class ListRestaurantsByCitySchemaResponse(
-    PaginationSchemaResponse[ListRestaurantsByCitySchemaItem]
+class FindFavoriteRestaurantsSchemaResponse(
+    PaginationSchemaResponse[FindFavoriteRestaurantsSchemaItem]
 ):
-    """Paginated response for restaurants by city.
+    """Paginated response for favorite restaurants.
 
     Attributes:
-        data: List of restaurants in the city
+        data: List of favorite restaurants
         pagination: Pagination metadata
     """
 
-    data: list[ListRestaurantsByCitySchemaItem] = Field(
-        description="List of restaurants"
+    data: list[FindFavoriteRestaurantsSchemaItem] = Field(
+        description="List of favorite restaurants"
     )
     pagination: PaginationSchemaData = Field(description="Pagination metadata")
 
 
-__all__ = ["ListRestaurantsByCitySchemaItem", "ListRestaurantsByCitySchemaResponse"]
+__all__ = ["FindFavoriteRestaurantsSchemaItem", "FindFavoriteRestaurantsSchemaResponse"]

@@ -260,7 +260,7 @@ app/domains/restaurants/routes/public/get.py
     ↓
 tests/domains/restaurants/e2e/public/test_get.py
 
-app/domains/restaurants/services/restaurant.py (get_restaurant_by_id method)
+app/domains/restaurants/services/restaurant.py (find_restaurant_by_id method)
     ↓
 tests/domains/restaurants/integration/services/test_restaurant_service_get.py
 
@@ -423,7 +423,7 @@ app/domains/restaurants/routes/owner/create.py
   → tests/domains/restaurants/e2e/owner/test_create.py
 
 # Integration Tests - SPLIT BY OPERATION (one file per method/operation)
-app/domains/restaurants/services/restaurant.py (get_restaurant_by_id method)
+app/domains/restaurants/services/restaurant.py (find_restaurant_by_id method)
   → tests/domains/restaurants/integration/services/test_restaurant_service_get.py
 
 app/domains/restaurants/services/restaurant.py (find_restaurants + count_restaurants methods)
@@ -520,11 +520,11 @@ def test_example(self):
 **Example**:
 
 ```python
-def test_get_restaurant_by_id_existing(self, test_session, create_test_restaurant):
-    """Test getting an existing restaurant through service.
+def test_find_restaurant_by_id_existing(self, test_session, create_test_restaurant):
+    """Test finding an existing restaurant through service.
     
     Given: A restaurant exists in database
-    When: Calling service.get_restaurant_by_id()
+    When: Calling service.find_restaurant_by_id()
     Then: Returns restaurant entity
     """
 ```
@@ -560,13 +560,13 @@ def test_example(self):
 
 ```python
 @pytest.mark.asyncio
-async def test_get_restaurant_by_id_existing(
+async def test_find_restaurant_by_id_existing(
     self, test_session: AsyncSession, create_test_restaurant
 ):
-    """Test getting an existing restaurant through service.
+    """Test finding an existing restaurant through service.
     
     Given: A restaurant exists in database
-    When: Calling service.get_restaurant_by_id()
+    When: Calling service.find_restaurant_by_id()
     Then: Returns restaurant entity
     """
     # Arrange
@@ -576,7 +576,7 @@ async def test_get_restaurant_by_id_existing(
     created = await create_test_restaurant(name="Test Restaurant")
     
     # Act
-    result = await service.get_restaurant_by_id(created.id)
+    result = await service.find_restaurant_by_id(created.id)
     
     # Assert
     assert result.id == created.id
@@ -708,12 +708,12 @@ class TestGetRestaurant:
 
 ```python
 class TestRestaurantServiceGet:
-    """Integration tests for RestaurantService get operations."""
+    """Integration tests for RestaurantService find operations."""
     
-    async def test_get_restaurant_by_id_existing(self):
+    async def test_find_restaurant_by_id_existing(self):
         """Test service returns entity for existing ID."""
         
-    async def test_get_restaurant_by_id_not_found(self):
+    async def test_find_restaurant_by_id_not_found(self):
         """Test service raises exception for missing ID."""
 
 class TestRestaurantRepositoryFind:
@@ -820,12 +820,12 @@ def test_list_filters(self):
 ```python
 # ✅ Good - async test for async code
 @pytest.mark.asyncio
-async def test_get_restaurant(self):
-    result = await service.get_restaurant_by_id(id)
+async def test_find_restaurant(self):
+    result = await service.find_restaurant_by_id(id)
 
 # ❌ Bad - sync test for async code
-def test_get_restaurant(self):
-    result = service.get_restaurant_by_id(id)  # Won't work!
+def test_find_restaurant(self):
+    result = service.find_restaurant_by_id(id)  # Won't work!
 ```
 
 ### 5. Use Type Hints
@@ -990,16 +990,16 @@ from app.shared.repositories.archive import ArchiveRepositorySQLite
 
 
 class TestRestaurantServiceGet:
-    """Integration tests for RestaurantService get operations."""
+    """Integration tests for RestaurantService find operations."""
 
     @pytest.mark.asyncio
-    async def test_get_restaurant_by_id_existing(
+    async def test_find_restaurant_by_id_existing(
         self, test_session: AsyncSession, create_test_restaurant
     ):
-        """Test getting an existing restaurant through service.
+        """Test finding an existing restaurant through service.
         
         Given: A restaurant exists in database
-        When: Calling service.get_restaurant_by_id()
+        When: Calling service.find_restaurant_by_id()
         Then: Returns restaurant entity
         """
         # Arrange
@@ -1009,18 +1009,18 @@ class TestRestaurantServiceGet:
         created = await create_test_restaurant(name="Test Restaurant")
 
         # Act
-        result = await service.get_restaurant_by_id(created.id)
+        result = await service.find_restaurant_by_id(created.id)
 
         # Assert
         assert result.id == created.id
         assert result.name == "Test Restaurant"
 
     @pytest.mark.asyncio
-    async def test_get_restaurant_by_id_not_found(self, test_session: AsyncSession):
-        """Test getting non-existent restaurant raises exception.
+    async def test_find_restaurant_by_id_not_found(self, test_session: AsyncSession):
+        """Test finding non-existent restaurant raises exception.
         
         Given: Restaurant ID that doesn't exist
-        When: Calling service.get_restaurant_by_id()
+        When: Calling service.find_restaurant_by_id()
         Then: Raises RestaurantNotFoundException
         """
         # Arrange
@@ -1031,7 +1031,7 @@ class TestRestaurantServiceGet:
 
         # Act & Assert
         with pytest.raises(RestaurantNotFoundException):
-            await service.get_restaurant_by_id(nonexistent_id)
+            await service.find_restaurant_by_id(nonexistent_id)
 ```
 
 ### Complete Unit Test

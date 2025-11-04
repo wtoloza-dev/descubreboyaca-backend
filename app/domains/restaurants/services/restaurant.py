@@ -68,8 +68,8 @@ class RestaurantService:
         """
         return await self.repository.create(restaurant_data, created_by=created_by)
 
-    async def get_restaurant_by_id(self, restaurant_id: str) -> Restaurant:
-        """Get a restaurant by its ID.
+    async def find_restaurant_by_id(self, restaurant_id: str) -> Restaurant:
+        """Find a restaurant by its ID.
 
         Args:
             restaurant_id: ULID of the restaurant

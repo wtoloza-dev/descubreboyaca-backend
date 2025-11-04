@@ -1,14 +1,14 @@
-"""List my restaurants schemas.
+"""Find my restaurants schemas.
 
-This module contains schemas for listing restaurants owned by the current user.
-Corresponds to: routes/restaurant/owner/list_my_restaurants.py
+This module contains schemas for finding restaurants owned by the current user.
+Corresponds to: routes/restaurant/owner/find_my_restaurants.py
 """
 
 from pydantic import BaseModel, Field
 
 
-class ListMyRestaurantsSchemaItem(BaseModel):
-    """Restaurant item in owner's restaurant list response.
+class FindMyRestaurantsSchemaItem(BaseModel):
+    """Restaurant item in owner's restaurant find response.
 
     Attributes:
         restaurant_id: Restaurant ULID
@@ -37,8 +37,8 @@ class ListMyRestaurantsSchemaItem(BaseModel):
     state: str = Field(description="State or department")
 
 
-class ListMyRestaurantsSchemaResponse(BaseModel):
-    """Response schema for owner's restaurant list.
+class FindMyRestaurantsSchemaResponse(BaseModel):
+    """Response schema for owner's restaurant find.
 
     Attributes:
         items: List of restaurants owned by user
@@ -57,8 +57,8 @@ class ListMyRestaurantsSchemaResponse(BaseModel):
         }
     """
 
-    items: list[ListMyRestaurantsSchemaItem] = Field(description="List of restaurants")
+    items: list[FindMyRestaurantsSchemaItem] = Field(description="List of restaurants")
     total: int = Field(description="Total number of restaurants")
 
 
-__all__ = ["ListMyRestaurantsSchemaItem", "ListMyRestaurantsSchemaResponse"]
+__all__ = ["FindMyRestaurantsSchemaItem", "FindMyRestaurantsSchemaResponse"]

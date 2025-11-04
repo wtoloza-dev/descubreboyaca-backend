@@ -1,27 +1,27 @@
 """Public restaurant schemas package."""
 
-from .find_all import ListRestaurantsSchemaItem, ListRestaurantsSchemaResponse
-from .get import GetRestaurantSchemaResponse
-from .list_by_city import (
-    ListRestaurantsByCitySchemaItem,
-    ListRestaurantsByCitySchemaResponse,
+from .find_all import FindRestaurantsSchemaItem, FindRestaurantsSchemaResponse
+from .find_by_city import (
+    FindRestaurantsByCitySchemaItem,
+    FindRestaurantsByCitySchemaResponse,
 )
-from .list_favorites import (
-    ListFavoriteRestaurantsSchemaItem,
-    ListFavoriteRestaurantsSchemaResponse,
+from .find_by_id import FindRestaurantSchemaResponse
+from .find_favorites import (
+    FindFavoriteRestaurantsSchemaItem,
+    FindFavoriteRestaurantsSchemaResponse,
 )
 
 
 __all__ = [
     # Find All
-    "ListRestaurantsSchemaItem",
-    "ListRestaurantsSchemaResponse",
-    # Get
-    "GetRestaurantSchemaResponse",
-    # List By City
-    "ListRestaurantsByCitySchemaItem",
-    "ListRestaurantsByCitySchemaResponse",
-    # List Favorites
-    "ListFavoriteRestaurantsSchemaItem",
-    "ListFavoriteRestaurantsSchemaResponse",
+    "FindRestaurantsSchemaItem",
+    "FindRestaurantsSchemaResponse",
+    # Find By ID
+    "FindRestaurantSchemaResponse",
+    # Find By City
+    "FindRestaurantsByCitySchemaItem",
+    "FindRestaurantsByCitySchemaResponse",
+    # Find Favorites
+    "FindFavoriteRestaurantsSchemaItem",
+    "FindFavoriteRestaurantsSchemaResponse",
 ]

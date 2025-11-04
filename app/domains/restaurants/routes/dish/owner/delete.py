@@ -66,7 +66,7 @@ async def handle_delete_dish(
         HTTPException 422: If dish_id format is invalid (not a valid ULID)
     """
     # Get dish to verify restaurant ownership
-    dish = await dish_service.get_dish_by_id(str(dish_id))
+    dish = await dish_service.find_dish_by_id(str(dish_id))
 
     # Verify ownership of the restaurant (service will raise exception if not owner)
     await owner_service.require_ownership(

@@ -13,8 +13,8 @@ from app.domains.restaurants.dependencies import (
     get_restaurant_service_dependency,
 )
 from app.domains.restaurants.schemas.restaurant.public.find_all import (
-    ListRestaurantsSchemaItem,
-    ListRestaurantsSchemaResponse,
+    FindRestaurantsSchemaItem,
+    FindRestaurantsSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantService
 from app.shared.dependencies import get_pagination_dependency
@@ -28,16 +28,16 @@ router = APIRouter()
 @router.get(
     path="/",
     status_code=status.HTTP_200_OK,
-    summary="List all restaurants",
+    summary="Find all restaurants",
     description="Retrieve a paginated list of all restaurants. "
     "Results can be filtered using query parameters (city, state, country, price_level).",
 )
-async def handle_list_restaurants(
+async def handle_find_all(
     pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
     filters: Annotated[RestaurantFilters, Depends(get_restaurant_filters_dependency)],
     service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
-) -> ListRestaurantsSchemaResponse:
-    """List restaurants with pagination and optional filtering.
+) -> FindRestaurantsSchemaResponse:
+    """Find restaurants with pagination and optional filtering.
 
     Args:
         pagination: Pagination entity with page, page_size, offset, and limit
@@ -45,7 +45,7 @@ async def handle_list_restaurants(
         service: Restaurant service (injected)
 
     Returns:
-        ListRestaurantsSchemaResponse: Paginated list of restaurants
+        FindRestaurantsSchemaResponse: Paginated list of restaurants
 
     Example:
         GET /restaurants?page=1&page_size=20
@@ -61,11 +61,11 @@ async def handle_list_restaurants(
 
     # Convert entities to dicts with JSON-compatible types (HttpUrl → str)
     items = [
-        ListRestaurantsSchemaItem.model_validate(r.model_dump(mode="json"))
+        FindRestaurantsSchemaItem.model_validate(r.model_dump(mode="json"))
         for r in restaurants
     ]
 
-    return ListRestaurantsSchemaResponse(
+    return FindRestaurantsSchemaResponse(
         data=items,
         pagination=PaginationSchemaData(
             page=pagination.page,

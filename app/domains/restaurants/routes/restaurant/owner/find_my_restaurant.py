@@ -1,6 +1,6 @@
-"""Get my restaurant endpoint.
+"""Find my restaurant endpoint.
 
-This module provides an endpoint for restaurant owners to view their restaurant details.
+This module provides an endpoint for restaurant owners to find their restaurant details.
 """
 
 from typing import Annotated
@@ -14,8 +14,8 @@ from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
     get_restaurant_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.owner.get_my_restaurant import (
-    GetMyRestaurantSchemaResponse,
+from app.domains.restaurants.schemas.restaurant.owner.find_my_restaurant import (
+    FindMyRestaurantSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantOwnerService, RestaurantService
 
@@ -26,10 +26,10 @@ router = APIRouter()
 @router.get(
     path="/restaurants/{restaurant_id}/",
     status_code=status.HTTP_200_OK,
-    summary="Get my restaurant details",
-    description="Get detailed information about a restaurant owned/managed by the current user.",
+    summary="Find my restaurant details",
+    description="Find detailed information about a restaurant owned/managed by the current user.",
 )
-async def handle_get_my_restaurant(
+async def handle_find_my_restaurant(
     restaurant_id: Annotated[
         ULID,
         Path(
@@ -44,8 +44,8 @@ async def handle_get_my_restaurant(
         RestaurantService, Depends(get_restaurant_service_dependency)
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
-) -> GetMyRestaurantSchemaResponse:
-    """Get details of a restaurant owned/managed by the current user.
+) -> FindMyRestaurantSchemaResponse:
+    """Find details of a restaurant owned/managed by the current user.
 
     **Authentication required**: Only users with OWNER role can access.
 
@@ -62,7 +62,7 @@ async def handle_get_my_restaurant(
         current_user: Authenticated user (injected)
 
     Returns:
-        GetRestaurantSchemaResponse: Restaurant details
+        FindMyRestaurantSchemaResponse: Restaurant details
 
     Raises:
         InsufficientPermissionsException: If not owner of this restaurant
@@ -75,8 +75,8 @@ async def handle_get_my_restaurant(
     )
 
     # Get restaurant details
-    restaurant = await restaurant_service.get_restaurant_by_id(str(restaurant_id))
+    restaurant = await restaurant_service.find_restaurant_by_id(str(restaurant_id))
 
-    return GetMyRestaurantSchemaResponse.model_validate(
+    return FindMyRestaurantSchemaResponse.model_validate(
         restaurant.model_dump(mode="json")
     )

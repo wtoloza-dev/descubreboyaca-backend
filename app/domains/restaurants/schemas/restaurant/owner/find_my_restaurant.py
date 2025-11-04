@@ -1,7 +1,7 @@
-"""Get my restaurant schemas.
+"""Find my restaurant schemas.
 
-This module contains schemas for getting a restaurant owned by the current user.
-Corresponds to: routes/restaurant/owner/get_my_restaurant.py
+This module contains schemas for finding a restaurant owned by the current user.
+Corresponds to: routes/restaurant/owner/find_my_restaurant.py
 """
 
 from pydantic import BaseModel, ConfigDict
@@ -10,8 +10,8 @@ from app.shared.domain import GeoLocation, SocialMedia
 from app.shared.schemas import AuditSchema
 
 
-class GetMyRestaurantSchemaResponse(AuditSchema, BaseModel):
-    """Response schema for getting my restaurant details (owner).
+class FindMyRestaurantSchemaResponse(AuditSchema, BaseModel):
+    """Response schema for finding my restaurant details (owner).
 
     Returns complete restaurant information including audit fields.
     Audit fields inherited from AuditSchema.
@@ -47,4 +47,4 @@ class GetMyRestaurantSchemaResponse(AuditSchema, BaseModel):
     tags: list[str]
 
 
-__all__ = ["GetMyRestaurantSchemaResponse"]
+__all__ = ["FindMyRestaurantSchemaResponse"]

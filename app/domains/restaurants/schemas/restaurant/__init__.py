@@ -13,8 +13,8 @@ from app.domains.restaurants.schemas.restaurant.admin.create import (
 from app.domains.restaurants.schemas.restaurant.admin.delete import (
     DeleteRestaurantSchemaRequest,
 )
-from app.domains.restaurants.schemas.restaurant.admin.list_owners import (
-    ListOwnershipsSchemaResponse,
+from app.domains.restaurants.schemas.restaurant.admin.find_owners import (
+    FindOwnershipsSchemaResponse,
 )
 from app.domains.restaurants.schemas.restaurant.admin.update_owner_role import (
     UpdateOwnerRoleSchemaRequest,
@@ -22,16 +22,16 @@ from app.domains.restaurants.schemas.restaurant.admin.update_owner_role import (
 from app.domains.restaurants.schemas.restaurant.common.ownership import (
     OwnershipSchemaResponse,
 )
-from app.domains.restaurants.schemas.restaurant.owner.list_my_restaurants import (
-    ListMyRestaurantsSchemaItem,
-    ListMyRestaurantsSchemaResponse,
+from app.domains.restaurants.schemas.restaurant.owner.find_my_restaurants import (
+    FindMyRestaurantsSchemaItem,
+    FindMyRestaurantsSchemaResponse,
 )
 from app.domains.restaurants.schemas.restaurant.public.find_all import (
-    ListRestaurantsSchemaItem,
-    ListRestaurantsSchemaResponse,
+    FindRestaurantsSchemaItem,
+    FindRestaurantsSchemaResponse,
 )
-from app.domains.restaurants.schemas.restaurant.public.get import (
-    GetRestaurantSchemaResponse,
+from app.domains.restaurants.schemas.restaurant.public.find_by_id import (
+    FindRestaurantSchemaResponse,
 )
 
 
@@ -41,16 +41,15 @@ __all__ = [
     "CreateRestaurantSchemaResponse",
     # Delete
     "DeleteRestaurantSchemaRequest",
-    # Get
-    "GetRestaurantSchemaResponse",
-    # List
-    "ListRestaurantsSchemaItem",
-    "ListRestaurantsSchemaResponse",
+    # Find
+    "FindRestaurantSchemaResponse",
+    "FindRestaurantsSchemaItem",
+    "FindRestaurantsSchemaResponse",
     # Ownership
     "AssignOwnerSchemaRequest",
-    "ListMyRestaurantsSchemaItem",
-    "ListMyRestaurantsSchemaResponse",
-    "ListOwnershipsSchemaResponse",
+    "FindMyRestaurantsSchemaItem",
+    "FindMyRestaurantsSchemaResponse",
+    "FindOwnershipsSchemaResponse",
     "OwnershipSchemaResponse",
     "UpdateOwnerRoleSchemaRequest",
 ]

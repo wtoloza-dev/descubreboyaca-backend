@@ -1,6 +1,6 @@
-"""List restaurants by city endpoint.
+"""Find restaurants by city endpoint.
 
-This module provides an endpoint for listing restaurants filtered by city with pagination support.
+This module provides an endpoint for finding restaurants filtered by city with pagination support.
 """
 
 from typing import Annotated
@@ -10,9 +10,9 @@ from fastapi import APIRouter, Depends, Path, status
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.public.list_by_city import (
-    ListRestaurantsByCitySchemaItem,
-    ListRestaurantsByCitySchemaResponse,
+from app.domains.restaurants.schemas.restaurant.public.find_by_city import (
+    FindRestaurantsByCitySchemaItem,
+    FindRestaurantsByCitySchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantService
 from app.shared.dependencies import get_pagination_dependency
@@ -26,10 +26,10 @@ router = APIRouter()
 @router.get(
     path="/city/{city}/",
     status_code=status.HTTP_200_OK,
-    summary="List restaurants by city",
+    summary="Find restaurants by city",
     description="Retrieve a paginated list of restaurants filtered by city name.",
 )
-async def handle_list_restaurants_by_city(
+async def handle_find_restaurants_by_city(
     city: Annotated[
         str,
         Path(
@@ -39,8 +39,8 @@ async def handle_list_restaurants_by_city(
     ],
     pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
     service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
-) -> ListRestaurantsByCitySchemaResponse:
-    """List restaurants by city with pagination.
+) -> FindRestaurantsByCitySchemaResponse:
+    """Find restaurants by city with pagination.
 
     Args:
         city: City name to filter restaurants (required path parameter)
@@ -48,20 +48,20 @@ async def handle_list_restaurants_by_city(
         service: Restaurant service (injected)
 
     Returns:
-        ListRestaurantsSchemaResponse: Paginated list of restaurants in the specified city
+        FindRestaurantsByCitySchemaResponse: Paginated list of restaurants in the specified city
     """
     # Get restaurants and total count in one call (more efficient)
-    restaurants, total = await service.list_restaurants_by_city(
+    restaurants, total = await service.find_restaurants_by_city(
         city, offset=pagination.offset, limit=pagination.limit
     )
 
     # Convert entities to dicts with JSON-compatible types (HttpUrl → str)
     items = [
-        ListRestaurantsByCitySchemaItem.model_validate(r.model_dump(mode="json"))
+        FindRestaurantsByCitySchemaItem.model_validate(r.model_dump(mode="json"))
         for r in restaurants
     ]
 
-    return ListRestaurantsByCitySchemaResponse(
+    return FindRestaurantsByCitySchemaResponse(
         data=items,
         pagination=PaginationSchemaData(
             page=pagination.page,

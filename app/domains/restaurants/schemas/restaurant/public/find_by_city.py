@@ -1,7 +1,7 @@
-"""List favorite restaurants schemas.
+"""Find restaurants by city schemas.
 
-This module contains schemas for listing user's favorite restaurants.
-Corresponds to: routes/restaurant/public/list_favorites.py
+This module contains schemas for finding restaurants filtered by city.
+Corresponds to: routes/restaurant/public/find_by_city.py
 """
 
 from datetime import datetime
@@ -12,10 +12,10 @@ from app.shared.domain import GeoLocation
 from app.shared.schemas import PaginationSchemaData, PaginationSchemaResponse
 
 
-class ListFavoriteRestaurantsSchemaItem(BaseModel):
-    """Restaurant item in favorites list response.
+class FindRestaurantsByCitySchemaItem(BaseModel):
+    """Restaurant item in find by city response.
 
-    Includes essential information optimized for favorites views.
+    Includes essential information optimized for list views.
     """
 
     model_config = ConfigDict(from_attributes=True)
@@ -53,20 +53,20 @@ class ListFavoriteRestaurantsSchemaItem(BaseModel):
     updated_at: datetime = Field(description="Last update timestamp")
 
 
-class ListFavoriteRestaurantsSchemaResponse(
-    PaginationSchemaResponse[ListFavoriteRestaurantsSchemaItem]
+class FindRestaurantsByCitySchemaResponse(
+    PaginationSchemaResponse[FindRestaurantsByCitySchemaItem]
 ):
-    """Paginated response for favorite restaurants.
+    """Paginated response for restaurants by city.
 
     Attributes:
-        data: List of favorite restaurants
+        data: List of restaurants in the city
         pagination: Pagination metadata
     """
 
-    data: list[ListFavoriteRestaurantsSchemaItem] = Field(
-        description="List of favorite restaurants"
+    data: list[FindRestaurantsByCitySchemaItem] = Field(
+        description="List of restaurants"
     )
     pagination: PaginationSchemaData = Field(description="Pagination metadata")
 
 
-__all__ = ["ListFavoriteRestaurantsSchemaItem", "ListFavoriteRestaurantsSchemaResponse"]
+__all__ = ["FindRestaurantsByCitySchemaItem", "FindRestaurantsByCitySchemaResponse"]

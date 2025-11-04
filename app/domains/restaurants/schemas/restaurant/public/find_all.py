@@ -12,11 +12,11 @@ from app.shared.domain import GeoLocation
 from app.shared.schemas import PaginationSchemaData, PaginationSchemaResponse
 
 
-class ListRestaurantsSchemaItem(BaseModel):
-    """Restaurant item in list restaurants response.
+class FindRestaurantsSchemaItem(BaseModel):
+    """Restaurant item in find restaurants response.
 
     Includes essential information without full details to optimize
-    response size for list operations.
+    response size for find operations.
 
     Attributes:
         id: Unique identifier (ULID)
@@ -81,10 +81,10 @@ class ListRestaurantsSchemaItem(BaseModel):
     updated_at: datetime = Field(description="Last update timestamp")
 
 
-class ListRestaurantsSchemaResponse(
-    PaginationSchemaResponse[ListRestaurantsSchemaItem]
+class FindRestaurantsSchemaResponse(
+    PaginationSchemaResponse[FindRestaurantsSchemaItem]
 ):
-    """Paginated response for list restaurants endpoint.
+    """Paginated response for find restaurants endpoint.
 
     Attributes:
         data: List of restaurants
@@ -108,5 +108,5 @@ class ListRestaurantsSchemaResponse(
         }
     """
 
-    data: list[ListRestaurantsSchemaItem] = Field(description="List of restaurants")
+    data: list[FindRestaurantsSchemaItem] = Field(description="List of restaurants")
     pagination: PaginationSchemaData = Field(description="Pagination metadata")

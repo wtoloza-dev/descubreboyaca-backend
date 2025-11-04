@@ -1,6 +1,6 @@
-"""List user's favorite restaurants endpoint.
+"""Find user's favorite restaurants endpoint.
 
-This module provides an authenticated endpoint to list a user's favorite restaurants.
+This module provides an authenticated endpoint to find a user's favorite restaurants.
 """
 
 from typing import Annotated
@@ -12,9 +12,9 @@ from app.domains.auth.domain import User
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.public.list_favorites import (
-    ListFavoriteRestaurantsSchemaItem,
-    ListFavoriteRestaurantsSchemaResponse,
+from app.domains.restaurants.schemas.restaurant.public.find_favorites import (
+    FindFavoriteRestaurantsSchemaItem,
+    FindFavoriteRestaurantsSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantService
 from app.shared.dependencies import get_pagination_dependency
@@ -28,16 +28,16 @@ router = APIRouter()
 @router.get(
     path="/favorites/",
     status_code=status.HTTP_200_OK,
-    summary="List user's favorite restaurants",
-    description="List all favorite restaurants for the authenticated user. Requires authentication.",
-    response_model=ListFavoriteRestaurantsSchemaResponse,
+    summary="Find user's favorite restaurants",
+    description="Find all favorite restaurants for the authenticated user. Requires authentication.",
+    response_model=FindFavoriteRestaurantsSchemaResponse,
 )
-async def handle_list_with_favorites(
+async def handle_find_favorites(
     pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
     service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
     current_user: Annotated[User, Depends(get_current_user_dependency)],
-) -> ListFavoriteRestaurantsSchemaResponse:
-    """List user's favorite restaurants.
+) -> FindFavoriteRestaurantsSchemaResponse:
+    """Find user's favorite restaurants.
 
     **Authentication required**: This endpoint requires a valid authentication token.
 
@@ -58,7 +58,7 @@ async def handle_list_with_favorites(
         → Returns paginated list of user's favorite restaurants
     """
     # Get user's favorite restaurants
-    restaurants, total = await service.list_user_favorites(
+    restaurants, total = await service.find_user_favorites(
         user_id=current_user.id,
         offset=pagination.offset,
         limit=pagination.limit,
@@ -66,12 +66,12 @@ async def handle_list_with_favorites(
 
     # Convert entities to dicts with JSON-compatible types (HttpUrl → str)
     items = [
-        ListFavoriteRestaurantsSchemaItem.model_validate(r.model_dump(mode="json"))
+        FindFavoriteRestaurantsSchemaItem.model_validate(r.model_dump(mode="json"))
         for r in restaurants
     ]
 
     # Return paginated response
-    return ListFavoriteRestaurantsSchemaResponse(
+    return FindFavoriteRestaurantsSchemaResponse(
         data=items,
         pagination=PaginationSchemaData(
             page=pagination.page,

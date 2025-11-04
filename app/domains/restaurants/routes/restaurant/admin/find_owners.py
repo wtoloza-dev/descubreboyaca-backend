@@ -1,6 +1,6 @@
-"""List restaurant owners endpoint.
+"""Find restaurant owners endpoint.
 
-This module provides an endpoint for administrators to list all owners of a restaurant.
+This module provides an endpoint for administrators to find all owners of a restaurant.
 """
 
 from typing import Annotated
@@ -13,8 +13,8 @@ from app.domains.auth.domain import User
 from app.domains.restaurants.dependencies.restaurant import (
     get_restaurant_owner_service_dependency,
 )
-from app.domains.restaurants.schemas.restaurant.admin.list_owners import (
-    ListOwnershipsSchemaResponse,
+from app.domains.restaurants.schemas.restaurant.admin.find_owners import (
+    FindOwnershipsSchemaResponse,
 )
 from app.domains.restaurants.services import RestaurantOwnerService
 
@@ -25,10 +25,10 @@ router = APIRouter()
 @router.get(
     path="/restaurants/{restaurant_id}/owners/",
     status_code=status.HTTP_200_OK,
-    summary="List all owners of a restaurant",
-    description="Get a list of all users who have ownership/management rights on a restaurant. Only administrators can access this information.",
+    summary="Find all owners of a restaurant",
+    description="Find all users who have ownership/management rights on a restaurant. Only administrators can access this information.",
 )
-async def handle_list_owners(
+async def handle_find_owners(
     restaurant_id: Annotated[
         ULID,
         Path(
@@ -40,8 +40,8 @@ async def handle_list_owners(
         RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
-) -> ListOwnershipsSchemaResponse:
-    """List all owners/managers/staff of a restaurant.
+) -> FindOwnershipsSchemaResponse:
+    """Find all owners/managers/staff of a restaurant.
 
     **Requiere autenticación**: Solo administradores (ADMIN) pueden ver owners.
 
@@ -54,7 +54,7 @@ async def handle_list_owners(
         current_user: Authenticated user (injected)
 
     Returns:
-        ListOwnershipsSchemaResponse: List of owners with their roles
+        FindOwnershipsSchemaResponse: List of owners with their roles
 
     Raises:
         HTTPException: 401 if not authenticated
@@ -63,7 +63,7 @@ async def handle_list_owners(
     """
     owners = await service.get_owners_by_restaurant(str(restaurant_id))
 
-    return ListOwnershipsSchemaResponse(
+    return FindOwnershipsSchemaResponse(
         restaurant_id=str(restaurant_id),
         owners=owners,
         total=len(owners),

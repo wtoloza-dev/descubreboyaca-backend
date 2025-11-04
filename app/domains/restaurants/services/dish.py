@@ -80,8 +80,8 @@ class DishService:
             dish_data, restaurant_id=restaurant_id, created_by=created_by
         )
 
-    async def get_dish_by_id(self, dish_id: str) -> Dish:
-        """Get a dish by its ID.
+    async def find_dish_by_id(self, dish_id: str) -> Dish:
+        """Find a dish by its ID.
 
         Args:
             dish_id: ULID of the dish
@@ -155,7 +155,7 @@ class DishService:
             DishNotFoundException: If dish is not found
         """
         # Verify dish exists
-        await self.get_dish_by_id(dish_id)
+        await self.find_dish_by_id(dish_id)
 
         updated = await self.dish_repository.update(
             dish_id, dish_data, updated_by=updated_by
@@ -254,7 +254,7 @@ class DishService:
             DishNotFoundException: If dish is not found
         """
         # Get current dish (raises exception if not found)
-        dish = await self.get_dish_by_id(dish_id)
+        dish = await self.find_dish_by_id(dish_id)
 
         # Update only is_available field
         dish_data = DishData(

@@ -10,8 +10,8 @@ from ulid import ULID
 
 from app.domains.restaurants.dependencies import get_dish_service_dependency
 from app.domains.restaurants.schemas.dish.public.find_all import (
-    ListDishesSchemaItem,
-    ListDishesSchemaResponse,
+    FindDishesSchemaItem,
+    FindDishesSchemaResponse,
 )
 from app.domains.restaurants.services.dish import DishService
 from app.shared.dependencies import get_pagination_dependency
@@ -25,10 +25,10 @@ router = APIRouter()
 @router.get(
     path="/{restaurant_id}/dishes/",
     status_code=status.HTTP_200_OK,
-    summary="List restaurant dishes",
+    summary="Find restaurant dishes",
     description="Retrieve a paginated list of dishes for a specific restaurant with optional filters.",
 )
-async def handle_list_restaurant_dishes(
+async def handle_find_all(
     restaurant_id: Annotated[
         ULID,
         Path(
@@ -59,8 +59,8 @@ async def handle_list_restaurant_dishes(
             examples=[True],
         ),
     ] = None,
-) -> ListDishesSchemaResponse:
-    """List all dishes for a restaurant with pagination and filters.
+) -> FindDishesSchemaResponse:
+    """Find all dishes for a restaurant with pagination and filters.
 
     Args:
         restaurant_id: ULID of the restaurant (validated automatically)
@@ -71,7 +71,7 @@ async def handle_list_restaurant_dishes(
         service: Dish service (injected)
 
     Returns:
-        ListDishesSchemaResponse: Paginated list of dishes
+        FindDishesSchemaResponse: Paginated list of dishes
 
     Raises:
         RestaurantNotFoundException: If restaurant not found (handled globally)
@@ -100,10 +100,10 @@ async def handle_list_restaurant_dishes(
 
     # Convert entities to dicts with JSON-compatible types
     items = [
-        ListDishesSchemaItem.model_validate(d.model_dump(mode="json")) for d in dishes
+        FindDishesSchemaItem.model_validate(d.model_dump(mode="json")) for d in dishes
     ]
 
-    return ListDishesSchemaResponse(
+    return FindDishesSchemaResponse(
         data=items,
         pagination=PaginationSchemaData(
             page=pagination.page,

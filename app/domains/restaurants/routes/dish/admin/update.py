@@ -67,7 +67,7 @@ async def handle_update_dish(
         HTTPException 422: If dish_id format is invalid (not a valid ULID)
     """
     # Get current dish
-    dish = await dish_service.get_dish_by_id(str(dish_id))
+    dish = await dish_service.find_dish_by_id(str(dish_id))
 
     # Get current dish data and merge with updates (PATCH behavior)
     current_data = DishData(**dish.model_dump(exclude={"id", "restaurant_id", "audit"}))

@@ -9,10 +9,12 @@ from app.domains.restaurants.schemas.dish.admin.create import (
 )
 from app.domains.restaurants.schemas.dish.admin.update import UpdateDishSchemaRequest
 from app.domains.restaurants.schemas.dish.public.find_all import (
-    ListDishesSchemaItem,
-    ListDishesSchemaResponse,
+    FindDishesSchemaItem,
+    FindDishesSchemaResponse,
 )
-from app.domains.restaurants.schemas.dish.public.get import GetDishSchemaResponse
+from app.domains.restaurants.schemas.dish.public.find_by_id import (
+    FindDishSchemaResponse,
+)
 
 
 __all__ = [
@@ -21,9 +23,8 @@ __all__ = [
     "CreateDishSchemaResponse",
     # Update
     "UpdateDishSchemaRequest",
-    # Get
-    "GetDishSchemaResponse",
-    # List
-    "ListDishesSchemaItem",
-    "ListDishesSchemaResponse",
+    # Find
+    "FindDishSchemaResponse",
+    "FindDishesSchemaItem",
+    "FindDishesSchemaResponse",
 ]

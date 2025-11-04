@@ -1,7 +1,7 @@
-"""Dish schemas for get endpoint.
+"""Dish schemas for find by ID endpoint.
 
-This module defines schemas for retrieving a single dish.
-Corresponds to: routes/dish/public/get.py
+This module defines schemas for finding a single dish by ID.
+Corresponds to: routes/dish/public/find_by_id.py
 """
 
 from decimal import Decimal
@@ -11,8 +11,8 @@ from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 from app.shared.schemas import AuditSchema
 
 
-class GetDishSchemaResponse(AuditSchema, BaseModel):
-    """Response schema for get dish endpoint.
+class FindDishSchemaResponse(AuditSchema, BaseModel):
+    """Response schema for find dish by ID endpoint.
 
     Returns complete dish information with audit fields inherited from AuditSchema.
     """

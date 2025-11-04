@@ -1,7 +1,7 @@
-"""List owners schemas.
+"""Find owners schemas.
 
-This module contains schemas for listing restaurant owners.
-Corresponds to: routes/restaurant/admin/list_owners.py
+This module contains schemas for finding restaurant owners.
+Corresponds to: routes/restaurant/admin/find_owners.py
 """
 
 from pydantic import BaseModel, Field
@@ -9,8 +9,8 @@ from pydantic import BaseModel, Field
 from app.domains.restaurants.schemas.restaurant.common import OwnershipSchemaResponse
 
 
-class ListOwnershipsSchemaResponse(BaseModel):
-    """Response schema for listing restaurant owners.
+class FindOwnershipsSchemaResponse(BaseModel):
+    """Response schema for finding restaurant owners.
 
     Attributes:
         restaurant_id: Restaurant ULID
@@ -25,4 +25,4 @@ class ListOwnershipsSchemaResponse(BaseModel):
     total: int = Field(description="Total number of owners")
 
 
-__all__ = ["ListOwnershipsSchemaResponse"]
+__all__ = ["FindOwnershipsSchemaResponse"]

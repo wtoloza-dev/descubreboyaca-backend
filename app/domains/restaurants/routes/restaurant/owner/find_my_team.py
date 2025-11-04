@@ -1,6 +1,6 @@
-"""List my team endpoint.
+"""Find my team endpoint.
 
-This module provides an endpoint for restaurant owners to view their team members.
+This module provides an endpoint for restaurant owners to find their team members.
 """
 
 from typing import Annotated
@@ -40,17 +40,17 @@ class TeamListResponse(BaseModel):
 @router.get(
     path="/restaurants/{restaurant_id}/team/",
     status_code=status.HTTP_200_OK,
-    summary="List my restaurant team",
-    description="Get a list of all team members (owners/managers/staff) for a restaurant owned/managed by the current user.",
+    summary="Find my restaurant team",
+    description="Find all team members (owners/managers/staff) for a restaurant owned/managed by the current user.",
 )
-async def handle_list_my_team(
+async def handle_find_my_team(
     restaurant_id: Annotated[str, Path(description="ULID of the restaurant")],
     owner_service: Annotated[
         RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
 ) -> TeamListResponse:
-    """List all team members of a restaurant owned/managed by the current user.
+    """Find all team members of a restaurant owned/managed by the current user.
 
     **Authentication required**: Only users with OWNER role can access.
 
