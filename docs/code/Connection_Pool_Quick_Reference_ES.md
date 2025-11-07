@@ -131,7 +131,7 @@ async def lifespan(app: FastAPI):
 ### 2. Adapter (app/clients/sql/adapters/.../asynchronous.py)
 
 ```python
-class SQLiteAsynchronousAdapter:
+class AsyncSQLiteAdapter:
     def __init__(self, database_url: str, echo: bool = False):
         # Engine creado 1 vez
         self.engine = create_async_engine(database_url, echo=echo)

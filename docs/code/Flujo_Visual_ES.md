@@ -40,7 +40,7 @@ Terminal: $ uvicorn app.main:app
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │ MEMORIA GLOBAL                                            │  │
 │  │                                                            │  │
-│  │  _async_adapter = <SQLiteAsynchronousAdapter>            │  │
+│  │  _async_adapter = <AsyncSQLiteAdapter>            │  │
 │  │    ├─ engine (vivo y listo)                              │  │
 │  │    └─ connection_pool (5 conexiones)                     │  │
 │  └──────────────────────────────────────────────────────────┘  │

@@ -4,6 +4,8 @@ This module provides async dependency functions for the reviews domain.
 All dependency functions follow the naming convention: get_{entity}_{type}_dependency
 """
 
+from typing import Annotated
+
 from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -18,7 +20,7 @@ from app.shared.dependencies.sql import get_async_session_dependency
 
 
 def get_review_repository_dependency(
-    session: AsyncSession = Depends(get_async_session_dependency),
+    session: Annotated[AsyncSession, Depends(get_async_session_dependency)],
 ) -> ReviewRepositoryInterface:
     """Factory to create a review repository.
 
@@ -41,7 +43,9 @@ def get_review_repository_dependency(
 
 
 def get_review_service_dependency(
-    repository: ReviewRepositoryInterface = Depends(get_review_repository_dependency),
+    repository: Annotated[
+        ReviewRepositoryInterface, Depends(get_review_repository_dependency)
+    ],
 ) -> ReviewService:
     """Factory to create a review service with dependencies.
 

@@ -57,10 +57,10 @@ Application Setup:
 """
 
 from app.clients.sql.adapters import (
-    PostgreSQLAsynchronousAdapter,
-    PostgreSQLSynchronousAdapter,
-    SQLiteAsynchronousAdapter,
-    SQLiteSynchronousAdapter,
+    AsyncPostgreSQLAdapter,
+    AsyncSQLiteAdapter,
+    PostgreSQLAdapter,
+    SQLiteAdapter,
 )
 from app.clients.sql.dependencies import (
     create_async_sqlite_adapter,
@@ -74,10 +74,10 @@ __all__ = [
     "SQLClientPort",
     "AsyncSQLClientPort",
     # Adapters (Implementations)
-    "SQLiteSynchronousAdapter",
-    "SQLiteAsynchronousAdapter",
-    "PostgreSQLSynchronousAdapter",
-    "PostgreSQLAsynchronousAdapter",
+    "SQLiteAdapter",
+    "AsyncSQLiteAdapter",
+    "PostgreSQLAdapter",
+    "AsyncPostgreSQLAdapter",
     # Generic Factories (app-agnostic)
     "create_sqlite_adapter",
     "create_async_sqlite_adapter",

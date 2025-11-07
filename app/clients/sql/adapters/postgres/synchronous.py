@@ -11,7 +11,7 @@ from sqlalchemy import Engine, create_engine
 from sqlmodel import Session
 
 
-class PostgreSQLSynchronousAdapter:
+class PostgreSQLAdapter:
     """PostgreSQL synchronous database adapter implementation.
 
     This adapter implements the SQLClientPort for PostgreSQL databases.
@@ -24,9 +24,7 @@ class PostgreSQLSynchronousAdapter:
         engine: SQLAlchemy engine for database connections
 
     Example:
-        >>> adapter = PostgreSQLSynchronousAdapter(
-        ...     "postgresql://user:pass@localhost/dbname"
-        ... )
+        >>> adapter = PostgreSQLAdapter("postgresql://user:pass@localhost/dbname")
         >>> with adapter.get_session() as session:
         ...     # Query
         ...     restaurants = session.exec(select(Restaurant)).all()
@@ -57,7 +55,7 @@ class PostgreSQLSynchronousAdapter:
 
         Example:
             >>> url = "postgresql://myuser:mypass@localhost:5432/mydb"
-            >>> adapter = PostgreSQLSynchronousAdapter(
+            >>> adapter = PostgreSQLAdapter(
             ...     url, echo=True, pool_size=10, max_overflow=20
             ... )
         """

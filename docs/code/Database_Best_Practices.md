@@ -46,7 +46,7 @@ Adapters provide concrete implementations for different databases.
 
 ```python
 # SQLite Async Adapter
-class SQLiteAsynchronousAdapter:
+class AsyncSQLiteAdapter:
     def __init__(self, database_url: str, echo: bool = False):
         self.engine = create_async_engine(database_url, echo=echo)
         self.async_session = async_sessionmaker(self.engine, ...)
@@ -180,7 +180,7 @@ class ProdSettings(BaseAppSettings):
 ```python
 # ❌ Creating adapter per request
 async def get_session():
-    adapter = SQLiteAsynchronousAdapter("sqlite+aiosqlite:///./db.db")
+    adapter = AsyncSQLiteAdapter("sqlite+aiosqlite:///./db.db")
     async with adapter.get_session() as session:
         yield session
     await adapter.close()  # Manual cleanup

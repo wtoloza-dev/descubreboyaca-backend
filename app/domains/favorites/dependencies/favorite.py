@@ -4,6 +4,8 @@ This module provides factory functions for creating favorite repositories
 and services with their dependencies.
 """
 
+from typing import Annotated
+
 from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -18,7 +20,7 @@ from app.shared.dependencies.sql import get_async_session_dependency
 
 
 def get_favorite_repository_dependency(
-    session: AsyncSession = Depends(get_async_session_dependency),
+    session: Annotated[AsyncSession, Depends(get_async_session_dependency)],
 ) -> FavoriteRepositoryInterface:
     """Create a favorite repository instance.
 
@@ -38,9 +40,9 @@ def get_favorite_repository_dependency(
 
 
 def get_favorite_service_dependency(
-    repository: FavoriteRepositoryInterface = Depends(
-        get_favorite_repository_dependency
-    ),
+    repository: Annotated[
+        FavoriteRepositoryInterface, Depends(get_favorite_repository_dependency)
+    ],
 ) -> FavoriteService:
     """Create a favorite service instance.
 
@@ -48,6 +50,6 @@ def get_favorite_service_dependency(
         repository: Favorite repository (injected via Depends)
 
     Returns:
-        Configured favorite service
+        FavoriteService: Configured favorite service
     """
     return FavoriteService(repository)

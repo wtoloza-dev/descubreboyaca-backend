@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
-class PostgreSQLAsynchronousAdapter:
+class AsyncPostgreSQLAdapter:
     """PostgreSQL asynchronous database adapter implementation.
 
     This adapter implements the AsyncSQLClientPort for PostgreSQL databases.
@@ -26,7 +26,7 @@ class PostgreSQLAsynchronousAdapter:
 
     Example:
         >>> url = "postgresql+asyncpg://user:pass@localhost/dbname"
-        >>> adapter = PostgreSQLAsynchronousAdapter(url)
+        >>> adapter = AsyncPostgreSQLAdapter(url)
         >>> adapter.connect()
         >>> async with adapter.get_session() as session:
         ...     result = await session.exec(select(Restaurant))
@@ -55,7 +55,7 @@ class PostgreSQLAsynchronousAdapter:
 
         Example:
             >>> url = "postgresql+asyncpg://user:pass@localhost:5432/mydb"
-            >>> adapter = PostgreSQLAsynchronousAdapter(
+            >>> adapter = PostgreSQLAsyncAdapter(
             ...     url, echo=True, pool_size=10, max_overflow=20
             ... )
         """

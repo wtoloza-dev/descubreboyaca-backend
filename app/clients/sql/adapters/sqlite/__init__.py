@@ -3,11 +3,11 @@
 This package contains SQLite-specific implementations of SQL client ports.
 """
 
-from app.clients.sql.adapters.sqlite.asynchronous import SQLiteAsynchronousAdapter
-from app.clients.sql.adapters.sqlite.synchronous import SQLiteSynchronousAdapter
+from app.clients.sql.adapters.sqlite.asynchronous import AsyncSQLiteAdapter
+from app.clients.sql.adapters.sqlite.synchronous import SQLiteAdapter
 
 
 __all__ = [
-    "SQLiteSynchronousAdapter",
-    "SQLiteAsynchronousAdapter",
+    "SQLiteAdapter",
+    "AsyncSQLiteAdapter",
 ]

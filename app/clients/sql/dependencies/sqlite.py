@@ -10,14 +10,12 @@ For session dependencies, use get_session/get_async_session from app.shared.depe
 """
 
 from app.clients.sql.adapters import (
-    SQLiteAsynchronousAdapter,
-    SQLiteSynchronousAdapter,
+    AsyncSQLiteAdapter,
+    SQLiteAdapter,
 )
 
 
-def create_sqlite_adapter(
-    database_url: str, echo: bool = False
-) -> SQLiteSynchronousAdapter:
+def create_sqlite_adapter(database_url: str, echo: bool = False) -> SQLiteAdapter:
     """Create a SQLite synchronous adapter instance.
 
     Args:
@@ -25,19 +23,19 @@ def create_sqlite_adapter(
         echo: Whether to echo SQL statements (useful for debugging)
 
     Returns:
-        SQLiteSynchronousAdapter: Configured SQLite synchronous adapter
+        SQLiteAdapter: Configured SQLite synchronous adapter
 
     Example:
         >>> adapter = create_sqlite_adapter("sqlite:///./test.db", echo=True)
         >>> with adapter.get_session() as session:
         ...     restaurants = session.exec(select(Restaurant)).all()
     """
-    return SQLiteSynchronousAdapter(database_url=database_url, echo=echo)
+    return SQLiteAdapter(database_url=database_url, echo=echo)
 
 
 def create_async_sqlite_adapter(
     database_url: str, echo: bool = False
-) -> SQLiteAsynchronousAdapter:
+) -> AsyncSQLiteAdapter:
     """Create an async SQLite adapter instance.
 
     Args:
@@ -46,7 +44,7 @@ def create_async_sqlite_adapter(
         echo: Whether to echo SQL statements (useful for debugging)
 
     Returns:
-        SQLiteAsynchronousAdapter: Configured async SQLite adapter
+        AsyncSQLiteAdapter: Configured async SQLite adapter
 
     Example:
         >>> adapter = create_async_sqlite_adapter(
@@ -55,4 +53,4 @@ def create_async_sqlite_adapter(
         >>> async with adapter.get_session() as session:
         ...     result = await session.exec(select(Restaurant))
     """
-    return SQLiteAsynchronousAdapter(database_url=database_url, echo=echo)
+    return AsyncSQLiteAdapter(database_url=database_url, echo=echo)

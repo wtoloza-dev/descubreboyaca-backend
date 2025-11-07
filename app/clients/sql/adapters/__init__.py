@@ -8,18 +8,18 @@ the ports package.
 """
 
 from app.clients.sql.adapters.postgres import (
-    PostgreSQLAsynchronousAdapter,
-    PostgreSQLSynchronousAdapter,
+    AsyncPostgreSQLAdapter,
+    PostgreSQLAdapter,
 )
 from app.clients.sql.adapters.sqlite import (
-    SQLiteAsynchronousAdapter,
-    SQLiteSynchronousAdapter,
+    AsyncSQLiteAdapter,
+    SQLiteAdapter,
 )
 
 
 __all__ = [
-    "SQLiteSynchronousAdapter",
-    "SQLiteAsynchronousAdapter",
-    "PostgreSQLSynchronousAdapter",
-    "PostgreSQLAsynchronousAdapter",
+    "SQLiteAdapter",
+    "AsyncSQLiteAdapter",
+    "PostgreSQLAdapter",
+    "AsyncPostgreSQLAdapter",
 ]

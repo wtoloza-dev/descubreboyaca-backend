@@ -11,7 +11,7 @@ from sqlalchemy import Engine, create_engine
 from sqlmodel import Session
 
 
-class SQLiteSynchronousAdapter:
+class SQLiteAdapter:
     """SQLite synchronous database adapter implementation.
 
     This adapter implements the SQLClientPort for SQLite databases.
@@ -24,7 +24,7 @@ class SQLiteSynchronousAdapter:
         engine: SQLAlchemy engine for database connections
 
     Example:
-        >>> adapter = SQLiteSynchronousAdapter("sqlite:///./database.db")
+        >>> adapter = SQLiteAdapter("sqlite:///./database.db")
         >>> with adapter.get_session() as session:
         ...     # Query
         ...     restaurants = session.exec(select(Restaurant)).all()
@@ -41,7 +41,7 @@ class SQLiteSynchronousAdapter:
             echo: Whether to echo SQL statements (useful for debugging)
 
         Example:
-            >>> adapter = SQLiteSynchronousAdapter("sqlite:///./app.db", echo=True)
+            >>> adapter = SQLiteAdapter("sqlite:///./app.db", echo=True)
         """
         self.engine: Engine = create_engine(
             database_url,

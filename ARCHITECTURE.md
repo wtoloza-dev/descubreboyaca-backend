@@ -1,6 +1,6 @@
 # Architecture
 
-This document describes the architecture of the Descubre Boyacá backend, which implements a **hybrid approach** combining multiple architectural patterns according to the needs of each layer.
+This document provides a high-level overview of the Descubre Boyacá backend architecture. For detailed implementation patterns and guidelines, refer to the specific documentation files in `docs/code/`.
 
 ## 📐 Overview
 
@@ -8,7 +8,7 @@ The project uses a **hybrid architecture** that combines:
 
 - **Hexagonal Architecture** (Ports & Adapters) for external communications
 - **Domain-Driven Design (DDD)** with **Vertical Slicing** for business domains
-- **Clean Architecture** (Layered) within each component, without explicit layer folders
+- **Clean Architecture** (Layered) within each component
 
 ```
 app/
@@ -25,744 +25,270 @@ app/
 
 **Purpose**: Handle communications with external systems (databases, APIs, services).
 
-**Pattern**: **Hexagonal Architecture** (Ports & Adapters Pattern)
+**Pattern**: **Ports & Adapters** - The application depends on abstractions (Ports), not concrete implementations (Adapters).
 
 ### Structure:
 
 ```
 clients/
 └── sql/
-    ├── ports/                → Interfaces - Contracts (Ports)
-    │   ├── synchronous.py    → SQLClientPort
-    │   └── asynchronous.py   → AsyncSQLClientPort
-    │
+    ├── ports/                → Interfaces/Contracts (Ports)
     ├── adapters/             → Concrete implementations (Adapters)
-    │   ├── sqlite/
-    │   │   ├── synchronous.py    → SQLiteSynchronousAdapter
-    │   │   └── asynchronous.py   → SQLiteAsynchronousAdapter
-    │   └── postgres/
-    │       ├── synchronous.py    → PostgreSQLSynchronousAdapter
-    │       └── asynchronous.py   → PostgreSQLAsynchronousAdapter
-    │
     └── dependencies/         → Generic factories (app-agnostic)
-        └── sqlite.py         → create_sqlite_adapter(), create_sqlite_session_dependency()
-
-shared/
-└── dependencies/
-    └── sql.py                → App-specific factories with concrete config
-                                get_sqlite_session_dependency() (uses settings)
 ```
 
-### Principles:
+### Key Principles:
 
 - **Ports** (interfaces) define the contract
 - **Adapters** (implementations) fulfill the contract
-- The application depends on **Ports**, not **Adapters**
 - Easy to swap implementations (SQLite ↔ PostgreSQL ↔ MySQL)
 - **Clients are app-agnostic**: They accept configuration as parameters
-- **Shared dependencies inject concrete config**: They use app settings and call client factories
+- **Shared dependencies inject concrete config**: Located in `shared/dependencies/`
 
-### Example:
-
-```python
-# 1. Port (abstraction)
-class SQLClientPort(Protocol):
-    def get_session(self) -> Generator[Session]: ...
-
-# 2. Adapters (implementations)
-class SQLiteSynchronousAdapter:
-    def __init__(self, database_url: str, echo: bool = False): ...
-    def get_session(self) -> Generator[Session]: ...
-
-class PostgreSQLSynchronousAdapter:
-    def __init__(self, database_url: str, echo: bool = False): ...
-    def get_session(self) -> Generator[Session]: ...
-
-# 3. Generic factories (app-agnostic) in clients/sql/dependencies/
-def create_sqlite_adapter(database_url: str, echo: bool = False) -> SQLiteSynchronousAdapter:
-    """Generic factory - accepts all config as parameters."""
-    return SQLiteSynchronousAdapter(database_url=database_url, echo=echo)
-
-# 4. App-specific factories in shared/dependencies/
-def get_sqlite_session_dependency() -> Generator[Session, None, None]:
-    """App-specific factory - injects concrete config from settings."""
-    yield from create_sqlite_session_dependency(
-        database_url="sqlite:///./test.db",  # ← Concrete config
-        echo=settings.DEBUG,                  # ← From app settings
-    )
-```
-
-This separation ensures that:
-- `clients/` can be reused in any project (framework-agnostic)
-- `shared/` contains the application-specific glue code
-- Configuration is centralized in `settings`
+📖 **See**: `docs/code/Connection_Pool_Guide_ES.md`, `docs/code/Database_Best_Practices.md`
 
 ---
 
 ## ⚙️ Core Layer
 
-**Purpose**: Global application configuration.
-
-**Contents**:
-- `settings/` - Environment-specific configurations (local, staging, prod)
-- `routes/` - Main route registration
+**Purpose**: Global application configuration and lifecycle management.
 
 ```
 core/
-├── settings/
-│   ├── base.py       → Base configuration
-│   ├── local.py      → Local/development configuration
-│   ├── staging.py    → Staging configuration
-│   └── prod.py       → Production configuration
-└── routes/
-    └── main.py       → Main router
+├── settings/         → Environment-specific configurations (local, staging, prod)
+├── routes/           → Main route registration
+├── lifespan.py       → Application lifecycle management
+└── errors/           → Global error handling
 ```
+
+📖 **See**: `docs/code/Lifespan_Explained_ES.md`, `docs/code/README_Lifespan.md`
 
 ---
 
-## 🌐 Shared Layer - Clean Architecture (Layered)
+## 🌐 Shared Layer - Clean Architecture
 
-**Purpose**: Components shared across multiple domains.
-
-**Pattern**: **Clean Architecture** with explicit `domain/` folder grouping all domain layer components.
+**Purpose**: Components shared across multiple domains following Clean Architecture principles.
 
 ### Structure:
 
 ```
 shared/
-├── domain/               → Domain Layer - Pure business logic
+├── domain/               → Domain Layer (Pure business logic)
 │   ├── entities/         → Business entities
-│   │   ├── archive.py    → ArchiveData, Archive
-│   │   ├── audit.py      → Audit (base entity)
-│   │   └── pagination.py → Pagination (with computed fields)
-│   │
-│   ├── interfaces/       → Contracts (Interfaces)
-│   │   └── archive.py    → ArchiveRepositoryInterface
-│   │
+│   ├── interfaces/       → Contracts/abstractions
 │   ├── value_objects/    → Immutable value objects
-│   │   ├── geolocation.py → GeoLocation
-│   │   └── social_media.py → SocialMedia
-│   │
 │   ├── enums/            → Domain enumerations
-│   └── constants/        → Domain constants
+│   ├── constants/        → Domain constants
+│   ├── exceptions/       → Domain exceptions
+│   ├── factories/        → Entity factories
+│   └── patterns/         → Domain patterns (e.g., Result)
 │
-├── schemas/              → Presentation Layer - Shared DTOs
-│   └── pagination.py     → PaginatedResponse[T] (generic)
-│
-├── models/               → Infrastructure Layer - ORM
-│   ├── archive.py        → ArchiveModel (SQLModel)
-│   └── audit.py          → AuditMixin (SQLModel)
-│
-├── repositories/         → Infrastructure Layer - Persistence
-│   └── archive.py        → ArchiveRepository
-│
-├── services/             → Application Layer - Business logic
-│   └── archive.py        → ArchiveService
-│
-└── dependencies/         → Application Layer - DI Factories
-    ├── archive.py        → get_archive_repository(), get_archive_service()
-    ├── sql.py            → get_sqlite_session_dependency()
-    └── pagination.py     → get_pagination_params()
+├── schemas/              → Presentation Layer (API DTOs)
+├── models/               → Infrastructure Layer (ORM)
+├── repositories/         → Infrastructure Layer (Persistence)
+├── services/             → Application Layer (Business logic)
+└── dependencies/         → Application Layer (DI Factories)
 ```
 
-### Layers (organized):
+### Clean Architecture Layers:
 
 | Folder | Layer | Responsibility |
 |--------|-------|----------------|
-| `domain/entities/` | **Domain** | Pure business objects with identity or computed properties (Archive, Audit, Pagination) |
-| `domain/interfaces/` | **Domain** | Contracts/abstractions (Interfaces) |
-| `domain/value_objects/` | **Domain** | Immutable value objects without identity (GeoLocation, SocialMedia) |
-| `domain/enums/` | **Domain** | Domain enumerations |
-| `domain/constants/` | **Domain** | Domain constants |
-| `schemas/` | **Presentation** | API DTOs, shared response schemas |
-| `services/` | **Application** | Business logic, orchestration |
-| `repositories/` | **Infrastructure** | Data access, persistence |
-| `models/` | **Infrastructure** | ORM models (SQLModel) |
-| `dependencies/` | **Application** | Factories for DI |
+| `domain/` | Domain | Pure business logic (framework-agnostic) |
+| `schemas/` | Presentation | API DTOs and response models |
+| `services/` | Application | Business orchestration |
+| `repositories/` | Infrastructure | Data access and persistence |
+| `models/` | Infrastructure | ORM models (SQLModel) |
+| `dependencies/` | Application | Dependency injection factories |
 
-### Applied principles:
-
-#### 1. **Dependency Inversion Principle (DIP)**
-```python
-# Service depends on abstraction, not implementation
-class ArchiveService:
-    def __init__(self, repository: ArchiveRepositoryInterface):  # ← Interface
-        self.repository = repository
-```
-
-#### 2. **Entities generate their identity (DDD)**
-```python
-class Archive(ArchiveData):
-    id: str = Field(default_factory=lambda: str(ULID()))  # ← Auto-generated
-    deleted_at: datetime = Field(default_factory=lambda: datetime.now(datetime.UTC))
-```
-
-#### 3. **Repository only persists**
-```python
-def create(self, archive_data: ArchiveData, deleted_by: str | None) -> Archive:
-    archive = Archive(**archive_data.model_dump(), deleted_by=deleted_by)  # ← Entity creates itself
-    model = ArchiveModel.model_validate(archive)  # ← Converts
-    self.session.add(model)  # ← Persists
-    return archive
-```
+📖 **See**: `docs/code/Entities.md`, `docs/code/Value_Objects.md`, `docs/code/Enums.md`, `docs/code/Exceptions.md`
 
 ---
 
-## 🏛️ Domains Layer - DDD + Vertical Slicing + Clean
+## 🏛️ Domains Layer - DDD + Vertical Slicing
 
-**Purpose**: Business domains separated by context.
+**Purpose**: Business domains organized as independent **Bounded Contexts**.
 
-**Pattern**: **Domain-Driven Design** with **Vertical Slicing** + **Clean Architecture** (implicit layers).
+**Pattern**: Each domain is a complete **vertical slice** containing all necessary layers.
 
-### Domain structure:
+### Domain Structure:
 
 ```
 domains/
-└── restaurants/              → Bounded Context
-    ├── domain/               → Domain Layer - Pure business logic
-    │   ├── entities/         → Business entities
-    │   │   └── restaurant.py → RestaurantData, Restaurant
-    │   │
-    │   ├── interfaces/       → Contracts (Interfaces)
-    │   │   └── restaurant.py → RestaurantRepositoryInterface
-    │   │
-    │   └── enums/            → Domain enumerations
-    │       ├── cuisine_type.py → CuisineType
-    │       ├── price_level.py  → PriceLevel
-    │       └── restaurant_feature.py → RestaurantFeature
+└── {domain}/             → Bounded Context (e.g., restaurants, auth, users)
+    ├── domain/           → Domain Layer (Pure business logic)
+    │   ├── entities/     → Domain entities
+    │   ├── interfaces/   → Repository/service interfaces
+    │   ├── enums/        → Domain-specific enums
+    │   ├── value_objects/→ Domain value objects
+    │   └── exceptions/   → Domain-specific exceptions
     │
-    ├── models/               → Infrastructure Layer - ORM
-    │   └── restaurant.py     → RestaurantModel (SQLModel)
-    │
-    ├── repositories/         → Infrastructure Layer - Persistence
-    │   └── restaurant.py     → RestaurantRepository, AsyncRestaurantRepository
-    │
-    ├── schemas/              → Presentation Layer - API DTOs
-    │   ├── create.py         → CreateRestaurantRequest, CreateRestaurantResponse
-    │   ├── get.py            → GetRestaurantResponse
-    │   └── list.py           → RestaurantListItem, ListRestaurantsResponse
-    │
-    ├── services/             → Application Layer - Business logic
-    │   └── restaurant.py     → RestaurantService, AsyncRestaurantService
-    │
-    ├── routes/               → Presentation Layer - Endpoints
-    │   ├── create.py         → POST /restaurants
-    │   ├── get.py            → GET /restaurants/{id}
-    │   └── list.py           → GET /restaurants
-    │
-    └── dependencies/         → Application Layer - DI Factories
-        └── sql.py            → get_restaurant_service(), get_restaurant_repository()
+    ├── models/           → Infrastructure Layer (ORM models)
+    ├── repositories/     → Infrastructure Layer (Data access)
+    ├── schemas/          → Presentation Layer (API DTOs)
+    ├── services/         → Application Layer (Use cases)
+    ├── routes/           → Presentation Layer (API endpoints)
+    └── dependencies/     → Application Layer (DI factories)
 ```
 
-### Features:
+### Vertical Slicing Benefits:
 
-#### 1. **Vertical Slicing**
-Each domain is independent and contains all its layers:
-- ✅ `restaurants/` has everything needed for restaurants
-- ✅ `users/` would have everything needed for users
+- ✅ Each domain is **self-contained** and **independent**
 - ✅ No cross-dependencies between domains
+- ✅ Easy to understand, test, and maintain
+- ✅ Teams can work on different domains in parallel
 
-#### 2. **Clean Architecture (Layered - Explicit)**
-Each domain has an explicit `domain/` folder containing all domain layer components:
-
-| Folder | Clean Layer | Depends on |
-|--------|-------------|------------|
-| `domain/entities/` | Domain | Nothing (pure) |
-| `domain/interfaces/` | Domain | Nothing (interfaces) |
-| `domain/enums/` | Domain | Nothing (pure) |
-| `domain/value_objects/` | Domain | Nothing (immutable) |
-| `schemas/` | Presentation | domain/ |
-| `services/` | Application | domain/interfaces/ |
-| `repositories/` | Infrastructure | domain/, models/ |
-| `models/` | Infrastructure | Nothing (ORM) |
-| `routes/` | Presentation | services/, schemas/ |
-
-#### 3. **Dependency rules**
+### Dependency Rules:
 
 ```
-routes/              → uses → services/, schemas/
+routes/           → uses → services/, schemas/
     ↓
-services/            → uses → domain/interfaces/ (Interfaces)
+services/         → uses → domain/interfaces/ (abstractions)
     ↓
-repositories/        → implements → domain/interfaces/
+repositories/     → implements → domain/interfaces/
     ↓
-models/              → maps → domain/entities/
+models/           → maps to → domain/entities/
     ↓
-domain/              → independent (core)
-  ├── entities/      → pure business objects
-  ├── interfaces/    → interface contracts
-  ├── enums/         → enumerations
-  ├── exceptions/    → domain exceptions
-  └── value_objects/ → immutable objects
+domain/           → independent (pure business logic)
 ```
 
-**Never**: Infrastructure → Domain ❌  
-**Always**: Domain ← Infrastructure ✅
+**Golden Rule**: **Infrastructure depends on Domain**, never the reverse.
+
+📖 **See**: `docs/code/Routes.md`, `docs/code/Services.md`, `docs/code/Database_Repositories.md`, `docs/code/Models.md`, `docs/code/Schemas.md`
 
 ---
 
 ## 🔄 Request Flow
 
-### Example: DELETE /restaurants/{id}
+Example flow for a typical API request:
 
 ```
-1. Route (Presentation Layer)
-   ↓ receives HTTP request
-   ↓ extracts: session via Depends()
-   
-2. Factory dependencies
-   ↓ archive_repo = get_archive_repository(session)
-   ↓ archive_service = get_archive_service(archive_repo)
-   
-3. Service (Application Layer)
-   ↓ archive_service.archive_entity(table, entity, note, user_id)
-   ↓ creates: Archive entity (with auto-generated ID)
-   
-4. Repository (Infrastructure Layer)
-   ↓ converts: Archive → ArchiveModel
-   ↓ persists: session.add(), session.commit()
-   
-5. Response
-   ↓ returns: Archive entity
-   ↓ serializes: Pydantic → JSON
-   ↓ returns: HTTP response
+1. HTTP Request → Route (Presentation)
+   ↓
+2. Route extracts dependencies via Depends()
+   ↓
+3. Service (Application) orchestrates business logic
+   ↓
+4. Repository (Infrastructure) persists to database
+   ↓
+5. Entity (Domain) is returned
+   ↓
+6. Schema (Presentation) serializes to JSON
+   ↓
+7. HTTP Response
 ```
+
+📖 **See**: `docs/code/Flujo_Visual_ES.md`
 
 ---
 
 ## 🔧 Service Layer Architecture
 
-### Application Services vs Infrastructure Services
+The architecture distinguishes between two types of services:
 
-This architecture distinguishes between two types of services:
+### 1. Application Services
 
-#### 1. **Application Services** (Business Logic / Orchestration)
+**Purpose**: Orchestrate business use cases.
 
-**Purpose**: Orchestrate business use cases and coordinate domain operations.
-
-**Naming**: `{Domain}Service`
+**Naming**: `{Domain}Service` (e.g., `AuthService`, `RestaurantService`)
 
 **Characteristics**:
 - ✅ Contain core business logic
-- ✅ Orchestrate multiple dependencies (repositories, providers, clients)
-- ✅ Define use cases (register user, login, transfer ownership)
-- ✅ **Do NOT need abstraction** - they ARE the business logic
-- ✅ Located in: `domains/{domain}/services/`
+- ✅ Orchestrate multiple dependencies
+- ✅ **Do NOT need abstraction** (they ARE the business logic)
 
-**Example**:
-```python
-# app/domains/auth/services/auth.py
-class AuthService:
-    """Orchestrates authentication use cases."""
-    
-    def __init__(
-        self,
-        user_repository: UserRepositoryInterface,
-        token_provider: TokenProvider,
-        password_hasher: PasswordHasher,
-    ):
-        self.user_repository = user_repository
-        self.token_provider = token_provider
-        self.password_hasher = password_hasher
-    
-    async def register(self, email: str, password: str) -> User:
-        """Register a new user - Business use case."""
-        # Hash password using infrastructure
-        hashed = self.password_hasher.hash_password(password)
-        # Save user using repository
-        return await self.user_repository.create(...)
-```
+### 2. Infrastructure Services
 
-**When to use**: For orchestrating business logic and use cases.
-
----
-
-#### 2. **Infrastructure Services** (Technical Details)
-
-**Purpose**: Abstract external dependencies, libraries, and technical operations.
+**Purpose**: Abstract external dependencies and technical operations.
 
 **Characteristics**:
-- ✅ Wrap external libraries (bcrypt, JWT, OAuth SDKs)
-- ✅ Provide technical operations (hashing, token generation, API calls)
+- ✅ Wrap external libraries (bcrypt, JWT, OAuth)
 - ✅ **ALWAYS need abstraction** (Protocol/Interface)
-- ✅ Multiple implementations possible (bcrypt vs argon2, JWT vs Paseto)
-- ✅ Located in: `domains/{domain}/services/` but abstracted in `domain/interfaces/`
+- ✅ Multiple implementations possible
 
-**Naming Convention by Type**:
+**Types**:
 
-##### A) **Providers** - Create/Generate/Provide data or tokens
+| Type | Naming | Purpose | Example |
+|------|--------|---------|---------|
+| **Provider** | `{Tech}{What}Provider` | Create/generate/provide | `JWTTokenProvider` |
+| **Hasher/Handler** | `{Tech}{What}Hasher` | Transform/process | `BcryptPasswordHasher` |
+| **Client** | `{Provider}{What}Client` | External communication | `GoogleOAuthClient` |
+| **Manager** | `{What}Manager` | State/lifecycle management | `SessionManager` |
 
-**Naming**: `{Technology}{What}Provider`
-
-**When to use**: The service primarily creates, generates, or provides something.
-
-**Example**:
-```python
-# Interface: app/domains/auth/domain/interfaces/token_provider.py
-class TokenProvider(Protocol):
-    """Interface for JWT token operations."""
-    def create_access_token(self, user_id: str) -> str: ...
-    def verify_token(self, token: str) -> dict: ...
-
-# Implementation: app/domains/auth/services/token.py
-class JWTTokenProvider:
-    """JWT-based token provider."""
-    def create_access_token(self, user_id: str) -> str:
-        return jwt.encode({...}, self.secret_key)
-```
-
-**Other examples**: `ConfigProvider`, `IdentifierProvider`
-
----
-
-##### B) **Hashers/Handlers** - Process/Transform/Validate data
-
-**Naming**: `{Technology}{What}Hasher` or `{Technology}{What}Handler`
-
-**When to use**: The service transforms, processes, or validates data.
-
-**Example**:
-```python
-# Interface: app/domains/auth/domain/interfaces/password_hasher.py
-class PasswordHasher(Protocol):
-    """Interface for password hashing operations."""
-    def hash_password(self, password: str) -> PasswordHash: ...
-    def verify_password(self, plain: str, hashed: PasswordHash) -> bool: ...
-
-# Implementation: app/domains/auth/services/password.py
-class BcryptPasswordHasher:
-    """Bcrypt-based password hasher."""
-    def hash_password(self, password: str) -> PasswordHash:
-        return bcrypt.hashpw(...)
-```
-
-**Other examples**: `FileHandler`, `ImageProcessor`, `EmailHandler`
-
----
-
-##### C) **Clients** - Communicate with external systems
-
-**Naming**: `{Provider}{What}Client`
-
-**When to use**: The service communicates with external APIs or systems.
-
-**Example**:
-```python
-# Interface: app/domains/auth/domain/interfaces/oauth_client.py
-class OAuthClient(Protocol):
-    """Interface for OAuth client operations."""
-    def get_authorization_url(self) -> str: ...
-    async def get_user_profile(self, code: str) -> OAuthProfile: ...
-
-# Implementation: app/domains/auth/services/google_oauth.py
-class GoogleOAuthClient:
-    """Google OAuth client."""
-    async def get_user_profile(self, code: str) -> OAuthProfile:
-        # HTTP call to Google API
-        response = await httpx.get("https://oauth2.googleapis.com/...")
-        return OAuthProfile(...)
-```
-
-**Other examples**: `StripeClient`, `SendGridClient`, `SlackClient`
-
----
-
-##### D) **Managers** - Manage state/lifecycle
-
-**Naming**: `{What}Manager`
-
-**When to use**: The service manages stateful resources or lifecycles.
-
-**Example**:
-```python
-class SessionManager:
-    """Manages user sessions and their lifecycle."""
-    def create_session(self, user_id: str) -> Session:
-        session = Session(...)
-        self._sessions[session.id] = session
-        return session
-    
-    def invalidate_session(self, session_id: str) -> None:
-        del self._sessions[session_id]
-```
-
-**Other examples**: `ConnectionManager` (WebSockets), `CacheManager`, `TransactionManager`
-
----
-
-### Decision Tree
-
-```
-Is it business logic that orchestrates use cases?
-  └─ YES → {Domain}Service (no interface needed)
-      └─ Example: AuthService, RestaurantService
-  
-  └─ NO → Infrastructure service (needs interface)
-      
-      What does it do?
-      
-      ├─ Creates/Generates/Provides something?
-      │   └─ {Tech}{What}Provider
-      │       └─ Example: JWTTokenProvider, ConfigProvider
-      
-      ├─ Transforms/Processes/Validates data?
-      │   └─ {Tech}{What}Hasher or {Tech}{What}Handler
-      │       └─ Example: BcryptPasswordHasher, ImageHandler
-      
-      ├─ Communicates with external API/system?
-      │   └─ {Provider}{What}Client
-      │       └─ Example: GoogleOAuthClient, StripeClient
-      
-      └─ Manages state/lifecycle?
-          └─ {What}Manager
-              └─ Example: SessionManager, CacheManager
-```
-
----
-
-### Summary Table
-
-| Type | Purpose | Needs Interface? | Naming | Location |
-|------|---------|------------------|--------|----------|
-| **Application Service** | Business logic orchestration | ❌ No | `{Domain}Service` | `domains/{domain}/services/` |
-| **Provider** | Create/generate/provide | ✅ Yes | `{Tech}{What}Provider` | `domains/{domain}/services/` + interface |
-| **Hasher/Handler** | Transform/process | ✅ Yes | `{Tech}{What}Hasher` | `domains/{domain}/services/` + interface |
-| **Client** | External communication | ✅ Yes | `{Provider}{What}Client` | `domains/{domain}/services/` + interface |
-| **Manager** | State/lifecycle management | ✅ Yes | `{What}Manager` | `domains/{domain}/services/` + interface |
+📖 **See**: `docs/code/Services.md`
 
 ---
 
 ## 📏 Conventions and Standards
 
-### Naming
+### Naming Conventions
 
 | Type | Pattern | Example |
 |------|---------|---------|
-| **Entities (without ID)** | `{Name}Data` | `ArchiveData`, `RestaurantData` |
-| **Entities (with ID)** | `{Name}` | `Archive`, `Restaurant`, `Audit` |
-| **Models (ORM)** | `{Name}Model` | `ArchiveModel`, `RestaurantModel` |
-| **Interfaces** | `{Name}Interface` or specific | `ArchiveRepositoryInterface`, `TokenProvider`, `PasswordHasher` |
-| **Repositories** | `{Name}Repository` | `ArchiveRepository` |
-| **Services (Application)** | `{Name}Service` | `ArchiveService`, `AuthService` |
-| **Providers (Infrastructure)** | `{Tech}{Name}Provider` | `JWTTokenProvider` |
-| **Hashers (Infrastructure)** | `{Tech}{Name}Hasher` | `BcryptPasswordHasher` |
-| **Clients (Infrastructure)** | `{Provider}{Name}Client` | `GoogleOAuthClient` |
-| **Schemas (request)** | `{Action}{Name}Request` | `CreateRestaurantRequest`, `UpdateRestaurantRequest` |
-| **Schemas (response)** | `{Action}{Name}Response` | `CreateRestaurantResponse`, `GetRestaurantResponse` |
-| **Schemas (list item)** | `{Name}ListItem` | `RestaurantListItem` |
-| **Routes files** | `{action}.py` | `create.py`, `get.py`, `list.py` |
-| **Route handlers** | `handle_{action}_{name}` | `handle_create_restaurant`, `handle_list_restaurants` |
-
-### Dependency Injection
-
-**Only Routes use `Depends()`:**
-
-```python
-# ✅ Correct
-@router.delete("/restaurants/{id}")
-def delete_restaurant(
-    session: Session = Depends(get_sqlite_session_dependency),  # ← Only here
-):
-    repo = get_archive_repository(session)      # ← Simple factory
-    service = get_archive_service(repo)         # ← Simple factory
-```
-
-**Internal layers use constructors:**
-
-```python
-# ✅ Correct
-def get_archive_service(repository: ArchiveRepositoryInterface) -> ArchiveService:
-    return ArchiveService(repository)  # ← Simple constructor
-```
+| **Entities (without ID)** | `{Name}Data` | `RestaurantData` |
+| **Entities (with ID)** | `{Name}` | `Restaurant` |
+| **Models (ORM)** | `{Name}Model` | `RestaurantModel` |
+| **Interfaces** | `{Name}Interface` | `RestaurantRepositoryInterface` |
+| **Repositories** | `{Name}Repository` | `RestaurantRepository` |
+| **Services** | `{Name}Service` | `RestaurantService` |
+| **Schemas (request)** | `{Action}{Name}Request` | `CreateRestaurantRequest` |
+| **Schemas (response)** | `{Action}{Name}Response` | `GetRestaurantResponse` |
+| **Routes files** | `{action}.py` | `create.py`, `find_by_id.py` |
 
 ### Type Hints
 
-- ✅ Use `Protocol` for interface abstractions (named `*Interface`)
 - ✅ Use native Python 3.12+ type hints (`list[str]`, `dict[str, Any]`)
 - ✅ Use `str | None` instead of `Optional[str]`
-- ✅ Use `class Generic[T]` syntax (Python 3.12+) instead of `TypeVar`
+- ✅ Use `Protocol` for interface abstractions
+- ✅ Use `class Generic[T]` syntax (Python 3.12+)
 
-### API Patterns
+### Dependency Injection
 
-#### Pagination
-- **User-facing**: `page` (1-based) and `page_size` (1-100)
-- **Database**: `offset` and `limit`
-- **Entity**: `Pagination` with computed fields for automatic `offset`/`limit` calculation
-- **Response**: Standardized `PaginatedResponse[T]` generic schema
+- **Routes**: Use `Depends()` for dependency injection
+- **Internal layers**: Use simple constructors and factory functions
 
 ```python
-# Pagination entity with computed fields (Pydantic)
-class Pagination(BaseModel):
-    """Pagination entity with user-friendly and database-friendly parameters."""
-    
-    page: int = Field(ge=1, description="Page number (1-based)")
-    page_size: int = Field(ge=1, le=100, description="Items per page (max 100)")
-    
-    @computed_field
-    @property
-    def offset(self) -> int:
-        """Calculate offset from page and page_size."""
-        return (self.page - 1) * self.page_size
-    
-    @computed_field
-    @property
-    def limit(self) -> int:
-        """Get limit (same as page_size)."""
-        return self.page_size
-    
-    model_config = {"frozen": True}
-
-# Dependency creates Pagination entity from query params
-def get_pagination_dependency(
-    page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1, le=100),
-) -> Pagination:
-    return Pagination(page=page, page_size=page_size)
-
-# Generic response schema
-class PaginatedResponse[T](BaseModel):
-    items: list[T]
-    page: int
-    page_size: int
-    total: int
-
-# Domain-specific usage
-class ListRestaurantsResponse(PaginatedResponse[RestaurantListItem]):
-    pass
-
-# Usage in routes
-@router.get("/restaurants")
-async def handle_list_restaurants(
-    pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
+# ✅ In routes
+@router.post("/restaurants")
+def create_restaurant(
+    session: Session = Depends(get_sqlite_session_dependency),
 ):
-    # Use both user-friendly and database-friendly fields
-    restaurants, total = await service.find_restaurants(
-        offset=pagination.offset,  # ← Computed field
-        limit=pagination.limit,    # ← Computed field
-    )
-    
-    return ListRestaurantsResponse(
-        items=restaurants,
-        page=pagination.page,           # ← Direct access
-        page_size=pagination.page_size, # ← Direct access
-        total=total,
-    )
+    repo = get_restaurant_repository(session)
+    service = get_restaurant_service(repo)
 ```
 
-#### Value Objects vs Entities
-
-**Value Objects** (immutable, no identity):
-- **Immutable**: Use `@dataclass(frozen=True)` or Pydantic `model_config = {"frozen": True}`
-- **No identity**: Compared by value, not by ID
-- **Serialization**: Use `field_serializer` for custom JSON output
-- **Validation**: Use `field_validator` for input validation
-- **Examples**: `GeoLocation`, `SocialMedia`
-
-```python
-# GeoLocation with precision control (Value Object)
-@field_validator("latitude", "longitude", mode="before")
-def validate_decimal(cls, v: Any) -> Decimal:
-    return Decimal(str(v)).quantize(Decimal("0.00000001"))  # 8 decimals
-
-@field_serializer("latitude", "longitude")
-def serialize_decimal(self, value: Decimal) -> float:
-    return round(float(value), 8)  # Clean JSON output
-```
-
-**Entities** (may have computed fields):
-- **Computed fields**: Use `@computed_field` for derived properties
-- **Immutable**: Can still be frozen for consistency
-- **Identity**: May have ID or logical identity
-- **Examples**: `Archive`, `Audit`, `Pagination`
-
-```python
-# Pagination with computed fields (Entity)
-class Pagination(BaseModel):
-    page: int = Field(ge=1)
-    page_size: int = Field(ge=1, le=100)
-    
-    @computed_field
-    @property
-    def offset(self) -> int:
-        return (self.page - 1) * self.page_size
-    
-    model_config = {"frozen": True}
-```
+📖 **See**: `docs/code/Dependencies.md`
 
 ---
 
-## 🎯 Applied SOLID Principles
+## 🎯 SOLID Principles
 
-### Single Responsibility
-- Each class has a single responsibility
-- `ArchiveService` → business logic
-- `ArchiveRepository` → persistence
-
-### Open/Closed
-- Open for extension (new `Protocol` implementations)
-- Closed for modification (interfaces don't change)
-
-### Liskov Substitution
-- Any implementation of `ArchiveRepositoryInterface` is interchangeable
-
-### Interface Segregation
-- Small, specific Interfaces
-- `ArchiveRepositoryInterface` only has `create()` (for now)
-
-### Dependency Inversion
-- **Services depend on Interfaces (abstractions)**
-- **Repositories implement Interfaces**
-- **Routes inject concrete implementations**
+| Principle | Application |
+|-----------|-------------|
+| **Single Responsibility** | Each class has one responsibility |
+| **Open/Closed** | Open for extension, closed for modification |
+| **Liskov Substitution** | Interface implementations are interchangeable |
+| **Interface Segregation** | Small, specific interfaces |
+| **Dependency Inversion** | Depend on abstractions, not concretions |
 
 ---
 
-## 🗄️ Database Migrations
+## 🗄️ Database
 
-### Pattern: Alembic with Manual Migrations
+### Migrations
 
-**Location**: `alembic/versions/`
+- **Tool**: Alembic
+- **Strategy**: Manual migrations, one table per file
+- **Environments**: SQLite (local), PostgreSQL (staging/prod)
 
-### Structure:
-```
-alembic/
-├── alembic.ini          → Configuration
-├── env.py               → Environment setup (SQLModel integration)
-├── script.py.mako       → Template for new migrations
-└── versions/            → Migration files
-    ├── 20251021_0918_xxx_create_archive_table.py
-    └── 20251021_0918_xxx_create_restaurants_table.py
-```
+📖 **See**: `docs/code/Database_Best_Practices.md`, `docs/code/Connection_Pool_Guide_ES.md`
 
-### Principles:
-- ✅ **One table per migration**: Better control and rollback granularity
-- ✅ **Manual migrations**: Explicit control over schema changes
-- ✅ **Environment-aware**: Supports local (SQLite) and prod (PostgreSQL)
-- ✅ **Bidirectional**: Both `upgrade()` and `downgrade()` implemented
+### Repositories
 
-### Migration Example:
-```python
-def upgrade() -> None:
-    """Create restaurants table."""
-    op.create_table(
-        'restaurants',
-        sa.Column('id', sa.String(length=26), nullable=False),
-        sa.Column('name', sa.String(length=255), nullable=False),
-        # ... more columns ...
-        sa.PrimaryKeyConstraint('id', name=op.f('pk_restaurants')),
-    )
-    op.create_index(op.f('ix_restaurants_name'), 'restaurants', ['name'])
+- **Pattern**: Repository Pattern with interfaces
+- **Sync & Async**: Both synchronous and asynchronous implementations
 
-def downgrade() -> None:
-    """Drop restaurants table."""
-    op.drop_index(op.f('ix_restaurants_name'), table_name='restaurants')
-    op.drop_table('restaurants')
-```
-
-### Workflow:
-1. **Development**: `alembic revision -m "description"` → Create migration
-2. **Apply**: `alembic upgrade head` → Run migrations
-3. **Rollback**: `alembic downgrade -1` → Undo last migration
-4. **Production**: `alembic upgrade head --sql > migration.sql` → Generate SQL for DBA
+📖 **See**: `docs/code/Database_Repositories.md`, `docs/code/Repository_Interfaces.md`, `docs/code/API_Repositories.md`
 
 ---
 
@@ -770,47 +296,25 @@ def downgrade() -> None:
 
 The architecture facilitates testing at each layer:
 
-### Unit Tests (without DB)
-```python
-def test_archive_service():
-    mock_repo = Mock(spec=ArchiveRepositoryInterface)
-    service = ArchiveService(mock_repo)  # ← Without DB
-    
-    # Test pure logic
-    result = service.archive_entity(...)
-```
-
-### Integration Tests (with DB)
-```python
-def test_archive_repository():
-    session = create_test_session()
-    repo = ArchiveRepository(session)  # ← With real DB
-    
-    archive = repo.create(...)
-    assert archive.id
-```
-
-### E2E Tests
-```python
-def test_delete_endpoint(client: TestClient):
-    response = client.delete("/restaurants/123")
-    assert response.status_code == 200
-```
+- **Unit Tests**: Test services with mocked repositories (no DB)
+- **Integration Tests**: Test repositories with real database
+- **E2E Tests**: Test complete API flows
 
 ---
 
-## 📚 Resources
+## 📚 Documentation
 
-### Applied patterns:
-- **Hexagonal Architecture**: Alistair Cockburn
-- **Clean Architecture**: Robert C. Martin (Uncle Bob)
-- **Domain-Driven Design**: Eric Evans
-- **Vertical Slice Architecture**: Jimmy Bogard
+### Code Documentation
 
-### Principles:
-- **SOLID**: Robert C. Martin
-- **Dependency Inversion Principle**: Key to Clean Architecture
-- **Separation of Concerns**: Each layer with clear responsibility
+Located in `docs/code/`:
+
+- **Architecture**: `Flujo_Visual_ES.md`, `Lifespan_Explained_ES.md`
+- **Domain Layer**: `Entities.md`, `Value_Objects.md`, `Enums.md`, `Exceptions.md`
+- **Infrastructure Layer**: `Models.md`, `Database_Repositories.md`, `Repository_Interfaces.md`
+- **Application Layer**: `Services.md`, `Dependencies.md`
+- **Presentation Layer**: `Routes.md`, `Schemas.md`
+- **Database**: `Database_Best_Practices.md`, `Connection_Pool_Guide_ES.md`
+- **Cheat Sheets**: `Cheat_Sheet_ES.md`, `Connection_Pool_Quick_Reference_ES.md`
 
 ---
 
@@ -819,19 +323,34 @@ def test_delete_endpoint(client: TestClient):
 1. **Modularity**: Independent domains, easy to scale
 2. **Testability**: Each layer is independently testable
 3. **Maintainability**: Localized changes, low coupling
-4. **Flexibility**: Easy to change implementations (DB, external services)
+4. **Flexibility**: Easy to swap implementations
 5. **Clarity**: Consistent structure, easy to understand
 6. **DDD Compliant**: Entities have identity, repositories only persist
 7. **SOLID Compliant**: All principles applied
 
 ---
 
-## 📝 Conclusion
+## 📝 Summary
 
-This hybrid architecture combines the best of multiple patterns:
+This architecture combines:
 
-- **Hexagonal** to isolate external dependencies
-- **DDD + Vertical Slicing** to organize business domains
-- **Clean Architecture** for separation of responsibilities
+- **Hexagonal Architecture** → Isolate external dependencies
+- **Domain-Driven Design** → Organize business domains
+- **Vertical Slicing** → Self-contained domain modules
+- **Clean Architecture** → Clear separation of concerns
 
 The result is a **maintainable**, **testable**, **scalable**, and **flexible** system.
+
+---
+
+## 🔗 Quick Reference
+
+| I want to... | See documentation |
+|-------------|-------------------|
+| Understand the overall flow | `docs/code/Flujo_Visual_ES.md` |
+| Create a new entity | `docs/code/Entities.md` |
+| Create a new repository | `docs/code/Database_Repositories.md` |
+| Create a new service | `docs/code/Services.md` |
+| Create a new route | `docs/code/Routes.md` |
+| Understand database connections | `docs/code/Connection_Pool_Guide_ES.md` |
+| Quick reference for common tasks | `docs/code/Cheat_Sheet_ES.md` |

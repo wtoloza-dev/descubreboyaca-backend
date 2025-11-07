@@ -4,6 +4,8 @@ This module provides async dependency functions for the restaurants domain.
 All dependency functions follow the naming convention: get_{entity}_{type}_dependency
 """
 
+from typing import Annotated
+
 from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -12,7 +14,10 @@ from app.domains.audit.dependencies import get_archive_repository_dependency
 from app.domains.audit.domain import ArchiveRepositoryInterface
 from app.domains.favorites.dependencies import get_favorite_repository_dependency
 from app.domains.favorites.domain.interfaces import FavoriteRepositoryInterface
-from app.domains.restaurants.domain.interfaces import RestaurantRepositoryInterface
+from app.domains.restaurants.domain.interfaces import (
+    RestaurantOwnerRepositoryInterface,
+    RestaurantRepositoryInterface,
+)
 from app.domains.restaurants.repositories import (
     PostgreSQLRestaurantOwnerRepository,
     PostgreSQLRestaurantRepository,
@@ -32,7 +37,7 @@ from app.shared.dependencies.sql import get_async_session_dependency
 
 
 def get_restaurant_repository_dependency(
-    session: AsyncSession = Depends(get_async_session_dependency),
+    session: Annotated[AsyncSession, Depends(get_async_session_dependency)],
 ) -> RestaurantRepositoryInterface:
     """Factory to create a restaurant repository.
 
@@ -55,8 +60,8 @@ def get_restaurant_repository_dependency(
 
 
 def get_restaurant_owner_repository_dependency(
-    session: AsyncSession = Depends(get_async_session_dependency),
-) -> SQLiteRestaurantOwnerRepository | PostgreSQLRestaurantOwnerRepository:
+    session: Annotated[AsyncSession, Depends(get_async_session_dependency)],
+) -> RestaurantOwnerRepositoryInterface:
     """Factory to create a restaurant owner repository.
 
     Returns the appropriate repository implementation based on environment.
@@ -65,7 +70,7 @@ def get_restaurant_owner_repository_dependency(
         session: Async database session (injected via Depends)
 
     Returns:
-        RestaurantOwnerRepository: Repository instance (SQLite or PostgreSQL)
+        RestaurantOwnerRepositoryInterface: Repository instance (SQLite or PostgreSQL)
     """
     if settings.SCOPE == "local":
         return SQLiteRestaurantOwnerRepository(session)
@@ -79,15 +84,15 @@ def get_restaurant_owner_repository_dependency(
 
 
 def get_restaurant_service_dependency(
-    restaurant_repository: RestaurantRepositoryInterface = Depends(
-        get_restaurant_repository_dependency
-    ),
-    archive_repository: ArchiveRepositoryInterface = Depends(
-        get_archive_repository_dependency
-    ),
-    favorite_repository: FavoriteRepositoryInterface = Depends(
-        get_favorite_repository_dependency
-    ),
+    restaurant_repository: Annotated[
+        RestaurantRepositoryInterface, Depends(get_restaurant_repository_dependency)
+    ],
+    archive_repository: Annotated[
+        ArchiveRepositoryInterface, Depends(get_archive_repository_dependency)
+    ],
+    favorite_repository: Annotated[
+        FavoriteRepositoryInterface, Depends(get_favorite_repository_dependency)
+    ],
 ) -> RestaurantService:
     """Factory to create a restaurant service with dependencies.
 
@@ -117,10 +122,10 @@ def get_restaurant_service_dependency(
 
 
 def get_restaurant_owner_service_dependency(
-    owner_repository: SQLiteRestaurantOwnerRepository
-    | PostgreSQLRestaurantOwnerRepository = Depends(
-        get_restaurant_owner_repository_dependency
-    ),
+    owner_repository: Annotated[
+        RestaurantOwnerRepositoryInterface,
+        Depends(get_restaurant_owner_repository_dependency),
+    ],
 ) -> RestaurantOwnerService:
     """Factory to create a restaurant owner service with dependencies.
 

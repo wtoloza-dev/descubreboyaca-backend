@@ -10,8 +10,8 @@ For session dependencies, use get_session/get_async_session from app.shared.depe
 """
 
 from app.clients.sql.adapters import (
-    PostgreSQLAsynchronousAdapter,
-    PostgreSQLSynchronousAdapter,
+    AsyncPostgreSQLAdapter,
+    PostgreSQLAdapter,
 )
 
 
@@ -22,7 +22,7 @@ def create_postgres_adapter(
     max_overflow: int = 10,
     pool_recycle: int = 3600,
     pool_pre_ping: bool = True,
-) -> PostgreSQLSynchronousAdapter:
+) -> PostgreSQLAdapter:
     """Create a PostgreSQL synchronous adapter instance.
 
     Args:
@@ -34,7 +34,7 @@ def create_postgres_adapter(
         pool_pre_ping: Verify connection before using (default: True)
 
     Returns:
-        PostgreSQLSynchronousAdapter: Configured PostgreSQL synchronous adapter
+        PostgreSQLAdapter: Configured PostgreSQL synchronous adapter
 
     Example:
         >>> adapter = create_postgres_adapter(
@@ -46,7 +46,7 @@ def create_postgres_adapter(
         >>> with adapter.get_session() as session:
         ...     restaurants = session.exec(select(Restaurant)).all()
     """
-    return PostgreSQLSynchronousAdapter(
+    return PostgreSQLAdapter(
         database_url=database_url,
         echo=echo,
         pool_size=pool_size,
@@ -63,7 +63,7 @@ def create_async_postgres_adapter(
     max_overflow: int = 10,
     pool_recycle: int = 3600,
     pool_pre_ping: bool = True,
-) -> PostgreSQLAsynchronousAdapter:
+) -> AsyncPostgreSQLAdapter:
     """Create an async PostgreSQL adapter instance.
 
     Args:
@@ -76,7 +76,7 @@ def create_async_postgres_adapter(
         pool_pre_ping: Verify connection before using (default: True)
 
     Returns:
-        PostgreSQLAsynchronousAdapter: Configured async PostgreSQL adapter
+        AsyncPostgreSQLAdapter: Configured async PostgreSQL adapter
 
     Example:
         >>> adapter = create_async_postgres_adapter(
@@ -88,7 +88,7 @@ def create_async_postgres_adapter(
         >>> async with adapter.get_session() as session:
         ...     result = await session.exec(select(Restaurant))
     """
-    return PostgreSQLAsynchronousAdapter(
+    return AsyncPostgreSQLAdapter(
         database_url=database_url,
         echo=echo,
         pool_size=pool_size,

@@ -6,6 +6,8 @@ and service instances for dependency injection in FastAPI endpoints.
 All dependencies follow the naming convention: get_{entity}_{type}_dependency
 """
 
+from typing import Annotated
+
 from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -20,7 +22,7 @@ from app.shared.dependencies.sql import get_async_session_dependency
 
 
 def get_archive_repository_dependency(
-    session: AsyncSession = Depends(get_async_session_dependency),
+    session: Annotated[AsyncSession, Depends(get_async_session_dependency)],
 ) -> ArchiveRepositoryInterface:
     """Factory to create an archive repository instance.
 
@@ -43,7 +45,9 @@ def get_archive_repository_dependency(
 
 
 def get_archive_service_dependency(
-    repository: ArchiveRepositoryInterface = Depends(get_archive_repository_dependency),
+    repository: Annotated[
+        ArchiveRepositoryInterface, Depends(get_archive_repository_dependency)
+    ],
 ) -> ArchiveService:
     """Factory to create an archive service instance.
 

@@ -3,13 +3,11 @@
 This package contains PostgreSQL-specific implementations of SQL client ports.
 """
 
-from app.clients.sql.adapters.postgres.asynchronous import (
-    PostgreSQLAsynchronousAdapter,
-)
-from app.clients.sql.adapters.postgres.synchronous import PostgreSQLSynchronousAdapter
+from app.clients.sql.adapters.postgres.asynchronous import AsyncPostgreSQLAdapter
+from app.clients.sql.adapters.postgres.synchronous import PostgreSQLAdapter
 
 
 __all__ = [
-    "PostgreSQLSynchronousAdapter",
-    "PostgreSQLAsynchronousAdapter",
+    "PostgreSQLAdapter",
+    "AsyncPostgreSQLAdapter",
 ]

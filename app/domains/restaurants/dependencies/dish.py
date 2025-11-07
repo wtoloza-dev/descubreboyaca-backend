@@ -3,6 +3,8 @@
 This module provides async dependency functions for dish operations.
 """
 
+from typing import Annotated
+
 from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -25,7 +27,7 @@ from app.shared.dependencies.sql import get_async_session_dependency
 
 
 def get_dish_repository_dependency(
-    session: AsyncSession = Depends(get_async_session_dependency),
+    session: Annotated[AsyncSession, Depends(get_async_session_dependency)],
 ) -> DishRepositoryInterface:
     """Factory to create a dish repository.
 
@@ -45,13 +47,15 @@ def get_dish_repository_dependency(
 
 
 def get_dish_service_dependency(
-    dish_repo: DishRepositoryInterface = Depends(get_dish_repository_dependency),
-    restaurant_repo: RestaurantRepositoryInterface = Depends(
-        get_restaurant_repository_dependency
-    ),
-    archive_repo: ArchiveRepositoryInterface = Depends(
-        get_archive_repository_dependency
-    ),
+    dish_repo: Annotated[
+        DishRepositoryInterface, Depends(get_dish_repository_dependency)
+    ],
+    restaurant_repo: Annotated[
+        RestaurantRepositoryInterface, Depends(get_restaurant_repository_dependency)
+    ],
+    archive_repo: Annotated[
+        ArchiveRepositoryInterface, Depends(get_archive_repository_dependency)
+    ],
 ) -> DishService:
     """Factory to create a dish service with dependencies.
 

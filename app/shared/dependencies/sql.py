@@ -31,7 +31,7 @@ def get_session_dependency(request: Request) -> Generator[Session]:
     based on SCOPE and manages connection pooling and lifecycle.
 
     Args:
-        request: FastAPI request object
+        request: FastAPI request object (injected automatically)
 
     Yields:
         Session: SQLModel session for database operations
@@ -58,7 +58,7 @@ async def get_async_session_dependency(
     based on SCOPE and manages connection pooling and lifecycle.
 
     Args:
-        request: FastAPI request object
+        request: FastAPI request object (injected automatically)
 
     Yields:
         AsyncSession: Async SQLModel session for database operations

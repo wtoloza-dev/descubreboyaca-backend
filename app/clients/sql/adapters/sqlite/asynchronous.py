@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
-class SQLiteAsynchronousAdapter:
+class AsyncSQLiteAdapter:
     """SQLite asynchronous database adapter implementation.
 
     This adapter implements the AsyncSQLClientPort for SQLite databases.
@@ -25,7 +25,7 @@ class SQLiteAsynchronousAdapter:
         async_session: Async session maker
 
     Example:
-        >>> adapter = SQLiteAsynchronousAdapter("sqlite+aiosqlite:///./database.db")
+        >>> adapter = AsyncSQLiteAdapter("sqlite+aiosqlite:///./database.db")
         >>> async with adapter.get_session() as session:
         ...     result = await session.exec(select(Restaurant))
         ...     restaurants = result.all()
@@ -40,7 +40,7 @@ class SQLiteAsynchronousAdapter:
             echo: Whether to echo SQL statements (useful for debugging)
 
         Example:
-            >>> adapter = SQLiteAsynchronousAdapter("sqlite+aiosqlite:///./app.db")
+            >>> adapter = AsyncSQLiteAdapter("sqlite+aiosqlite:///./app.db")
         """
         self.engine: AsyncEngine = create_async_engine(
             database_url,
