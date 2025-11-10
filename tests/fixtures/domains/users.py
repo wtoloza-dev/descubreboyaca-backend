@@ -7,12 +7,16 @@ including user service setup, sample data, and user creation helpers.
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.audit.repositories.archive import SQLiteArchiveRepository
-from app.domains.auth.domain.enums import UserRole
-from app.domains.auth.domain.value_objects import CreateUserData
-from app.domains.auth.repositories.user import SQLiteUserRepository
-from app.domains.auth.services import BcryptPasswordHasher
-from app.domains.users.services import UserService
+from app.domains.audit.infrastructure.persistence.repositories.archive import (
+    SQLiteArchiveRepository,
+)
+from app.domains.auth.application.services import BcryptPasswordHasher
+from app.domains.auth.infrastructure.persistence.repositories.user import (
+    SQLiteUserRepository,
+)
+from app.domains.users.application.services import UserService
+from app.domains.users.domain.enums import UserRole
+from app.domains.users.domain.value_objects import CreateUserData
 from app.shared.domain.factories import generate_ulid
 
 

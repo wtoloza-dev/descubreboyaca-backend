@@ -6,7 +6,9 @@ This module tests the count and count_by_restaurant_id methods of DishRepository
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories.dish.sqlite import SQLiteDishRepository
+from app.domains.restaurants.infrastructure.persistence.repositories.dish.sqlite import (
+    SQLiteDishRepository,
+)
 
 
 class TestDishRepositoryCount:

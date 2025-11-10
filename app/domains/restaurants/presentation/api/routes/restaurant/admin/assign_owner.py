@@ -1,0 +1,79 @@
+"""Assign owner endpoint.
+
+This module provides an endpoint for administrators to assign owners to restaurants.
+"""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, status
+from ulid import ULID
+
+from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
+from app.domains.restaurants.application.services import RestaurantOwnerService
+from app.domains.restaurants.infrastructure.dependencies.restaurant import (
+    get_restaurant_owner_service_dependency,
+)
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.assign_owner import (
+    AssignOwnerSchemaRequest,
+)
+from app.domains.restaurants.presentation.api.schemas.restaurant.common.ownership import (
+    OwnershipSchemaResponse,
+)
+from app.domains.users.domain import User
+
+
+router = APIRouter()
+
+
+@router.post(
+    path="/restaurants/{restaurant_id}/owners/",
+    status_code=status.HTTP_201_CREATED,
+    summary="Assign an owner to a restaurant",
+    description="Assign a user as owner/manager/staff of a restaurant. Only administrators can perform this action.",
+)
+async def handle_assign_owner(
+    restaurant_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the restaurant",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
+    request: AssignOwnerSchemaRequest,
+    service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_admin_dependency)],
+) -> OwnershipSchemaResponse:
+    """Assign an owner to a restaurant.
+
+    **Authentication required**: Only administrators (ADMIN) can assign owners.
+
+    This endpoint allows administrators to assign a user as owner, manager, or staff
+    of a restaurant. If is_primary is True, this will automatically unset any existing
+    primary owner.
+
+    Args:
+        restaurant_id: ULID of the restaurant
+        request: Owner assignment request with owner_id, role, and is_primary
+        service: Restaurant owner service (injected)
+        current_user: Authenticated user (injected)
+
+    Returns:
+        OwnershipSchemaResponse: Created ownership relationship
+
+    Raises:
+        HTTPException: 401 if not authenticated
+        HTTPException: 403 if not ADMIN
+        HTTPException: 400 if owner already assigned or validation fails
+        HTTPException: 404 if restaurant or user not found
+    """
+    ownership = await service.assign_owner(
+        restaurant_id=str(restaurant_id),
+        owner_id=request.owner_id,
+        role=request.role,
+        is_primary=request.is_primary,
+        assigned_by=current_user.id,
+    )
+
+    return OwnershipSchemaResponse.model_validate(ownership)

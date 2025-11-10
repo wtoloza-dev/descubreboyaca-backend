@@ -7,9 +7,11 @@ import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 from ulid import ULID
 
+from app.domains.reviews.application.services import ReviewService
 from app.domains.reviews.domain.enums import EntityType
-from app.domains.reviews.repositories.review import PostgreSQLReviewRepository
-from app.domains.reviews.services import ReviewService
+from app.domains.reviews.infrastructure.persistence.repositories.review import (
+    PostgreSQLReviewRepository,
+)
 
 
 @pytest.mark.asyncio

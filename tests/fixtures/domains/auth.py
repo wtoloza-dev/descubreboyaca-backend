@@ -9,15 +9,17 @@ from dataclasses import dataclass
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.auth.domain import User, UserData
-from app.domains.auth.domain.enums import AuthProvider, UserRole
-from app.domains.auth.models import UserModel
-from app.domains.auth.repositories.user import SQLiteUserRepository
-from app.domains.auth.services import (
+from app.domains.auth.application.services import (
     AuthService,
     BcryptPasswordHasher,
     JWTTokenProvider,
 )
+from app.domains.auth.infrastructure.persistence.models import UserModel
+from app.domains.auth.infrastructure.persistence.repositories.user import (
+    SQLiteUserRepository,
+)
+from app.domains.users.domain import User, UserData
+from app.domains.users.domain.enums import AuthProvider, UserRole
 from app.shared.domain.factories import generate_ulid
 
 

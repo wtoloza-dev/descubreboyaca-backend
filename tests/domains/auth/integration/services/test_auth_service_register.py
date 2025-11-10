@@ -6,9 +6,9 @@ These tests verify user registration logic through the service layer with databa
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.auth.domain.enums import AuthProvider, UserRole
-from app.domains.auth.domain.exceptions import UserAlreadyExistsException
-from app.domains.auth.services import AuthService
+from app.domains.auth.application.services import AuthService
+from app.domains.users.domain.enums import AuthProvider, UserRole
+from app.domains.users.domain.exceptions import UserAlreadyExistsException
 
 
 class TestAuthServiceRegister:

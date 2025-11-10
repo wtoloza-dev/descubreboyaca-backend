@@ -6,8 +6,8 @@ These tests verify domain validation rules and entity behavior.
 import pytest
 from pydantic import ValidationError
 
-from app.domains.auth.domain import User, UserData
-from app.domains.auth.domain.enums import AuthProvider, UserRole
+from app.domains.users.domain import User, UserData
+from app.domains.users.domain.enums import AuthProvider, UserRole
 
 
 class TestUserData:

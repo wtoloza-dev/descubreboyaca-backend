@@ -1,0 +1,40 @@
+"""Current user route.
+
+This module handles getting the current authenticated user's information.
+"""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, status
+
+from app.domains.auth.infrastructure.dependencies.auth import (
+    get_current_user_dependency,
+)
+from app.domains.auth.presentation.api.schemas import (
+    MeUserSchemaResponse,
+    UserSchemaResponse,
+)
+from app.domains.users.domain import User
+
+
+router = APIRouter()
+
+
+@router.get(
+    path="/me/",
+    status_code=status.HTTP_200_OK,
+    summary="Get current user",
+    description="Get the currently authenticated user's information",
+)
+async def handle_get_me(
+    current_user: Annotated[User, Depends(get_current_user_dependency)],
+) -> MeUserSchemaResponse:
+    """Get current authenticated user.
+
+    Args:
+        current_user: Current user from JWT token
+
+    Returns:
+        MeUserSchemaResponse with user data
+    """
+    return MeUserSchemaResponse(user=UserSchemaResponse.model_validate(current_user))

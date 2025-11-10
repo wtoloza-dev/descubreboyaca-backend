@@ -55,7 +55,9 @@ def upgrade() -> None:
         sa.Column("location", sa.JSON(), nullable=True),
         sa.Column("social_media", sa.JSON(), nullable=True),
         # Business classification and categorization
-        sa.Column("establishment_types", sa.JSON(), nullable=False, server_default="[]"),
+        sa.Column(
+            "establishment_types", sa.JSON(), nullable=False, server_default="[]"
+        ),
         sa.Column("cuisine_types", sa.JSON(), nullable=False, server_default="[]"),
         sa.Column("price_level", sa.Integer(), nullable=True),
         sa.Column("features", sa.JSON(), nullable=False, server_default="[]"),

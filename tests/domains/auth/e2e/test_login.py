@@ -7,7 +7,7 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from app.domains.auth.domain.enums import UserRole
+from app.domains.users.domain.enums import UserRole
 
 
 class TestLoginUser:

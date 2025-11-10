@@ -45,4 +45,3 @@ class FavoriteNotFoundException(NotFoundException):
             context=full_context,
             error_code="FAVORITE_NOT_FOUND",
         )
-

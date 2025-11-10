@@ -6,8 +6,10 @@ These tests verify user retrieval through the repository layer with database.
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.auth.domain.enums import AuthProvider
-from app.domains.auth.repositories.user import SQLiteUserRepository
+from app.domains.auth.infrastructure.persistence.repositories.user import (
+    SQLiteUserRepository,
+)
+from app.domains.users.domain.enums import AuthProvider
 
 
 class TestUserRepositoryGet:

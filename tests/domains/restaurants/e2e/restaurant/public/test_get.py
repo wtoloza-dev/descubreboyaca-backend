@@ -21,7 +21,9 @@ class TestGetRestaurant:
         Then: Returns 200 with restaurant data
         """
         # Arrange
-        from app.domains.restaurants.models import RestaurantModel
+        from app.domains.restaurants.infrastructure.persistence.models import (
+            RestaurantModel,
+        )
         from app.shared.domain.factories import generate_ulid
 
         restaurant = RestaurantModel(

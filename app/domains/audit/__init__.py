@@ -14,4 +14,3 @@ Future features (planned):
 - Rollback capabilities
 - GDPR compliance features
 """
-

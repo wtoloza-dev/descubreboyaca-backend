@@ -1,12 +1,6 @@
-"""Auth domain entities following DDD principles.
+"""Auth domain entities.
 
-This module contains core business entities for the auth domain.
+User entity has been moved to users domain as it owns the user lifecycle.
 """
 
-from app.domains.auth.domain.entities.user import User, UserData
-
-
-__all__ = [
-    "User",
-    "UserData",
-]
+__all__ = []

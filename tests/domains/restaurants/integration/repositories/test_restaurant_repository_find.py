@@ -11,7 +11,9 @@ This module tests the find method with focus on:
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories import SQLiteRestaurantRepository
+from app.domains.restaurants.infrastructure.persistence.repositories import (
+    SQLiteRestaurantRepository,
+)
 
 
 class TestRestaurantRepositoryFind:

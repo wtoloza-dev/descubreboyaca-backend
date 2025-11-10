@@ -10,7 +10,9 @@ This module tests edge cases and special scenarios:
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories import SQLiteRestaurantRepository
+from app.domains.restaurants.infrastructure.persistence.repositories import (
+    SQLiteRestaurantRepository,
+)
 
 
 class TestRestaurantRepositorySpecialCases:

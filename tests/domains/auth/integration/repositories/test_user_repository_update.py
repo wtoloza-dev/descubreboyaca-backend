@@ -6,9 +6,11 @@ These tests verify user update and deactivation through the repository layer wit
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.auth.domain import UserData
-from app.domains.auth.domain.enums import AuthProvider, UserRole
-from app.domains.auth.repositories.user import SQLiteUserRepository
+from app.domains.auth.infrastructure.persistence.repositories.user import (
+    SQLiteUserRepository,
+)
+from app.domains.users.domain import UserData
+from app.domains.users.domain.enums import AuthProvider, UserRole
 
 
 class TestUserRepositoryUpdate:

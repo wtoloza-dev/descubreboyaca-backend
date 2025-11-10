@@ -6,5 +6,4 @@ defining contracts for repositories and services.
 Note: Archive repository interfaces have been moved to app/domains/audit/domain/interfaces/
 """
 
-
 __all__ = []

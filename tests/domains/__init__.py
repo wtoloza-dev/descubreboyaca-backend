@@ -2,4 +2,3 @@
 
 Contains tests organized by domain (auth, restaurants, etc.).
 """
-

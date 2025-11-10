@@ -10,12 +10,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.lifespan import lifespan
 from app.core.routes import router as core_router
 from app.core.settings import settings
-from app.domains.audit.routes import router as audit_router
-from app.domains.auth.routes import router as auth_router
-from app.domains.favorites.routes import router as favorites_router
-from app.domains.restaurants.routes import router as restaurants_router
-from app.domains.reviews.routes import router as reviews_router
-from app.domains.users.routes import router as users_router
+from app.domains.audit.presentation.api.routes import router as audit_router
+from app.domains.auth.presentation.api.routes import router as auth_router
+from app.domains.favorites.presentation.api.routes import router as favorites_router
+from app.domains.restaurants.presentation.api.routes import router as restaurants_router
+from app.domains.reviews.presentation.api.routes import router as reviews_router
+from app.domains.users.presentation.api.routes import router as users_router
 
 
 def register_routers(app: FastAPI) -> None:

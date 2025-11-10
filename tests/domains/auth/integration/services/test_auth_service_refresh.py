@@ -6,13 +6,15 @@ These tests verify token refresh logic through the service layer with database.
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.domains.auth.application.services import AuthService
 from app.domains.auth.domain.exceptions import (
     ExpiredTokenException,
     InvalidTokenException,
+)
+from app.domains.users.domain.exceptions import (
     UserInactiveException,
     UserNotFoundException,
 )
-from app.domains.auth.services import AuthService
 
 
 class TestAuthServiceRefreshAccessToken:

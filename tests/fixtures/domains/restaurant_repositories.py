@@ -6,11 +6,13 @@ This module provides repository layer fixtures for testing restaurant domain dat
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.repositories.dish import SQLiteDishRepository
-from app.domains.restaurants.repositories.restaurant import (
+from app.domains.restaurants.infrastructure.persistence.repositories.dish import (
+    SQLiteDishRepository,
+)
+from app.domains.restaurants.infrastructure.persistence.repositories.restaurant import (
     SQLiteRestaurantRepository,
 )
-from app.domains.restaurants.repositories.restaurant_owner import (
+from app.domains.restaurants.infrastructure.persistence.repositories.restaurant_owner import (
     SQLiteRestaurantOwnerRepository,
 )
 

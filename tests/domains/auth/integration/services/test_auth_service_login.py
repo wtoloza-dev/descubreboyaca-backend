@@ -6,12 +6,10 @@ These tests verify user authentication logic through the service layer with data
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.auth.domain.enums import AuthProvider, UserRole
-from app.domains.auth.domain.exceptions import (
-    InvalidCredentialsException,
-    UserInactiveException,
-)
-from app.domains.auth.services import AuthService
+from app.domains.auth.application.services import AuthService
+from app.domains.auth.domain.exceptions import InvalidCredentialsException
+from app.domains.users.domain.enums import AuthProvider, UserRole
+from app.domains.users.domain.exceptions import UserInactiveException
 
 
 class TestAuthServiceLogin:

@@ -5,10 +5,10 @@ These tests verify the user creation logic through the service layer.
 
 import pytest
 
-from app.domains.auth.domain.enums import UserRole
-from app.domains.auth.domain.exceptions import UserAlreadyExistsException
-from app.domains.auth.domain.value_objects import CreateUserData
-from app.domains.users.services import UserService
+from app.domains.users.application.services import UserService
+from app.domains.users.domain.enums import UserRole
+from app.domains.users.domain.exceptions import UserAlreadyExistsException
+from app.domains.users.domain.value_objects import CreateUserData
 
 
 class TestUserServiceCreate:

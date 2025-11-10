@@ -35,4 +35,3 @@ class MissingHeaderException(ValidationException):
             context=full_context,
             error_code="MISSING_HEADER",
         )
-

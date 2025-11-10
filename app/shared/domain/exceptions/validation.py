@@ -40,4 +40,3 @@ class ValidationException(DomainException):
             context=context,
             error_code=error_code,
         )
-

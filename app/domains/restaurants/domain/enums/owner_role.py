@@ -22,4 +22,3 @@ class OwnerRole(StrEnum):
     OWNER = "owner"
     MANAGER = "manager"
     STAFF = "staff"
-

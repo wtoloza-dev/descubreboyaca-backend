@@ -24,10 +24,16 @@ async def fixture_test_engine():
         AsyncEngine: Async engine for testing
     """
     # Import all models to ensure they're registered with SQLModel
-    from app.domains.audit.models import ArchiveModel  # noqa: F401
-    from app.domains.auth.models import UserModel  # noqa: F401
-    from app.domains.favorites.models import FavoriteModel  # noqa: F401
-    from app.domains.restaurants.models import (  # noqa: F401
+    from app.domains.audit.infrastructure.persistence.models import (
+        ArchiveModel,  # noqa: F401
+    )
+    from app.domains.auth.infrastructure.persistence.models import (
+        UserModel,  # noqa: F401
+    )
+    from app.domains.favorites.infrastructure.persistence.models import (
+        FavoriteModel,  # noqa: F401
+    )
+    from app.domains.restaurants.infrastructure.persistence.models import (  # noqa: F401
         DishModel,
         RestaurantModel,
         RestaurantOwnerModel,

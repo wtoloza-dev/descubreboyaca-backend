@@ -6,18 +6,24 @@ This module provides service layer fixtures for testing restaurant domain busine
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.audit.repositories import SQLiteArchiveRepository
-from app.domains.audit.services import ArchiveService
-from app.domains.restaurants.repositories.dish import SQLiteDishRepository
-from app.domains.restaurants.repositories.restaurant import (
+from app.domains.audit.application.services import ArchiveService
+from app.domains.audit.infrastructure.persistence.repositories import (
+    SQLiteArchiveRepository,
+)
+from app.domains.restaurants.application.services.dish import DishService
+from app.domains.restaurants.application.services.restaurant import RestaurantService
+from app.domains.restaurants.application.services.restaurant_owner import (
+    RestaurantOwnerService,
+)
+from app.domains.restaurants.infrastructure.persistence.repositories.dish import (
+    SQLiteDishRepository,
+)
+from app.domains.restaurants.infrastructure.persistence.repositories.restaurant import (
     SQLiteRestaurantRepository,
 )
-from app.domains.restaurants.repositories.restaurant_owner import (
+from app.domains.restaurants.infrastructure.persistence.repositories.restaurant_owner import (
     SQLiteRestaurantOwnerRepository,
 )
-from app.domains.restaurants.services.dish import DishService
-from app.domains.restaurants.services.restaurant import RestaurantService
-from app.domains.restaurants.services.restaurant_owner import RestaurantOwnerService
 
 
 @pytest.fixture(name="restaurant_service")

@@ -5,6 +5,7 @@ Revises: 477b681fcc75
 Create Date: 2025-10-26 11:20:16.947332
 
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -51,7 +52,9 @@ def upgrade() -> None:
         # Media
         sa.Column("image_url", sa.String(length=500), nullable=True),
         # Dietary information (stored as JSON arrays)
-        sa.Column("dietary_restrictions", sa.JSON(), nullable=False, server_default="[]"),
+        sa.Column(
+            "dietary_restrictions", sa.JSON(), nullable=False, server_default="[]"
+        ),
         sa.Column("ingredients", sa.JSON(), nullable=False, server_default="[]"),
         sa.Column("allergens", sa.JSON(), nullable=False, server_default="[]"),
         # Flavor profile (stored as JSON object)
@@ -119,4 +122,3 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_dishes_name"), table_name="dishes")
     op.drop_index(op.f("ix_dishes_restaurant_id"), table_name="dishes")
     op.drop_table("dishes")
-

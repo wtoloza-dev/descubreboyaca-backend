@@ -5,7 +5,7 @@ This module defines the interface contract for JWT token operations.
 
 from typing import Any, Protocol
 
-from app.domains.auth.domain.enums import UserRole
+from app.domains.users.domain.enums import UserRole
 
 
 class TokenProvider(Protocol):

@@ -11,8 +11,8 @@ import pytest
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.audit.models import ArchiveModel
-from app.domains.restaurants.models import RestaurantModel
+from app.domains.audit.infrastructure.persistence.models import ArchiveModel
+from app.domains.restaurants.infrastructure.persistence.models import RestaurantModel
 
 
 class TestDeleteRestaurant:

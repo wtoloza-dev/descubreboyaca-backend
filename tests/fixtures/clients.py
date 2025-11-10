@@ -68,7 +68,7 @@ def fixture_admin_client(test_session: AsyncSession, mock_admin_user):
         ...     response = admin_client.delete("/api/v1/admin/restaurants/123")
         ...     assert response.status_code == 204
     """
-    from app.domains.auth.dependencies.auth import (
+    from app.domains.auth.infrastructure.dependencies.auth import (
         get_current_user_dependency,
         require_admin_dependency,
     )
@@ -112,7 +112,7 @@ def fixture_owner_client(test_session: AsyncSession, mock_owner_user):
         ...     response = owner_client.get("/api/v1/restaurants/owner/my")
         ...     assert response.status_code == 200
     """
-    from app.domains.auth.dependencies.auth import (
+    from app.domains.auth.infrastructure.dependencies.auth import (
         get_current_user_dependency,
         require_owner_dependency,
     )
@@ -154,7 +154,9 @@ def fixture_user_client(test_session: AsyncSession, mock_regular_user):
         ...     response = user_client.get("/api/v1/users/me")
         ...     assert response.status_code == 200
     """
-    from app.domains.auth.dependencies.auth import get_current_user_dependency
+    from app.domains.auth.infrastructure.dependencies.auth import (
+        get_current_user_dependency,
+    )
     from app.main import app
     from app.shared.dependencies.sql import get_async_session_dependency
 

@@ -5,12 +5,12 @@ These tests verify JWT token creation and verification.
 
 import pytest
 
-from app.domains.auth.domain.enums import UserRole
+from app.domains.auth.application.services.token import JWTTokenProvider
 from app.domains.auth.domain.exceptions import (
     ExpiredTokenException,
     InvalidTokenException,
 )
-from app.domains.auth.services.token import JWTTokenProvider
+from app.domains.users.domain.enums import UserRole
 
 
 class TestJWTTokenProviderCreateTokens:

@@ -1,17 +1,43 @@
-"""Auth domain layer.
+"""Auth domain module.
 
-This module contains the core business logic and entities for authentication.
+This module contains the core domain logic for authentication and authorization.
+User entity has been moved to users domain as it owns the user lifecycle.
 """
 
-from app.domains.auth.domain.entities.user import User, UserData
-from app.domains.auth.domain.value_objects.oauth_profile import OAuthProfile
-from app.domains.auth.domain.value_objects.password import PasswordHash
-from app.domains.auth.domain.value_objects.token import Token, TokenData
+from app.domains.auth.domain.exceptions import (
+    AuthenticationException,
+    ExpiredTokenException,
+    InsufficientPermissionsException,
+    InvalidCredentialsException,
+    InvalidTokenException,
+)
+from app.domains.auth.domain.interfaces import (
+    OAuthClient,
+    PasswordHasher,
+    TokenProvider,
+)
+from app.domains.auth.domain.value_objects import (
+    Credentials,
+    OAuthProfile,
+    PasswordHash,
+    Token,
+    TokenData,
+)
 
 
 __all__ = [
-    "User",
-    "UserData",
+    # Exceptions
+    "AuthenticationException",
+    "InvalidCredentialsException",
+    "InvalidTokenException",
+    "ExpiredTokenException",
+    "InsufficientPermissionsException",
+    # Interfaces
+    "PasswordHasher",
+    "TokenProvider",
+    "OAuthClient",
+    # Value Objects
+    "Credentials",
     "Token",
     "TokenData",
     "PasswordHash",

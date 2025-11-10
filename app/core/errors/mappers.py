@@ -12,9 +12,6 @@ from app.domains.auth.domain.exceptions import (
     InsufficientPermissionsException,
     InvalidCredentialsException,
     InvalidTokenException,
-    UserAlreadyExistsException,
-    UserInactiveException,
-    UserNotFoundException,
 )
 from app.domains.favorites.domain.exceptions import (
     FavoriteAlreadyExistsException,
@@ -31,6 +28,11 @@ from app.domains.restaurants.domain.exceptions import (
     OwnershipNotFoundException,
     RestaurantAlreadyExistsException,
     RestaurantNotFoundException,
+)
+from app.domains.users.domain.exceptions import (
+    UserAlreadyExistsException,
+    UserInactiveException,
+    UserNotFoundException,
 )
 from app.shared.domain.exceptions import (
     AlreadyExistsException,

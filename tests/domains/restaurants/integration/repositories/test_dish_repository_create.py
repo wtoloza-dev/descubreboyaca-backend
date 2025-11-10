@@ -9,7 +9,9 @@ import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.restaurants.domain import DishData
-from app.domains.restaurants.repositories.dish.sqlite import SQLiteDishRepository
+from app.domains.restaurants.infrastructure.persistence.repositories.dish.sqlite import (
+    SQLiteDishRepository,
+)
 from app.shared.domain.factories import generate_ulid
 
 

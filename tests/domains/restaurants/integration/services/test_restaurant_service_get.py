@@ -9,10 +9,14 @@ This module tests the find_restaurant_by_id method with focus on:
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.audit.repositories import SQLiteArchiveRepository
+from app.domains.audit.infrastructure.persistence.repositories import (
+    SQLiteArchiveRepository,
+)
+from app.domains.restaurants.application.services import RestaurantService
 from app.domains.restaurants.domain.exceptions import RestaurantNotFoundException
-from app.domains.restaurants.repositories import SQLiteRestaurantRepository
-from app.domains.restaurants.services import RestaurantService
+from app.domains.restaurants.infrastructure.persistence.repositories import (
+    SQLiteRestaurantRepository,
+)
 
 
 class TestRestaurantServiceGet:

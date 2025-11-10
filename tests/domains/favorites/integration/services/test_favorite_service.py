@@ -7,13 +7,15 @@ import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 from ulid import ULID
 
+from app.domains.favorites.application.services import FavoriteService
 from app.domains.favorites.domain.enums import EntityType
 from app.domains.favorites.domain.exceptions import (
     FavoriteAlreadyExistsException,
     FavoriteNotFoundException,
 )
-from app.domains.favorites.repositories import SQLiteFavoriteRepository
-from app.domains.favorites.services import FavoriteService
+from app.domains.favorites.infrastructure.persistence.repositories import (
+    SQLiteFavoriteRepository,
+)
 
 
 @pytest.mark.asyncio

@@ -10,7 +10,7 @@ import pytest
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.restaurants.models import DishModel
+from app.domains.restaurants.infrastructure.persistence.models import DishModel
 
 
 class TestOwnerCreateDish:

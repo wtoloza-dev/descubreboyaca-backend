@@ -6,8 +6,8 @@ These tests verify the CreateUserData value object validation and behavior.
 import pytest
 from pydantic import ValidationError
 
-from app.domains.auth.domain.enums import UserRole
-from app.domains.auth.domain.value_objects import CreateUserData
+from app.domains.users.domain.enums import UserRole
+from app.domains.users.domain.value_objects import CreateUserData
 
 
 class TestCreateUserData:

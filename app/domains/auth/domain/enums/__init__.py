@@ -1,13 +1,6 @@
-"""Auth domain enumerations.
+"""Auth domain enums.
 
-This module contains enumerations for the auth domain.
+UserRole and AuthProvider enums have been moved to users domain.
 """
 
-from app.domains.auth.domain.enums.auth_provider import AuthProvider
-from app.domains.auth.domain.enums.user_role import UserRole
-
-
-__all__ = [
-    "UserRole",
-    "AuthProvider",
-]
+__all__ = []

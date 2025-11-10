@@ -37,4 +37,3 @@ class DishNotFoundException(NotFoundException):
             context=full_context,
             error_code="DISH_NOT_FOUND",
         )
-

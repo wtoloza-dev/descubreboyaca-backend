@@ -6,13 +6,17 @@ This module tests the find_dish_by_id method of DishService.
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.audit.repositories import SQLiteArchiveRepository
+from app.domains.audit.infrastructure.persistence.repositories import (
+    SQLiteArchiveRepository,
+)
+from app.domains.restaurants.application.services.dish import DishService
 from app.domains.restaurants.domain.exceptions import DishNotFoundException
-from app.domains.restaurants.repositories.dish.sqlite import SQLiteDishRepository
-from app.domains.restaurants.repositories.restaurant.sqlite import (
+from app.domains.restaurants.infrastructure.persistence.repositories.dish.sqlite import (
+    SQLiteDishRepository,
+)
+from app.domains.restaurants.infrastructure.persistence.repositories.restaurant.sqlite import (
     SQLiteRestaurantRepository,
 )
-from app.domains.restaurants.services.dish import DishService
 from app.shared.domain.factories import generate_ulid
 
 

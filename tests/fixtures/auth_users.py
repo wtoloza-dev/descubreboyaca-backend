@@ -6,8 +6,8 @@ protected endpoints without needing real JWT authentication.
 
 import pytest
 
-from app.domains.auth.domain import User
-from app.domains.auth.domain.enums import AuthProvider, UserRole
+from app.domains.users.domain import User
+from app.domains.users.domain.enums import AuthProvider, UserRole
 from app.shared.domain.factories import generate_ulid
 
 

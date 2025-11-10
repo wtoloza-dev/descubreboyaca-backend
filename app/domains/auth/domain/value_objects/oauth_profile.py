@@ -5,7 +5,7 @@ This module defines the OAuthProfile value object for storing OAuth2 provider da
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.domains.auth.domain.enums.auth_provider import AuthProvider
+from app.domains.users.domain.enums import AuthProvider
 
 
 class OAuthProfile(BaseModel):
@@ -57,4 +57,3 @@ class OAuthProfile(BaseModel):
             f"full_name={self.full_name}, "
             f"email_verified={self.email_verified})"
         )
-

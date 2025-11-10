@@ -10,7 +10,9 @@ from ulid import ULID
 from app.domains.favorites.domain.entities import FavoriteData
 from app.domains.favorites.domain.enums import EntityType
 from app.domains.favorites.domain.exceptions import FavoriteAlreadyExistsException
-from app.domains.favorites.repositories import SQLiteFavoriteRepository
+from app.domains.favorites.infrastructure.persistence.repositories import (
+    SQLiteFavoriteRepository,
+)
 
 
 class TestFavoriteRepositoryCreate:

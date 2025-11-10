@@ -6,7 +6,9 @@ These tests verify user deletion (hard delete) through the repository layer with
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.auth.repositories.user import SQLiteUserRepository
+from app.domains.auth.infrastructure.persistence.repositories.user import (
+    SQLiteUserRepository,
+)
 
 
 class TestUserRepositoryDelete:
@@ -159,7 +161,7 @@ class TestUserRepositoryTransactions:
         Then: Changes are persisted to database
         """
         # Arrange
-        from app.domains.auth.domain import UserData
+        from app.domains.users.domain import UserData
 
         user_data = UserData(
             email="committest@example.com",
@@ -190,7 +192,7 @@ class TestUserRepositoryTransactions:
         Then: Changes are reverted
         """
         # Arrange
-        from app.domains.auth.domain import UserData
+        from app.domains.users.domain import UserData
 
         user = await create_test_user(
             email="rollback@example.com",

@@ -11,7 +11,7 @@ import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.domains.restaurants.domain import DishData, RestaurantData
-from app.domains.restaurants.models import (
+from app.domains.restaurants.infrastructure.persistence.models import (
     DishModel,
     RestaurantModel,
     RestaurantOwnerModel,

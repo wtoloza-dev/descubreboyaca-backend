@@ -6,15 +6,17 @@ These tests verify user credential verification and token validation through ser
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.auth.domain.enums import AuthProvider
+from app.domains.auth.application.services import AuthService
 from app.domains.auth.domain.exceptions import (
     ExpiredTokenException,
     InvalidCredentialsException,
     InvalidTokenException,
+)
+from app.domains.users.domain.enums import AuthProvider
+from app.domains.users.domain.exceptions import (
     UserInactiveException,
     UserNotFoundException,
 )
-from app.domains.auth.services import AuthService
 
 
 class TestAuthServiceVerifyUserCredentials:

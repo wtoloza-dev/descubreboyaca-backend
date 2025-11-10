@@ -12,12 +12,16 @@ import pytest
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.domains.audit.models import ArchiveModel
-from app.domains.audit.repositories import SQLiteArchiveRepository
+from app.domains.audit.infrastructure.persistence.models import ArchiveModel
+from app.domains.audit.infrastructure.persistence.repositories import (
+    SQLiteArchiveRepository,
+)
+from app.domains.restaurants.application.services import RestaurantService
 from app.domains.restaurants.domain.exceptions import RestaurantNotFoundException
-from app.domains.restaurants.models import RestaurantModel
-from app.domains.restaurants.repositories import SQLiteRestaurantRepository
-from app.domains.restaurants.services import RestaurantService
+from app.domains.restaurants.infrastructure.persistence.models import RestaurantModel
+from app.domains.restaurants.infrastructure.persistence.repositories import (
+    SQLiteRestaurantRepository,
+)
 
 
 class TestRestaurantServiceDeleteSuccess:

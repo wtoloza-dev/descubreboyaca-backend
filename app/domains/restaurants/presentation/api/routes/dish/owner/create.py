@@ -1,0 +1,92 @@
+"""Create dish endpoint (Owner).
+
+This module provides an endpoint for restaurant owners to create dishes.
+"""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, Path, status
+from ulid import ULID
+
+from app.domains.auth.infrastructure.dependencies.auth import require_owner_dependency
+from app.domains.restaurants.application.services import RestaurantOwnerService
+from app.domains.restaurants.application.services.dish import DishService
+from app.domains.restaurants.domain import DishData
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_dish_service_dependency,
+    get_restaurant_owner_service_dependency,
+)
+from app.domains.restaurants.presentation.api.schemas.dish.owner.create import (
+    CreateDishSchemaRequest,
+    CreateDishSchemaResponse,
+)
+from app.domains.users.domain import User
+
+
+router = APIRouter()
+
+
+@router.post(
+    path="/restaurants/{restaurant_id}/dishes/",
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new dish",
+    description="Create a new dish for a restaurant owned/managed by the current user.",
+)
+async def handle_create_dish(
+    restaurant_id: Annotated[
+        ULID,
+        Path(
+            description="ULID of the restaurant",
+            examples=["01HQZX123456789ABCDEFGHIJK"],
+        ),
+    ],
+    request: Annotated[
+        CreateDishSchemaRequest,
+        Body(description="Dish data to create"),
+    ],
+    dish_service: Annotated[DishService, Depends(get_dish_service_dependency)],
+    owner_service: Annotated[
+        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_owner_dependency)],
+) -> CreateDishSchemaResponse:
+    """Create a new dish for a restaurant.
+
+    **Authentication required**: Only users with OWNER role can access.
+
+    This endpoint allows owners/managers to create dishes for their restaurants.
+    The current user must be an owner/manager of the restaurant.
+
+    Domain exceptions are allowed to propagate and will be handled by the
+    centralized exception handler in app.core.errors.
+
+    Args:
+        restaurant_id: ULID of the restaurant (validated automatically)
+        request: Dish data
+        dish_service: Dish service (injected)
+        owner_service: Restaurant owner service (injected)
+        current_user: Authenticated user (injected)
+
+    Returns:
+        CreateDishSchemaResponse: Created dish details
+
+    Raises:
+        InsufficientPermissionsException: If not owner of this restaurant
+        RestaurantNotFoundException: If restaurant not found
+        HTTPException 422: If restaurant_id format is invalid (not a valid ULID)
+    """
+    # Verify ownership (service will raise exception if not owner)
+    await owner_service.require_ownership(
+        owner_id=current_user.id,
+        restaurant_id=str(restaurant_id),
+    )
+
+    # Create dish
+    dish_data = DishData(**request.model_dump())
+    created_dish = await dish_service.create_dish(
+        dish_data=dish_data,
+        restaurant_id=str(restaurant_id),
+        created_by=current_user.id,
+    )
+
+    return CreateDishSchemaResponse.model_validate(created_dish.model_dump(mode="json"))
