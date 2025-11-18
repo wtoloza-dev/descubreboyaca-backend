@@ -10,11 +10,13 @@ from fastapi import APIRouter, Depends, status
 from app.domains.auth.infrastructure.dependencies.auth import (
     get_current_user_dependency,
 )
-from app.domains.restaurants.application.services import RestaurantService
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_service_dependency,
+from app.domains.restaurants.application.use_cases.restaurant import (
+    ListUserFavoriteRestaurantsUseCase,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.public.find_favorites import (
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_list_user_favorite_restaurants_use_case_dependency,
+)
+from app.domains.restaurants.presentation.api.schemas.restaurant.public.find_favorite_restaurants import (
     FindFavoriteRestaurantsSchemaItem,
     FindFavoriteRestaurantsSchemaResponse,
 )
@@ -34,9 +36,12 @@ router = APIRouter()
     description="Find all favorite restaurants for the authenticated user. Requires authentication.",
     response_model=FindFavoriteRestaurantsSchemaResponse,
 )
-async def handle_find_favorites(
+async def handle_find_favorite_restaurants(
     pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
-    service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
+    use_case: Annotated[
+        ListUserFavoriteRestaurantsUseCase,
+        Depends(get_list_user_favorite_restaurants_use_case_dependency),
+    ],
     current_user: Annotated[User, Depends(get_current_user_dependency)],
 ) -> FindFavoriteRestaurantsSchemaResponse:
     """Find user's favorite restaurants.
@@ -45,7 +50,7 @@ async def handle_find_favorites(
 
     Args:
         pagination: Pagination entity with page, page_size, offset, and limit
-        service: Restaurant service (injected)
+        use_case: List user favorite restaurants use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -60,7 +65,7 @@ async def handle_find_favorites(
         → Returns paginated list of user's favorite restaurants
     """
     # Get user's favorite restaurants
-    restaurants, total = await service.find_user_favorites(
+    restaurants, total = await use_case.execute(
         user_id=current_user.id,
         offset=pagination.offset,
         limit=pagination.limit,

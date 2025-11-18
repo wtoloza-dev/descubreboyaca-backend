@@ -9,14 +9,16 @@ from fastapi import APIRouter, Body, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_owner_dependency
-from app.domains.restaurants.application.services import (
-    RestaurantOwnerService,
-    RestaurantService,
+from app.domains.restaurants.application.use_cases.restaurant import (
+    UpdateRestaurantUseCase,
+)
+from app.domains.restaurants.application.use_cases.restaurant_owner import (
+    RequireOwnershipUseCase,
 )
 from app.domains.restaurants.domain import RestaurantData
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_owner_service_dependency,
-    get_restaurant_service_dependency,
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_require_ownership_use_case_dependency,
+    get_update_restaurant_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.restaurant.owner.update_my_restaurant import (
     UpdateMyRestaurantSchemaRequest,
@@ -46,11 +48,11 @@ async def handle_update_my_restaurant(
         UpdateMyRestaurantSchemaRequest,
         Body(description="Updated restaurant data (partial for PATCH)"),
     ],
-    owner_service: Annotated[
-        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    require_ownership_use_case: Annotated[
+        RequireOwnershipUseCase, Depends(get_require_ownership_use_case_dependency)
     ],
-    restaurant_service: Annotated[
-        RestaurantService, Depends(get_restaurant_service_dependency)
+    update_restaurant_use_case: Annotated[
+        UpdateRestaurantUseCase, Depends(get_update_restaurant_use_case_dependency)
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
 ) -> UpdateMyRestaurantSchemaResponse:
@@ -67,8 +69,8 @@ async def handle_update_my_restaurant(
     Args:
         restaurant_id: ULID of the restaurant to update
         request: Updated restaurant data
-        owner_service: Restaurant owner service (injected)
-        restaurant_service: Restaurant service (injected)
+        require_ownership_use_case: Require ownership use case (injected)
+        update_restaurant_use_case: Update restaurant use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -78,15 +80,15 @@ async def handle_update_my_restaurant(
         InsufficientPermissionsException: If not owner of this restaurant
         RestaurantNotFoundException: If restaurant not found
     """
-    # Verify ownership (service will raise exception if not owner)
-    await owner_service.require_ownership(
+    # Verify ownership (use case will raise exception if not owner)
+    await require_ownership_use_case.execute(
         owner_id=current_user.id,
         restaurant_id=str(restaurant_id),
     )
 
     # Update restaurant (exclude_unset=True for PATCH - only update provided fields)
     restaurant_data = RestaurantData(**request.model_dump(exclude_unset=True))
-    updated_restaurant = await restaurant_service.update_restaurant(
+    updated_restaurant = await update_restaurant_use_case.execute(
         restaurant_id=str(restaurant_id),
         restaurant_data=restaurant_data,
         updated_by=current_user.id,

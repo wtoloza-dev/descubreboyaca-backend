@@ -9,13 +9,15 @@ from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_owner_dependency
-from app.domains.restaurants.application.services import (
-    RestaurantOwnerService,
-    RestaurantService,
+from app.domains.restaurants.application.use_cases.restaurant import (
+    FindRestaurantByIdUseCase,
 )
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_owner_service_dependency,
-    get_restaurant_service_dependency,
+from app.domains.restaurants.application.use_cases.restaurant_owner import (
+    RequireOwnershipUseCase,
+)
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_find_restaurant_by_id_use_case_dependency,
+    get_require_ownership_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.restaurant.owner.find_my_restaurant import (
     FindMyRestaurantSchemaResponse,
@@ -40,11 +42,12 @@ async def handle_find_my_restaurant(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    owner_service: Annotated[
-        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    require_ownership_use_case: Annotated[
+        RequireOwnershipUseCase, Depends(get_require_ownership_use_case_dependency)
     ],
-    restaurant_service: Annotated[
-        RestaurantService, Depends(get_restaurant_service_dependency)
+    find_restaurant_use_case: Annotated[
+        FindRestaurantByIdUseCase,
+        Depends(get_find_restaurant_by_id_use_case_dependency),
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
 ) -> FindMyRestaurantSchemaResponse:
@@ -60,8 +63,8 @@ async def handle_find_my_restaurant(
 
     Args:
         restaurant_id: ULID of the restaurant
-        owner_service: Restaurant owner service (injected)
-        restaurant_service: Restaurant service (injected)
+        require_ownership_use_case: Require ownership use case (injected)
+        find_restaurant_use_case: Find restaurant by ID use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -71,14 +74,14 @@ async def handle_find_my_restaurant(
         InsufficientPermissionsException: If not owner of this restaurant
         RestaurantNotFoundException: If restaurant not found
     """
-    # Verify ownership (service will raise exception if not owner)
-    await owner_service.require_ownership(
+    # Verify ownership (use case will raise exception if not owner)
+    await require_ownership_use_case.execute(
         owner_id=current_user.id,
         restaurant_id=str(restaurant_id),
     )
 
     # Get restaurant details
-    restaurant = await restaurant_service.find_restaurant_by_id(str(restaurant_id))
+    restaurant = await find_restaurant_use_case.execute(str(restaurant_id))
 
     return FindMyRestaurantSchemaResponse.model_validate(
         restaurant.model_dump(mode="json")

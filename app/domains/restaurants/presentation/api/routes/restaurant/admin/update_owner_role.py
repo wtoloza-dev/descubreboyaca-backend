@@ -9,9 +9,11 @@ from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.restaurants.application.services import RestaurantOwnerService
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_owner_service_dependency,
+from app.domains.restaurants.application.use_cases.restaurant_owner import (
+    UpdateOwnerRoleUseCase,
+)
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_update_owner_role_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.restaurant.admin.update_owner_role import (
     UpdateOwnerRoleSchemaRequest,
@@ -47,8 +49,8 @@ async def handle_update_owner_role(
         ),
     ],
     request: UpdateOwnerRoleSchemaRequest,
-    service: Annotated[
-        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    use_case: Annotated[
+        UpdateOwnerRoleUseCase, Depends(get_update_owner_role_use_case_dependency)
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> OwnershipSchemaResponse:
@@ -63,7 +65,7 @@ async def handle_update_owner_role(
         restaurant_id: ULID of the restaurant
         owner_id: ULID of the owner whose role to update
         request: Role update request with new role
-        service: Restaurant owner service (injected)
+        use_case: Update owner role use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -75,10 +77,10 @@ async def handle_update_owner_role(
         HTTPException: 400 if invalid role or owner not found
         HTTPException: 404 if ownership relationship not found
     """
-    ownership = await service.update_owner_role(
+    ownership = await use_case.execute(
         restaurant_id=str(restaurant_id),
         owner_id=str(owner_id),
-        role=request.role,
+        new_role=request.role,
         updated_by=current_user.id,
     )
 

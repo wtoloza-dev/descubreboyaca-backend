@@ -26,12 +26,12 @@ from app.domains.restaurants.presentation.api.schemas.restaurant.owner.find_my_r
     FindMyRestaurantsSchemaItem,
     FindMyRestaurantsSchemaResponse,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.public.find_all import (
-    FindRestaurantsSchemaItem,
-    FindRestaurantsSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.public.find_all_restaurants import (
+    FindAllRestaurantsSchemaItem,
+    FindAllRestaurantsSchemaResponse,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.public.find_by_id import (
-    FindRestaurantSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.public.find_restaurant_by_id import (
+    FindRestaurantByIdSchemaResponse,
 )
 
 
@@ -42,9 +42,9 @@ __all__ = [
     # Delete
     "DeleteRestaurantSchemaRequest",
     # Find
-    "FindRestaurantSchemaResponse",
-    "FindRestaurantsSchemaItem",
-    "FindRestaurantsSchemaResponse",
+    "FindRestaurantByIdSchemaResponse",
+    "FindAllRestaurantsSchemaItem",
+    "FindAllRestaurantsSchemaResponse",
     # Ownership
     "AssignOwnerSchemaRequest",
     "FindMyRestaurantsSchemaItem",

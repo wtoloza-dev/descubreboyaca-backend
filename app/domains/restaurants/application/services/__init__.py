@@ -1,17 +1,8 @@
-"""Restaurant business services.
+"""Services layer (DEPRECATED).
 
-This package exports the async restaurant services.
+This module previously contained service classes for the restaurant domain.
+All functionality has been migrated to the use_cases module following
+Clean Architecture and single responsibility principles.
+
+Use app.domains.restaurants.application.use_cases instead.
 """
-
-from app.domains.restaurants.application.services.dish import DishService
-from app.domains.restaurants.application.services.restaurant import RestaurantService
-from app.domains.restaurants.application.services.restaurant_owner import (
-    RestaurantOwnerService,
-)
-
-
-__all__ = [
-    "DishService",
-    "RestaurantService",
-    "RestaurantOwnerService",
-]

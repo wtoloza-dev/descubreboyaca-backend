@@ -9,9 +9,11 @@ from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.restaurants.application.services import RestaurantOwnerService
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_owner_service_dependency,
+from app.domains.restaurants.application.use_cases.restaurant_owner import (
+    TransferPrimaryOwnershipUseCase,
+)
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_transfer_primary_ownership_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.restaurant.common.ownership import (
     OwnershipSchemaResponse,
@@ -43,8 +45,9 @@ async def handle_transfer_ownership(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    service: Annotated[
-        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    use_case: Annotated[
+        TransferPrimaryOwnershipUseCase,
+        Depends(get_transfer_primary_ownership_use_case_dependency),
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> OwnershipSchemaResponse:
@@ -59,7 +62,7 @@ async def handle_transfer_ownership(
     Args:
         restaurant_id: ULID of the restaurant
         owner_id: ULID of the new primary owner
-        service: Restaurant owner service (injected)
+        use_case: Transfer primary ownership use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -71,10 +74,10 @@ async def handle_transfer_ownership(
         HTTPException: 400 if owner not assigned to restaurant
         HTTPException: 404 if restaurant or owner not found
     """
-    ownership = await service.transfer_ownership(
+    ownership = await use_case.execute(
         restaurant_id=str(restaurant_id),
-        new_primary_owner_id=str(owner_id),
-        updated_by=current_user.id,
+        new_owner_id=str(owner_id),
+        transferred_by=current_user.id,
     )
 
     return OwnershipSchemaResponse.model_validate(ownership)

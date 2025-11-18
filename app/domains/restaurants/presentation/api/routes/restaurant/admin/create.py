@@ -8,10 +8,12 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, status
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.restaurants.application.services import RestaurantService
+from app.domains.restaurants.application.use_cases.restaurant import (
+    CreateRestaurantUseCase,
+)
 from app.domains.restaurants.domain import RestaurantData
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_service_dependency,
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_create_restaurant_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.restaurant.admin.create import (
     CreateRestaurantSchemaRequest,
@@ -33,7 +35,9 @@ router = APIRouter()
 )
 async def handle_create_restaurant(
     request: Annotated[CreateRestaurantSchemaRequest, Body()],
-    service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
+    use_case: Annotated[
+        CreateRestaurantUseCase, Depends(get_create_restaurant_use_case_dependency)
+    ],
     admin_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> CreateRestaurantSchemaResponse:
     """Create a new restaurant with minimal required fields.
@@ -56,7 +60,7 @@ async def handle_create_restaurant(
 
     Args:
         request: Simplified restaurant creation request
-        service: Restaurant service (injected)
+        use_case: Create restaurant use case (injected)
         admin_user: Authenticated admin user (injected)
 
     Returns:
@@ -68,7 +72,5 @@ async def handle_create_restaurant(
         HTTPException: 403 if not admin
     """
     restaurant_data = RestaurantData(**request.model_dump())
-    restaurant = await service.create_restaurant(
-        restaurant_data, created_by=admin_user.id
-    )
+    restaurant = await use_case.execute(restaurant_data, created_by=admin_user.id)
     return CreateRestaurantSchemaResponse.model_validate(restaurant)

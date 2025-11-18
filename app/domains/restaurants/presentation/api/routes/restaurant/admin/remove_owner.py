@@ -9,9 +9,11 @@ from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.restaurants.application.services import RestaurantOwnerService
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_owner_service_dependency,
+from app.domains.restaurants.application.use_cases.restaurant_owner import (
+    RemoveOwnerUseCase,
+)
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_remove_owner_use_case_dependency,
 )
 from app.domains.users.domain import User
 
@@ -40,8 +42,8 @@ async def handle_remove_owner(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    service: Annotated[
-        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    use_case: Annotated[
+        RemoveOwnerUseCase, Depends(get_remove_owner_use_case_dependency)
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> None:
@@ -55,7 +57,7 @@ async def handle_remove_owner(
     Args:
         restaurant_id: ULID of the restaurant
         owner_id: ULID of the owner to remove
-        service: Restaurant owner service (injected)
+        use_case: Remove owner use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -67,7 +69,7 @@ async def handle_remove_owner(
         HTTPException: 400 if trying to remove primary owner
         HTTPException: 404 if ownership relationship not found
     """
-    await service.remove_owner(
+    await use_case.execute(
         restaurant_id=str(restaurant_id),
         owner_id=str(owner_id),
     )

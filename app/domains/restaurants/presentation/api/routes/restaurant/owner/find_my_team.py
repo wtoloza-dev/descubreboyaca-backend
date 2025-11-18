@@ -9,9 +9,13 @@ from fastapi import APIRouter, Depends, Path, status
 from pydantic import BaseModel, ConfigDict
 
 from app.domains.auth.infrastructure.dependencies.auth import require_owner_dependency
-from app.domains.restaurants.application.services import RestaurantOwnerService
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_owner_service_dependency,
+from app.domains.restaurants.application.use_cases.restaurant_owner import (
+    GetOwnersByRestaurantUseCase,
+    RequireOwnershipUseCase,
+)
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_get_owners_by_restaurant_use_case_dependency,
+    get_require_ownership_use_case_dependency,
 )
 from app.domains.users.domain import User
 
@@ -45,8 +49,12 @@ class TeamListResponse(BaseModel):
 )
 async def handle_find_my_team(
     restaurant_id: Annotated[str, Path(description="ULID of the restaurant")],
-    owner_service: Annotated[
-        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    require_ownership_use_case: Annotated[
+        RequireOwnershipUseCase, Depends(get_require_ownership_use_case_dependency)
+    ],
+    get_owners_use_case: Annotated[
+        GetOwnersByRestaurantUseCase,
+        Depends(get_get_owners_by_restaurant_use_case_dependency),
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
 ) -> TeamListResponse:
@@ -63,7 +71,8 @@ async def handle_find_my_team(
 
     Args:
         restaurant_id: ULID of the restaurant
-        owner_service: Restaurant owner service (injected)
+        require_ownership_use_case: Require ownership use case (injected)
+        get_owners_use_case: Get owners by restaurant use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -73,14 +82,14 @@ async def handle_find_my_team(
         InsufficientPermissionsException: If not owner of this restaurant
         RestaurantNotFoundException: If restaurant not found
     """
-    # Verify ownership (service will raise exception if not owner)
-    await owner_service.require_ownership(
+    # Verify ownership (use case will raise exception if not owner)
+    await require_ownership_use_case.execute(
         owner_id=current_user.id,
         restaurant_id=restaurant_id,
     )
 
     # Get team members
-    team_members = await owner_service.get_owners_by_restaurant(restaurant_id)
+    team_members = await get_owners_use_case.execute(restaurant_id)
 
     return TeamListResponse(
         restaurant_id=restaurant_id,

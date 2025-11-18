@@ -8,9 +8,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
-from app.domains.restaurants.application.services.dish import DishService
+from app.domains.restaurants.application.use_cases.dish import FindDishByIdUseCase
 from app.domains.restaurants.infrastructure.dependencies import (
-    get_dish_service_dependency,
+    get_find_dish_by_id_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.dish.public.find_by_id import (
     FindDishSchemaResponse,
@@ -34,13 +34,15 @@ async def handle_find_dish_by_id(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    service: Annotated[DishService, Depends(get_dish_service_dependency)],
+    use_case: Annotated[
+        FindDishByIdUseCase, Depends(get_find_dish_by_id_use_case_dependency)
+    ],
 ) -> FindDishSchemaResponse:
     """Find a single dish by its ID.
 
     Args:
         dish_id: ULID of the dish (validated automatically)
-        service: Dish service (injected)
+        use_case: Find dish by ID use case (injected)
 
     Returns:
         FindDishSchemaResponse: Complete dish information
@@ -49,6 +51,6 @@ async def handle_find_dish_by_id(
         DishNotFoundException: If dish not found (handled globally)
         HTTPException 422: If dish_id format is invalid (not a valid ULID)
     """
-    dish = await service.find_dish_by_id(str(dish_id))
+    dish = await use_case.execute(str(dish_id))
 
     return FindDishSchemaResponse.model_validate(dish.model_dump(mode="json"))

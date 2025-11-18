@@ -16,7 +16,7 @@ Schemas are organized following the same structure as routes:
 
 Import schemas from their specific locations:
     from app.domains.restaurants.presentation.api.schemas.dish.admin.create import CreateDishSchemaRequest
-    from app.domains.restaurants.presentation.api.schemas.restaurant.public.find_by_id import FindRestaurantSchemaResponse
+    from app.domains.restaurants.presentation.api.schemas.restaurant.public.find_restaurant_by_id import FindRestaurantByIdSchemaResponse
 """
 
 # This file intentionally left minimal - import from specific submodules

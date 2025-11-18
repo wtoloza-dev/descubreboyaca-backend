@@ -1,11 +1,10 @@
 """Restaurants domain.
 
 This package contains all components related to the restaurants business domain,
-following Domain-Driven Design principles with entities, repositories, services,
+following Domain-Driven Design principles with entities, repositories, use cases,
 and interfaces.
 """
 
-from app.domains.restaurants.application.services import RestaurantService
 from app.domains.restaurants.domain import (
     CuisineType,
     PriceLevel,
@@ -40,8 +39,6 @@ __all__ = [
     # Repositories
     "SQLiteRestaurantRepository",
     "PostgreSQLRestaurantRepository",
-    # Services
-    "RestaurantService",
     # Schemas
     "CreateRestaurantSchemaRequest",
     "CreateRestaurantSchemaResponse",

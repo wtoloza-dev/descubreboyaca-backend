@@ -1,7 +1,7 @@
-"""Find favorite restaurants schemas.
+"""Find restaurant by city schemas.
 
-This module contains schemas for finding user's favorite restaurants.
-Corresponds to: routes/restaurant/public/find_favorites.py
+This module contains schemas for finding restaurants filtered by city.
+Corresponds to: routes/restaurant/public/find_restaurant_by_city.py
 """
 
 from datetime import datetime
@@ -12,10 +12,10 @@ from app.shared.domain import GeoLocation
 from app.shared.schemas import PaginationSchemaData, PaginationSchemaResponse
 
 
-class FindFavoriteRestaurantsSchemaItem(BaseModel):
-    """Restaurant item in favorites find response.
+class FindRestaurantByCitySchemaItem(BaseModel):
+    """Restaurant item in find by city response.
 
-    Includes essential information optimized for favorites views.
+    Includes essential information optimized for list views.
     """
 
     model_config = ConfigDict(from_attributes=True)
@@ -53,20 +53,20 @@ class FindFavoriteRestaurantsSchemaItem(BaseModel):
     updated_at: datetime = Field(description="Last update timestamp")
 
 
-class FindFavoriteRestaurantsSchemaResponse(
-    PaginationSchemaResponse[FindFavoriteRestaurantsSchemaItem]
+class FindRestaurantByCitySchemaResponse(
+    PaginationSchemaResponse[FindRestaurantByCitySchemaItem]
 ):
-    """Paginated response for favorite restaurants.
+    """Paginated response for restaurants by city.
 
     Attributes:
-        data: List of favorite restaurants
+        data: List of restaurants in the city
         pagination: Pagination metadata
     """
 
-    data: list[FindFavoriteRestaurantsSchemaItem] = Field(
-        description="List of favorite restaurants"
+    data: list[FindRestaurantByCitySchemaItem] = Field(
+        description="List of restaurants"
     )
     pagination: PaginationSchemaData = Field(description="Pagination metadata")
 
 
-__all__ = ["FindFavoriteRestaurantsSchemaItem", "FindFavoriteRestaurantsSchemaResponse"]
+__all__ = ["FindRestaurantByCitySchemaItem", "FindRestaurantByCitySchemaResponse"]

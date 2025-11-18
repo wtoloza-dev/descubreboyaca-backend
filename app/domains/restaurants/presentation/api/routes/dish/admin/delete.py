@@ -9,9 +9,9 @@ from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.restaurants.application.services.dish import DishService
+from app.domains.restaurants.application.use_cases.dish import DeleteDishUseCase
 from app.domains.restaurants.infrastructure.dependencies import (
-    get_dish_service_dependency,
+    get_delete_dish_use_case_dependency,
 )
 from app.domains.users.domain import User
 
@@ -33,8 +33,10 @@ async def handle_delete_dish(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    dish_service: DishService = Depends(get_dish_service_dependency),
-    current_user: User = Depends(require_admin_dependency),
+    use_case: Annotated[
+        DeleteDishUseCase, Depends(get_delete_dish_use_case_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> None:
     """Delete a dish.
 
@@ -48,7 +50,7 @@ async def handle_delete_dish(
 
     Args:
         dish_id: ULID of the dish (validated automatically)
-        dish_service: Dish service (injected)
+        use_case: Delete dish use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -59,7 +61,7 @@ async def handle_delete_dish(
         HTTPException 422: If dish_id format is invalid (not a valid ULID)
     """
     # Delete dish with archiving (admins can delete any dish)
-    await dish_service.delete_dish(
+    await use_case.execute(
         dish_id=str(dish_id),
         deleted_by=current_user.id,
     )

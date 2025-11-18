@@ -9,9 +9,11 @@ from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.restaurants.application.services import RestaurantOwnerService
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_owner_service_dependency,
+from app.domains.restaurants.application.use_cases.restaurant_owner import (
+    GetOwnersByRestaurantUseCase,
+)
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_get_owners_by_restaurant_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.restaurant.admin.find_owners import (
     FindOwnershipsSchemaResponse,
@@ -36,8 +38,9 @@ async def handle_find_owners(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    service: Annotated[
-        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    use_case: Annotated[
+        GetOwnersByRestaurantUseCase,
+        Depends(get_get_owners_by_restaurant_use_case_dependency),
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> FindOwnershipsSchemaResponse:
@@ -50,7 +53,7 @@ async def handle_find_owners(
 
     Args:
         restaurant_id: ULID of the restaurant
-        service: Restaurant owner service (injected)
+        use_case: Get owners by restaurant use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -61,7 +64,7 @@ async def handle_find_owners(
         HTTPException: 403 if not ADMIN
         HTTPException: 404 if restaurant not found
     """
-    owners = await service.get_owners_by_restaurant(str(restaurant_id))
+    owners = await use_case.execute(str(restaurant_id))
 
     return FindOwnershipsSchemaResponse(
         restaurant_id=str(restaurant_id),

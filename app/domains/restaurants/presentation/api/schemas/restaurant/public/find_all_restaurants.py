@@ -1,7 +1,7 @@
-"""Restaurant schemas for find all endpoint.
+"""Restaurant schemas for find all restaurants endpoint.
 
 This module defines schemas for finding all restaurants with pagination.
-Corresponds to: routes/restaurant/public/find_all.py
+Corresponds to: routes/restaurant/public/find_all_restaurants.py
 """
 
 from datetime import datetime
@@ -12,8 +12,8 @@ from app.shared.domain import GeoLocation
 from app.shared.schemas import PaginationSchemaData, PaginationSchemaResponse
 
 
-class FindRestaurantsSchemaItem(BaseModel):
-    """Restaurant item in find restaurants response.
+class FindAllRestaurantsSchemaItem(BaseModel):
+    """Restaurant item in find all restaurants response.
 
     Includes essential information without full details to optimize
     response size for find operations.
@@ -81,10 +81,10 @@ class FindRestaurantsSchemaItem(BaseModel):
     updated_at: datetime = Field(description="Last update timestamp")
 
 
-class FindRestaurantsSchemaResponse(
-    PaginationSchemaResponse[FindRestaurantsSchemaItem]
+class FindAllRestaurantsSchemaResponse(
+    PaginationSchemaResponse[FindAllRestaurantsSchemaItem]
 ):
-    """Paginated response for find restaurants endpoint.
+    """Paginated response for find all restaurants endpoint.
 
     Attributes:
         data: List of restaurants
@@ -108,5 +108,8 @@ class FindRestaurantsSchemaResponse(
         }
     """
 
-    data: list[FindRestaurantsSchemaItem] = Field(description="List of restaurants")
+    data: list[FindAllRestaurantsSchemaItem] = Field(description="List of restaurants")
     pagination: PaginationSchemaData = Field(description="Pagination metadata")
+
+
+__all__ = ["FindAllRestaurantsSchemaItem", "FindAllRestaurantsSchemaResponse"]

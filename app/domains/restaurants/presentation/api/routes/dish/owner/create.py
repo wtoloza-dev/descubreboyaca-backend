@@ -9,12 +9,14 @@ from fastapi import APIRouter, Body, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_owner_dependency
-from app.domains.restaurants.application.services import RestaurantOwnerService
-from app.domains.restaurants.application.services.dish import DishService
+from app.domains.restaurants.application.use_cases.dish import CreateDishUseCase
+from app.domains.restaurants.application.use_cases.restaurant_owner import (
+    RequireOwnershipUseCase,
+)
 from app.domains.restaurants.domain import DishData
 from app.domains.restaurants.infrastructure.dependencies import (
-    get_dish_service_dependency,
-    get_restaurant_owner_service_dependency,
+    get_create_dish_use_case_dependency,
+    get_require_ownership_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.dish.owner.create import (
     CreateDishSchemaRequest,
@@ -44,9 +46,11 @@ async def handle_create_dish(
         CreateDishSchemaRequest,
         Body(description="Dish data to create"),
     ],
-    dish_service: Annotated[DishService, Depends(get_dish_service_dependency)],
-    owner_service: Annotated[
-        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    require_ownership_use_case: Annotated[
+        RequireOwnershipUseCase, Depends(get_require_ownership_use_case_dependency)
+    ],
+    create_dish_use_case: Annotated[
+        CreateDishUseCase, Depends(get_create_dish_use_case_dependency)
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
 ) -> CreateDishSchemaResponse:
@@ -63,8 +67,8 @@ async def handle_create_dish(
     Args:
         restaurant_id: ULID of the restaurant (validated automatically)
         request: Dish data
-        dish_service: Dish service (injected)
-        owner_service: Restaurant owner service (injected)
+        require_ownership_use_case: Require ownership use case (injected)
+        create_dish_use_case: Create dish use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -75,15 +79,15 @@ async def handle_create_dish(
         RestaurantNotFoundException: If restaurant not found
         HTTPException 422: If restaurant_id format is invalid (not a valid ULID)
     """
-    # Verify ownership (service will raise exception if not owner)
-    await owner_service.require_ownership(
+    # Verify ownership (use case will raise exception if not owner)
+    await require_ownership_use_case.execute(
         owner_id=current_user.id,
         restaurant_id=str(restaurant_id),
     )
 
     # Create dish
     dish_data = DishData(**request.model_dump())
-    created_dish = await dish_service.create_dish(
+    created_dish = await create_dish_use_case.execute(
         dish_data=dish_data,
         restaurant_id=str(restaurant_id),
         created_by=current_user.id,

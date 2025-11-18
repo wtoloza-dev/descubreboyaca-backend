@@ -9,10 +9,14 @@ from fastapi import APIRouter, Body, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.restaurants.application.services.dish import DishService
+from app.domains.restaurants.application.use_cases.dish import (
+    FindDishByIdUseCase,
+    UpdateDishUseCase,
+)
 from app.domains.restaurants.domain import DishData
 from app.domains.restaurants.infrastructure.dependencies import (
-    get_dish_service_dependency,
+    get_find_dish_by_id_use_case_dependency,
+    get_update_dish_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.dish.admin.update import (
     UpdateDishSchemaRequest,
@@ -42,8 +46,13 @@ async def handle_update_dish(
         UpdateDishSchemaRequest,
         Body(description="Dish data to update (only provided fields will be updated)"),
     ],
-    dish_service: DishService = Depends(get_dish_service_dependency),
-    current_user: User = Depends(require_admin_dependency),
+    find_dish_use_case: Annotated[
+        FindDishByIdUseCase, Depends(get_find_dish_by_id_use_case_dependency)
+    ],
+    update_dish_use_case: Annotated[
+        UpdateDishUseCase, Depends(get_update_dish_use_case_dependency)
+    ],
+    current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> UpdateDishSchemaResponse:
     """Update a dish.
 
@@ -58,7 +67,8 @@ async def handle_update_dish(
     Args:
         dish_id: ULID of the dish (validated automatically)
         request: Dish data to update (PATCH - only provided fields)
-        dish_service: Dish service (injected)
+        find_dish_use_case: Find dish by ID use case (injected)
+        update_dish_use_case: Update dish use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -69,7 +79,7 @@ async def handle_update_dish(
         HTTPException 422: If dish_id format is invalid (not a valid ULID)
     """
     # Get current dish
-    dish = await dish_service.find_dish_by_id(str(dish_id))
+    dish = await find_dish_use_case.execute(str(dish_id))
 
     # Get current dish data and merge with updates (PATCH behavior)
     current_data = DishData(**dish.model_dump(exclude={"id", "restaurant_id", "audit"}))
@@ -77,7 +87,7 @@ async def handle_update_dish(
     merged_data = current_data.model_copy(update=update_data)
 
     # Update dish (admins can update any dish)
-    updated_dish = await dish_service.update_dish(
+    updated_dish = await update_dish_use_case.execute(
         dish_id=str(dish_id),
         dish_data=merged_data,
         updated_by=current_user.id,

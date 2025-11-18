@@ -8,13 +8,15 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 
 from app.domains.auth.infrastructure.dependencies.auth import require_owner_dependency
-from app.domains.restaurants.application.services import (
-    RestaurantOwnerService,
-    RestaurantService,
+from app.domains.restaurants.application.use_cases.restaurant import (
+    FindRestaurantByIdUseCase,
 )
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_owner_service_dependency,
-    get_restaurant_service_dependency,
+from app.domains.restaurants.application.use_cases.restaurant_owner import (
+    GetRestaurantsByOwnerUseCase,
+)
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_find_restaurant_by_id_use_case_dependency,
+    get_get_restaurants_by_owner_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.restaurant.owner.find_my_restaurants import (
     FindMyRestaurantsSchemaItem,
@@ -33,11 +35,13 @@ router = APIRouter()
     description="Find all restaurants owned or managed by the current user.",
 )
 async def handle_find_my_restaurants(
-    owner_service: Annotated[
-        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    get_restaurants_use_case: Annotated[
+        GetRestaurantsByOwnerUseCase,
+        Depends(get_get_restaurants_by_owner_use_case_dependency),
     ],
-    restaurant_service: Annotated[
-        RestaurantService, Depends(get_restaurant_service_dependency)
+    find_restaurant_use_case: Annotated[
+        FindRestaurantByIdUseCase,
+        Depends(get_find_restaurant_by_id_use_case_dependency),
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
 ) -> FindMyRestaurantsSchemaResponse:
@@ -49,8 +53,8 @@ async def handle_find_my_restaurants(
     or management rights, including their role and primary owner status.
 
     Args:
-        owner_service: Restaurant owner service (injected)
-        restaurant_service: Restaurant service (injected)
+        get_restaurants_use_case: Get restaurants by owner use case (injected)
+        find_restaurant_use_case: Find restaurant by ID use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -61,14 +65,12 @@ async def handle_find_my_restaurants(
         HTTPException: 403 if not OWNER
     """
     # Get ownership relationships
-    ownerships = await owner_service.get_restaurants_by_owner(owner_id=current_user.id)
+    ownerships = await get_restaurants_use_case.execute(owner_id=current_user.id)
 
     # Get restaurant details for each ownership
     items: list[FindMyRestaurantsSchemaItem] = []
     for ownership in ownerships:
-        restaurant = await restaurant_service.find_restaurant_by_id(
-            ownership.restaurant_id
-        )
+        restaurant = await find_restaurant_use_case.execute(ownership.restaurant_id)
         items.append(
             FindMyRestaurantsSchemaItem(
                 restaurant_id=restaurant.id,

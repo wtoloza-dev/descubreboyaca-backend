@@ -8,9 +8,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query, status
 from ulid import ULID
 
-from app.domains.restaurants.application.services.dish import DishService
+from app.domains.restaurants.application.use_cases.dish import (
+    ListRestaurantDishesUseCase,
+)
 from app.domains.restaurants.infrastructure.dependencies import (
-    get_dish_service_dependency,
+    get_list_restaurant_dishes_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.dish.public.find_all import (
     FindDishesSchemaItem,
@@ -38,7 +40,10 @@ async def handle_find_all(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    service: Annotated[DishService, Depends(get_dish_service_dependency)],
+    use_case: Annotated[
+        ListRestaurantDishesUseCase,
+        Depends(get_list_restaurant_dishes_use_case_dependency),
+    ],
     pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
     category: Annotated[
         str | None,
@@ -70,7 +75,7 @@ async def handle_find_all(
         category: Optional filter by category
         is_available: Optional filter by availability
         is_featured: Optional filter by featured status
-        service: Dish service (injected)
+        use_case: List restaurant dishes use case (injected)
 
     Returns:
         FindDishesSchemaResponse: Paginated list of dishes
@@ -93,7 +98,7 @@ async def handle_find_all(
         filters["is_featured"] = is_featured
 
     # Get dishes and total count
-    dishes, total_count = await service.get_restaurant_dishes(
+    dishes, total_count = await use_case.execute(
         restaurant_id=str(restaurant_id),
         filters=filters or None,
         offset=pagination.offset,

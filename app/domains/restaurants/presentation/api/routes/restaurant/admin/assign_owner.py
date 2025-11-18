@@ -9,9 +9,11 @@ from fastapi import APIRouter, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.restaurants.application.services import RestaurantOwnerService
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_owner_service_dependency,
+from app.domains.restaurants.application.use_cases.restaurant_owner import (
+    AssignOwnerUseCase,
+)
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_assign_owner_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.restaurant.admin.assign_owner import (
     AssignOwnerSchemaRequest,
@@ -40,8 +42,8 @@ async def handle_assign_owner(
         ),
     ],
     request: AssignOwnerSchemaRequest,
-    service: Annotated[
-        RestaurantOwnerService, Depends(get_restaurant_owner_service_dependency)
+    use_case: Annotated[
+        AssignOwnerUseCase, Depends(get_assign_owner_use_case_dependency)
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> OwnershipSchemaResponse:
@@ -56,7 +58,7 @@ async def handle_assign_owner(
     Args:
         restaurant_id: ULID of the restaurant
         request: Owner assignment request with owner_id, role, and is_primary
-        service: Restaurant owner service (injected)
+        use_case: Assign owner use case (injected)
         current_user: Authenticated user (injected)
 
     Returns:
@@ -68,7 +70,7 @@ async def handle_assign_owner(
         HTTPException: 400 if owner already assigned or validation fails
         HTTPException: 404 if restaurant or user not found
     """
-    ownership = await service.assign_owner(
+    ownership = await use_case.execute(
         restaurant_id=str(restaurant_id),
         owner_id=request.owner_id,
         role=request.role,

@@ -10,9 +10,11 @@ from fastapi import APIRouter, Body, Depends, Path, status
 from ulid import ULID
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.restaurants.application.services import RestaurantService
-from app.domains.restaurants.infrastructure.dependencies.restaurant import (
-    get_restaurant_service_dependency,
+from app.domains.restaurants.application.use_cases.restaurant import (
+    DeleteRestaurantUseCase,
+)
+from app.domains.restaurants.infrastructure.dependencies import (
+    get_delete_restaurant_use_case_dependency,
 )
 from app.domains.restaurants.presentation.api.schemas.restaurant.admin.delete import (
     DeleteRestaurantSchemaRequest,
@@ -49,7 +51,9 @@ async def handle_delete_restaurant(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    service: Annotated[RestaurantService, Depends(get_restaurant_service_dependency)],
+    use_case: Annotated[
+        DeleteRestaurantUseCase, Depends(get_delete_restaurant_use_case_dependency)
+    ],
     admin_user: Annotated[User, Depends(require_admin_dependency)],
     request_body: Annotated[
         DeleteRestaurantSchemaRequest,
@@ -79,7 +83,7 @@ async def handle_delete_restaurant(
     Args:
         restaurant_id: ULID of the restaurant to delete (validated automatically)
         request_body: Optional deletion metadata (note)
-        service: Restaurant service (injected)
+        use_case: Delete restaurant use case (injected)
         admin_user: Authenticated admin user (injected)
 
     Returns:
@@ -99,12 +103,8 @@ async def handle_delete_restaurant(
 
         Response: 204 No Content
     """
-    # Delete restaurant with archive
-    # Service handles:
-    # 1. Get restaurant (raises RestaurantNotFoundException if not found)
-    # 2. Archive complete record with metadata
-    # 3. Delete from active table
-    await service.delete_restaurant(
+    # Delete restaurant with archive using Unit of Work pattern
+    await use_case.execute(
         restaurant_id=str(restaurant_id),
         deleted_by=admin_user.id,
         note=request_body.note,
