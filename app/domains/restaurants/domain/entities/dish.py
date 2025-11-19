@@ -8,6 +8,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
+from app.domains.restaurants.domain.enums import DietaryRestriction, DishCategory
 from app.shared.domain.entities import Audit
 
 
@@ -51,10 +52,8 @@ class DishData(BaseModel):
         max_length=2000,
         description="Detailed description of the dish, ingredients, and preparation",
     )
-    category: str = Field(
+    category: DishCategory = Field(
         ...,
-        min_length=1,
-        max_length=50,
         description="Primary category (appetizer, main_course, dessert, beverage, etc.)",
     )
 
@@ -100,7 +99,7 @@ class DishData(BaseModel):
     image_url: HttpUrl | None = Field(default=None, description="URL to dish image")
 
     # Dietary information (stored as JSON arrays)
-    dietary_restrictions: list[str] = Field(
+    dietary_restrictions: list[DietaryRestriction] = Field(
         default_factory=list,
         description="Dietary tags (vegetarian, vegan, gluten_free, lactose_free, etc.)",
     )

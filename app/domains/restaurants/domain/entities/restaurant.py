@@ -5,6 +5,11 @@ This module defines the Restaurant domain entities following DDD principles.
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
+from app.domains.restaurants.domain.enums import (
+    CuisineType,
+    EstablishmentType,
+    RestaurantFeature,
+)
 from app.shared.domain.entities import Audit
 from app.shared.domain.value_objects import GeoLocation, SocialMedia
 
@@ -60,11 +65,11 @@ class RestaurantData(BaseModel):
     social_media: SocialMedia | None = None
 
     # Business classification and categorization
-    establishment_types: list[str] = Field(
+    establishment_types: list[EstablishmentType] = Field(
         default_factory=list,
         description="Type of establishment (e.g., 'restaurant', 'cafe', 'bakery', 'bar', 'food_truck')",
     )
-    cuisine_types: list[str] = Field(
+    cuisine_types: list[CuisineType] = Field(
         default_factory=list,
         description="Types of cuisine offered (e.g., 'colombiana', 'boyacense', 'internacional')",
     )
@@ -74,7 +79,7 @@ class RestaurantData(BaseModel):
         le=4,
         description="Price range: 1=budget, 2=moderate, 3=expensive, 4=luxury",
     )
-    features: list[str] = Field(
+    features: list[RestaurantFeature] = Field(
         default_factory=list,
         description="Features/amenities (e.g., 'wifi', 'parking', 'pet_friendly', 'outdoor_seating')",
     )
