@@ -5,7 +5,7 @@ from .find_my_restaurants import (
     FindMyRestaurantsSchemaItem,
     FindMyRestaurantsSchemaResponse,
 )
-from .list_my_team import ListMyTeamSchemaResponse
+from .find_my_team import FindMyTeamSchemaItem, FindMyTeamSchemaResponse
 from .update_my_restaurant import (
     UpdateMyRestaurantSchemaRequest,
     UpdateMyRestaurantSchemaResponse,
@@ -18,8 +18,9 @@ __all__ = [
     # Find My Restaurants
     "FindMyRestaurantsSchemaItem",
     "FindMyRestaurantsSchemaResponse",
-    # List My Team
-    "ListMyTeamSchemaResponse",
+    # Find My Team
+    "FindMyTeamSchemaItem",
+    "FindMyTeamSchemaResponse",
     # Update My Restaurant
     "UpdateMyRestaurantSchemaRequest",
     "UpdateMyRestaurantSchemaResponse",

@@ -44,8 +44,6 @@ class ListDishesUseCase:
         Returns:
             Tuple of (list of dishes, total count)
         """
-        dishes = await self.repository.find(filters=filters, offset=offset, limit=limit)
-
-        total_count = await self.repository.count(filters=filters)
-
-        return dishes, total_count
+        return await self.repository.find_with_count(
+            filters=filters, offset=offset, limit=limit
+        )

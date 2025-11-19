@@ -6,22 +6,22 @@ This module aggregates all admin-accessible restaurant endpoints.
 from fastapi import APIRouter
 
 from app.domains.restaurants.presentation.api.routes.restaurant.admin import (
-    assign_owner,
-    create,
-    delete,
-    find_owners,
-    remove_owner,
-    transfer_ownership,
-    update_owner_role,
+    assign_restaurant_owner_by_admin,
+    create_restaurant_by_admin,
+    delete_restaurant_by_admin,
+    find_restaurant_owners_by_admin,
+    remove_restaurant_owner_by_admin,
+    transfer_restaurant_ownership_by_admin,
+    update_restaurant_owner_role_by_admin,
 )
 
 
 router = APIRouter(prefix="/admin")
 
-router.include_router(create.router)
-router.include_router(delete.router)
-router.include_router(assign_owner.router)
-router.include_router(find_owners.router)
-router.include_router(remove_owner.router)
-router.include_router(update_owner_role.router)
-router.include_router(transfer_ownership.router)
+router.include_router(create_restaurant_by_admin.router)
+router.include_router(delete_restaurant_by_admin.router)
+router.include_router(assign_restaurant_owner_by_admin.router)
+router.include_router(find_restaurant_owners_by_admin.router)
+router.include_router(remove_restaurant_owner_by_admin.router)
+router.include_router(update_restaurant_owner_role_by_admin.router)
+router.include_router(transfer_restaurant_ownership_by_admin.router)

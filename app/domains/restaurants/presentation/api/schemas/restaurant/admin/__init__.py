@@ -1,38 +1,42 @@
 """Admin restaurant schemas package."""
 
-from .assign_owner import AssignOwnerSchemaRequest, OwnershipSchemaResponse
-from .create import CreateRestaurantSchemaRequest, CreateRestaurantSchemaResponse
-from .delete import DeleteRestaurantSchemaRequest
-from .find_owners import FindOwnershipsSchemaResponse
-from .remove_owner import RemoveOwnerSchemaResponse
-from .transfer_ownership import (
-    OwnershipSchemaResponse as TransferOwnershipSchemaResponse,
+from .assign_restaurant_owner_by_admin import (
+    AssignRestaurantOwnerByAdminSchemaRequest,
+    AssignRestaurantOwnerByAdminSchemaResponse,
 )
-from .update_owner_role import (
-    OwnershipSchemaResponse as UpdateOwnerRoleSchemaResponse,
+from .create_restaurant_by_admin import (
+    CreateRestaurantByAdminSchemaRequest,
+    CreateRestaurantByAdminSchemaResponse,
 )
-from .update_owner_role import (
-    UpdateOwnerRoleSchemaRequest,
+from .delete_restaurant_by_admin import DeleteRestaurantByAdminSchemaRequest
+from .find_restaurant_owners_by_admin import (
+    FindRestaurantOwnersByAdminSchemaItem,
+    FindRestaurantOwnersByAdminSchemaResponse,
+)
+from .transfer_restaurant_ownership_by_admin import (
+    TransferRestaurantOwnershipByAdminSchemaResponse,
+)
+from .update_restaurant_owner_role_by_admin import (
+    UpdateRestaurantOwnerRoleByAdminSchemaRequest,
+    UpdateRestaurantOwnerRoleByAdminSchemaResponse,
 )
 
 
 __all__ = [
-    # Assign Owner
-    "AssignOwnerSchemaRequest",
-    # Create
-    "CreateRestaurantSchemaRequest",
-    "CreateRestaurantSchemaResponse",
-    # Delete
-    "DeleteRestaurantSchemaRequest",
-    # Find Owners
-    "FindOwnershipsSchemaResponse",
-    # Remove Owner
-    "RemoveOwnerSchemaResponse",
-    # Transfer Ownership
-    "TransferOwnershipSchemaResponse",
-    # Update Owner Role
-    "UpdateOwnerRoleSchemaRequest",
-    "UpdateOwnerRoleSchemaResponse",
-    # Common (re-exported)
-    "OwnershipSchemaResponse",
+    # Assign Restaurant Owner
+    "AssignRestaurantOwnerByAdminSchemaRequest",
+    "AssignRestaurantOwnerByAdminSchemaResponse",
+    # Create Restaurant
+    "CreateRestaurantByAdminSchemaRequest",
+    "CreateRestaurantByAdminSchemaResponse",
+    # Delete Restaurant
+    "DeleteRestaurantByAdminSchemaRequest",
+    # Find Restaurant Owners
+    "FindRestaurantOwnersByAdminSchemaItem",
+    "FindRestaurantOwnersByAdminSchemaResponse",
+    # Transfer Restaurant Ownership
+    "TransferRestaurantOwnershipByAdminSchemaResponse",
+    # Update Restaurant Owner Role
+    "UpdateRestaurantOwnerRoleByAdminSchemaRequest",
+    "UpdateRestaurantOwnerRoleByAdminSchemaResponse",
 ]

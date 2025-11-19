@@ -1,20 +1,20 @@
-"""Delete restaurant schemas.
+"""Delete restaurant by admin schemas.
 
-This module defines request/response schemas for restaurant deletion operations.
-Corresponds to: routes/restaurant/admin/delete.py
+This module defines request/response schemas for restaurant deletion operations by administrators.
+Corresponds to: routes/restaurant/admin/delete_restaurant_by_admin.py
 """
 
 from pydantic import BaseModel, Field
 
 
-class DeleteRestaurantSchemaRequest(BaseModel):
-    """Request schema for deleting a restaurant.
+class DeleteRestaurantByAdminSchemaRequest(BaseModel):
+    """Request schema for deleting a restaurant by admin.
 
     Attributes:
         note: Optional explanation for the deletion (for audit trail)
 
     Example:
-        >>> DeleteRestaurantRequest(note="Permanently closed")
+        >>> DeleteRestaurantByAdminSchemaRequest(note="Permanently closed")
     """
 
     note: str | None = Field(

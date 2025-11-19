@@ -3,24 +3,27 @@
 This package contains schemas for restaurant operations.
 """
 
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.assign_owner import (
-    AssignOwnerSchemaRequest,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.assign_restaurant_owner_by_admin import (
+    AssignRestaurantOwnerByAdminSchemaRequest,
+    AssignRestaurantOwnerByAdminSchemaResponse,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.create import (
-    CreateRestaurantSchemaRequest,
-    CreateRestaurantSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.create_restaurant_by_admin import (
+    CreateRestaurantByAdminSchemaRequest,
+    CreateRestaurantByAdminSchemaResponse,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.delete import (
-    DeleteRestaurantSchemaRequest,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.delete_restaurant_by_admin import (
+    DeleteRestaurantByAdminSchemaRequest,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.find_owners import (
-    FindOwnershipsSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.find_restaurant_owners_by_admin import (
+    FindRestaurantOwnersByAdminSchemaItem,
+    FindRestaurantOwnersByAdminSchemaResponse,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.update_owner_role import (
-    UpdateOwnerRoleSchemaRequest,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.transfer_restaurant_ownership_by_admin import (
+    TransferRestaurantOwnershipByAdminSchemaResponse,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.common.ownership import (
-    OwnershipSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.update_restaurant_owner_role_by_admin import (
+    UpdateRestaurantOwnerRoleByAdminSchemaRequest,
+    UpdateRestaurantOwnerRoleByAdminSchemaResponse,
 )
 from app.domains.restaurants.presentation.api.schemas.restaurant.owner.find_my_restaurants import (
     FindMyRestaurantsSchemaItem,
@@ -36,20 +39,24 @@ from app.domains.restaurants.presentation.api.schemas.restaurant.public.find_res
 
 
 __all__ = [
-    # Create
-    "CreateRestaurantSchemaRequest",
-    "CreateRestaurantSchemaResponse",
-    # Delete
-    "DeleteRestaurantSchemaRequest",
-    # Find
+    # Admin - Create
+    "CreateRestaurantByAdminSchemaRequest",
+    "CreateRestaurantByAdminSchemaResponse",
+    # Admin - Delete
+    "DeleteRestaurantByAdminSchemaRequest",
+    # Admin - Ownership
+    "AssignRestaurantOwnerByAdminSchemaRequest",
+    "AssignRestaurantOwnerByAdminSchemaResponse",
+    "FindRestaurantOwnersByAdminSchemaItem",
+    "FindRestaurantOwnersByAdminSchemaResponse",
+    "TransferRestaurantOwnershipByAdminSchemaResponse",
+    "UpdateRestaurantOwnerRoleByAdminSchemaRequest",
+    "UpdateRestaurantOwnerRoleByAdminSchemaResponse",
+    # Public - Find
     "FindRestaurantByIdSchemaResponse",
     "FindAllRestaurantsSchemaItem",
     "FindAllRestaurantsSchemaResponse",
-    # Ownership
-    "AssignOwnerSchemaRequest",
+    # Owner
     "FindMyRestaurantsSchemaItem",
     "FindMyRestaurantsSchemaResponse",
-    "FindOwnershipsSchemaResponse",
-    "OwnershipSchemaResponse",
-    "UpdateOwnerRoleSchemaRequest",
 ]

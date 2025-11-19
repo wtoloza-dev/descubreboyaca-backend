@@ -136,14 +136,81 @@ class SQLFavoriteRepository:
 
         return True
 
-    async def get_by_user(
+    async def find(
+        self,
+        user_id: str,
+        entity_type: EntityType | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> list[Favorite]:
+        """Find favorites with filters and pagination.
+
+        Args:
+            user_id: ULID of the user
+            entity_type: Optional filter by entity type
+            offset: Number of records to skip
+            limit: Maximum number of records to return
+
+        Returns:
+            List of favorites matching the filters
+        """
+        # Build base query
+        statement = select(FavoriteModel).where(FavoriteModel.user_id == user_id)
+
+        # Add entity type filter if provided
+        if entity_type:
+            statement = statement.where(FavoriteModel.entity_type == entity_type)
+
+        # Apply pagination and ordering
+        statement = (
+            statement.order_by(FavoriteModel.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+
+        # Execute query
+        result = await self.session.exec(statement)
+        models = result.all()
+
+        # Convert to domain entities
+        return [Favorite.model_validate(model) for model in models]
+
+    async def count(
+        self,
+        user_id: str,
+        entity_type: EntityType | None = None,
+    ) -> int:
+        """Count favorites with filters.
+
+        Args:
+            user_id: ULID of the user
+            entity_type: Optional filter by entity type
+
+        Returns:
+            Count of favorites matching the filters
+        """
+        # Build base query
+        statement = select(func.count()).where(FavoriteModel.user_id == user_id)
+
+        # Add entity type filter if provided
+        if entity_type:
+            statement = statement.where(FavoriteModel.entity_type == entity_type)
+
+        # Execute count query
+        result = await self.session.exec(statement)
+        return result.one()
+
+    async def find_with_count(
         self,
         user_id: str,
         entity_type: EntityType | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> tuple[list[Favorite], int]:
-        """Get favorites for a user with pagination.
+        """Find favorites with filters and pagination, including total count.
+
+        This method returns both the paginated results and the total count
+        in a single operation, ensuring consistency between the two queries.
 
         Args:
             user_id: ULID of the user
@@ -181,6 +248,28 @@ class SQLFavoriteRepository:
         favorites = [Favorite.model_validate(model) for model in models]
 
         return favorites, total
+
+    async def get_by_user(
+        self,
+        user_id: str,
+        entity_type: EntityType | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> tuple[list[Favorite], int]:
+        """Get favorites for a user with pagination.
+
+        Deprecated: Use find_with_count() instead for consistency.
+
+        Args:
+            user_id: ULID of the user
+            entity_type: Optional filter by entity type
+            offset: Number of records to skip
+            limit: Maximum number of records to return
+
+        Returns:
+            Tuple of (list of favorites, total count)
+        """
+        return await self.find_with_count(user_id, entity_type, offset, limit)
 
     async def exists(
         self,

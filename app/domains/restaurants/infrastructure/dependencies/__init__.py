@@ -25,6 +25,12 @@ from app.domains.restaurants.infrastructure.dependencies.dish import (
     get_update_dish_use_case_dependency,
 )
 
+# Filters
+from app.domains.restaurants.infrastructure.dependencies.filters import (
+    RestaurantFilters,
+    get_restaurant_filters_dependency,
+)
+
 # Restaurant subdomain
 from app.domains.restaurants.infrastructure.dependencies.restaurant import (
     get_count_restaurants_use_case_dependency,
@@ -63,6 +69,11 @@ __all__ = [
     "get_restaurant_repository_dependency",
     "get_dish_repository_dependency",
     "get_restaurant_owner_repository_dependency",
+    # ============================================================
+    # Filters
+    # ============================================================
+    "RestaurantFilters",
+    "get_restaurant_filters_dependency",
     # ============================================================
     # Restaurant Use Cases
     # ============================================================

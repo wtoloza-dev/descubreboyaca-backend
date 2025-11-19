@@ -201,6 +201,46 @@ class ReviewRepositoryInterface(Protocol):
         """
         ...
 
+    async def find_with_count(
+        self,
+        filters: dict[str, Any] | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> tuple[list[Review], int]:
+        """Find reviews with filters and pagination, including total count.
+
+        This method returns both the paginated results and the total count
+        in a single operation, ensuring consistency between the two queries.
+
+        Args:
+            filters: Dictionary of field names and their values to filter by.
+                    Keys should match ReviewModel attribute names.
+                    Same filters as find() and count() methods.
+            offset: Number of records to skip
+            limit: Maximum number of records to return
+
+        Returns:
+            Tuple of (list of reviews, total count)
+
+        Examples:
+            >>> # Get all approved reviews for a restaurant with pagination
+            >>> reviews, total = find_with_count(
+            ...     filters={
+            ...         "entity_type": "restaurant",
+            ...         "entity_id": "xxx",
+            ...         "status": "approved",
+            ...     },
+            ...     offset=0,
+            ...     limit=20,
+            ... )
+
+            >>> # Get all reviews by a user with pagination
+            >>> reviews, total = find_with_count(
+            ...     filters={"user_id": "xxx"}, offset=0, limit=10
+            ... )
+        """
+        ...
+
     async def get_stats_by_entity(
         self,
         entity_type: EntityType,

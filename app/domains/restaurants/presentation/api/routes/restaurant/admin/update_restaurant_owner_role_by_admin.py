@@ -1,4 +1,4 @@
-"""Update owner role endpoint.
+"""Update restaurant owner role by admin endpoint.
 
 This module provides an endpoint for administrators to update an owner's role.
 """
@@ -15,11 +15,9 @@ from app.domains.restaurants.application.use_cases.restaurant_owner import (
 from app.domains.restaurants.infrastructure.dependencies import (
     get_update_owner_role_use_case_dependency,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.update_owner_role import (
-    UpdateOwnerRoleSchemaRequest,
-)
-from app.domains.restaurants.presentation.api.schemas.restaurant.common.ownership import (
-    OwnershipSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.update_restaurant_owner_role_by_admin import (
+    UpdateRestaurantOwnerRoleByAdminSchemaRequest,
+    UpdateRestaurantOwnerRoleByAdminSchemaResponse,
 )
 from app.domains.users.domain import User
 
@@ -33,7 +31,7 @@ router = APIRouter()
     summary="Update an owner's role",
     description="Change the role of an owner/manager/staff member. Only administrators can perform this action.",
 )
-async def handle_update_owner_role(
+async def handle_update_restaurant_owner_role_by_admin(
     restaurant_id: Annotated[
         ULID,
         Path(
@@ -48,12 +46,12 @@ async def handle_update_owner_role(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    request: UpdateOwnerRoleSchemaRequest,
+    request: UpdateRestaurantOwnerRoleByAdminSchemaRequest,
     use_case: Annotated[
         UpdateOwnerRoleUseCase, Depends(get_update_owner_role_use_case_dependency)
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
-) -> OwnershipSchemaResponse:
+) -> UpdateRestaurantOwnerRoleByAdminSchemaResponse:
     """Update the role of an owner/manager/staff.
 
     **Requiere autenticación**: Solo administradores (ADMIN) pueden actualizar roles.
@@ -69,7 +67,7 @@ async def handle_update_owner_role(
         current_user: Authenticated user (injected)
 
     Returns:
-        OwnershipSchemaResponse: Updated ownership relationship
+        UpdateRestaurantOwnerRoleByAdminSchemaResponse: Updated ownership relationship
 
     Raises:
         HTTPException: 401 if not authenticated
@@ -84,4 +82,4 @@ async def handle_update_owner_role(
         updated_by=current_user.id,
     )
 
-    return OwnershipSchemaResponse.model_validate(ownership)
+    return UpdateRestaurantOwnerRoleByAdminSchemaResponse.model_validate(ownership)

@@ -3,8 +3,6 @@
 This module implements the review service for business logic orchestration.
 """
 
-import asyncio
-
 from app.domains.reviews.domain.entities import Review
 from app.domains.reviews.domain.interfaces import ReviewRepositoryInterface
 
@@ -55,14 +53,9 @@ class ReviewService:
         # Build filters
         filters = {"user_id": user_id}
 
-        # Get reviews and total count in parallel
-        reviews, total = await asyncio.gather(
-            self.repository.find(
-                filters=filters,
-                offset=offset,
-                limit=limit,
-            ),
-            self.repository.count(filters=filters),
+        # Get reviews and total count in single operation
+        return await self.repository.find_with_count(
+            filters=filters,
+            offset=offset,
+            limit=limit,
         )
-
-        return reviews, total

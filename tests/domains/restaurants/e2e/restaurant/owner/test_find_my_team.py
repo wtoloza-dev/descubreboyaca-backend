@@ -5,18 +5,18 @@ from http import HTTPStatus
 import pytest
 
 
-class TestListMyTeam:
+class TestFindMyTeam:
     """E2E tests for GET /owner/restaurants/{restaurant_id}/team."""
 
     @pytest.mark.asyncio
-    async def test_list_my_team_success(
+    async def test_find_my_team_success(
         self,
         owner_client,
         mock_owner_user,
         create_test_restaurant,
         create_test_ownership,
     ):
-        """Test owner successfully lists team members.
+        """Test owner successfully finds team members.
 
         Given: An owner has a restaurant with 3 team members
         When: The owner requests the team list
@@ -58,7 +58,7 @@ class TestListMyTeam:
         assert "total" in data
         assert "restaurant_id" in data
         assert data["restaurant_id"] == restaurant.id
-        assert data["pagination"]["total"] == 3
+        assert data["total"] == 3
         assert len(data["team"]) == 3
 
         # Verify team members have expected fields
@@ -68,7 +68,7 @@ class TestListMyTeam:
         assert "is_primary" in member
 
     @pytest.mark.asyncio
-    async def test_list_my_team_not_owner(
+    async def test_find_my_team_not_owner(
         self, owner_client, mock_owner_user, create_test_restaurant
     ):
         """Test owner cannot view team of restaurant they don't own.
@@ -92,7 +92,7 @@ class TestListMyTeam:
         assert "permission" in data["message"].lower()
 
     @pytest.mark.asyncio
-    async def test_list_my_team_not_found(self, owner_client):
+    async def test_find_my_team_not_found(self, owner_client):
         """Test viewing team of non-existent restaurant returns 403.
 
         Given: A restaurant ID that doesn't exist
@@ -115,7 +115,7 @@ class TestListMyTeam:
         assert response.status_code == HTTPStatus.FORBIDDEN
 
     @pytest.mark.asyncio
-    async def test_list_my_team_multiple_members(
+    async def test_find_my_team_multiple_members(
         self,
         owner_client,
         mock_owner_user,
@@ -158,7 +158,7 @@ class TestListMyTeam:
         # Assert
         assert response.status_code == HTTPStatus.OK
         data = response.json()
-        assert data["pagination"]["total"] == 5
+        assert data["total"] == 5
         assert len(data["team"]) == 5
 
         # Verify all owner IDs are present
@@ -177,7 +177,7 @@ class TestListMyTeam:
         assert roles_count["staff"] == 1
 
     @pytest.mark.asyncio
-    async def test_list_my_team_primary_marked_correctly(
+    async def test_find_my_team_primary_marked_correctly(
         self,
         owner_client,
         mock_owner_user,
@@ -239,7 +239,7 @@ class TestListMyTeam:
         assert primary_member["role"] == "owner"
 
     @pytest.mark.asyncio
-    async def test_list_my_team_requires_owner_role(
+    async def test_find_my_team_requires_owner_role(
         self, test_client, create_test_restaurant
     ):
         """Test that non-owner users cannot access the endpoint.

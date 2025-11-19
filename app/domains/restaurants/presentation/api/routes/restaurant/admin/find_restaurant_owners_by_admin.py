@@ -1,4 +1,4 @@
-"""Find restaurant owners endpoint.
+"""Find restaurant owners by admin endpoint.
 
 This module provides an endpoint for administrators to find all owners of a restaurant.
 """
@@ -15,8 +15,8 @@ from app.domains.restaurants.application.use_cases.restaurant_owner import (
 from app.domains.restaurants.infrastructure.dependencies import (
     get_get_owners_by_restaurant_use_case_dependency,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.find_owners import (
-    FindOwnershipsSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.find_restaurant_owners_by_admin import (
+    FindRestaurantOwnersByAdminSchemaResponse,
 )
 from app.domains.users.domain import User
 
@@ -30,7 +30,7 @@ router = APIRouter()
     summary="Find all owners of a restaurant",
     description="Find all users who have ownership/management rights on a restaurant. Only administrators can access this information.",
 )
-async def handle_find_owners(
+async def handle_find_restaurant_owners_by_admin(
     restaurant_id: Annotated[
         ULID,
         Path(
@@ -43,7 +43,7 @@ async def handle_find_owners(
         Depends(get_get_owners_by_restaurant_use_case_dependency),
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
-) -> FindOwnershipsSchemaResponse:
+) -> FindRestaurantOwnersByAdminSchemaResponse:
     """Find all owners/managers/staff of a restaurant.
 
     **Requiere autenticación**: Solo administradores (ADMIN) pueden ver owners.
@@ -57,7 +57,7 @@ async def handle_find_owners(
         current_user: Authenticated user (injected)
 
     Returns:
-        FindOwnershipsSchemaResponse: List of owners with their roles
+        FindRestaurantOwnersByAdminSchemaResponse: List of owners with their roles
 
     Raises:
         HTTPException: 401 if not authenticated
@@ -66,7 +66,7 @@ async def handle_find_owners(
     """
     owners = await use_case.execute(str(restaurant_id))
 
-    return FindOwnershipsSchemaResponse(
+    return FindRestaurantOwnersByAdminSchemaResponse(
         restaurant_id=str(restaurant_id),
         owners=owners,
         total=len(owners),

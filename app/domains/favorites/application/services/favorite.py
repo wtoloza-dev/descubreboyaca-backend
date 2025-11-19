@@ -93,7 +93,9 @@ class FavoriteService:
         Returns:
             Tuple of (list of favorites, total count)
         """
-        return await self.repository.get_by_user(user_id, entity_type, offset, limit)
+        return await self.repository.find_with_count(
+            user_id, entity_type, offset, limit
+        )
 
     async def check_favorite(
         self, user_id: str, entity_type: EntityType, entity_id: str

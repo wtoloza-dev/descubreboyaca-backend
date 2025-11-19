@@ -38,8 +38,6 @@ class ListRestaurantsByCityUseCase:
         Returns:
             Tuple of (list of restaurants in the city, total count)
         """
-        restaurants = await self.repository.find(
+        return await self.repository.find_with_count(
             filters={"city": city}, offset=offset, limit=limit
         )
-        total = await self.repository.count(filters={"city": city})
-        return restaurants, total

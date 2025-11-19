@@ -20,9 +20,9 @@ from app.domains.restaurants.infrastructure.persistence.repositories import (
     SQLiteRestaurantRepository,
 )
 from app.domains.restaurants.presentation.api.routes import router
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.create import (
-    CreateRestaurantSchemaRequest,
-    CreateRestaurantSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.create_restaurant_by_admin import (
+    CreateRestaurantByAdminSchemaRequest,
+    CreateRestaurantByAdminSchemaResponse,
 )
 
 
@@ -40,8 +40,8 @@ __all__ = [
     "SQLiteRestaurantRepository",
     "PostgreSQLRestaurantRepository",
     # Schemas
-    "CreateRestaurantSchemaRequest",
-    "CreateRestaurantSchemaResponse",
+    "CreateRestaurantByAdminSchemaRequest",
+    "CreateRestaurantByAdminSchemaResponse",
     # Routes
     "router",
 ]

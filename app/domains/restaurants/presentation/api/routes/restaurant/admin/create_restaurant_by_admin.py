@@ -1,6 +1,6 @@
-"""Create restaurant endpoint.
+"""Create restaurant by admin endpoint.
 
-This module provides a simplified endpoint for creating restaurants with minimal fields (admin only).
+This module provides an endpoint for administrators to create restaurants.
 """
 
 from typing import Annotated
@@ -15,9 +15,9 @@ from app.domains.restaurants.domain import RestaurantData
 from app.domains.restaurants.infrastructure.dependencies import (
     get_create_restaurant_use_case_dependency,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.create import (
-    CreateRestaurantSchemaRequest,
-    CreateRestaurantSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.create_restaurant_by_admin import (
+    CreateRestaurantByAdminSchemaRequest,
+    CreateRestaurantByAdminSchemaResponse,
 )
 from app.domains.users.domain import User
 
@@ -33,13 +33,13 @@ router = APIRouter()
     "Additional details can be added later through update operations. "
     "Only administrators can perform this action.",
 )
-async def handle_create_restaurant(
-    request: Annotated[CreateRestaurantSchemaRequest, Body()],
+async def handle_create_restaurant_by_admin(
+    request: Annotated[CreateRestaurantByAdminSchemaRequest, Body()],
     use_case: Annotated[
         CreateRestaurantUseCase, Depends(get_create_restaurant_use_case_dependency)
     ],
     admin_user: Annotated[User, Depends(require_admin_dependency)],
-) -> CreateRestaurantSchemaResponse:
+) -> CreateRestaurantByAdminSchemaResponse:
     """Create a new restaurant with minimal required fields.
 
     **Requiere rol ADMIN**: Solo administradores pueden crear restaurantes.
@@ -64,7 +64,7 @@ async def handle_create_restaurant(
         admin_user: Authenticated admin user (injected)
 
     Returns:
-        CreateRestaurantSchemaResponse: Created restaurant with all fields
+        CreateRestaurantByAdminSchemaResponse: Created restaurant with all fields
 
     Raises:
         HTTPException: 400 if validation fails
@@ -73,4 +73,4 @@ async def handle_create_restaurant(
     """
     restaurant_data = RestaurantData(**request.model_dump())
     restaurant = await use_case.execute(restaurant_data, created_by=admin_user.id)
-    return CreateRestaurantSchemaResponse.model_validate(restaurant)
+    return CreateRestaurantByAdminSchemaResponse.model_validate(restaurant)

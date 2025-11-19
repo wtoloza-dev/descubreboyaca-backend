@@ -128,6 +128,28 @@ class RestaurantRepositoryInterface(Protocol):
         """
         ...
 
+    async def find_with_count(
+        self,
+        filters: dict[str, Any] | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> tuple[list[Restaurant], int]:
+        """Find restaurants with filters and pagination, including total count.
+
+        This method returns both the paginated results and the total count
+        in a single operation, ensuring consistency between the two queries.
+
+        Args:
+            filters: Dictionary of field names and their values to filter by.
+                    Keys should match model attribute names.
+            offset: Number of records to offset (skip)
+            limit: Maximum number of records to return
+
+        Returns:
+            Tuple of (list of restaurants, total count)
+        """
+        ...
+
     async def commit(self) -> None:
         """Commit the current transaction.
 

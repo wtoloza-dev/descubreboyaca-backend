@@ -1,6 +1,6 @@
-"""Delete restaurant endpoint.
+"""Delete restaurant by admin endpoint.
 
-This module provides an endpoint for deleting restaurants (admin only).
+This module provides an endpoint for administrators to delete restaurants.
 The deletion follows an archive-first pattern to maintain audit trail.
 """
 
@@ -16,8 +16,8 @@ from app.domains.restaurants.application.use_cases.restaurant import (
 from app.domains.restaurants.infrastructure.dependencies import (
     get_delete_restaurant_use_case_dependency,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.delete import (
-    DeleteRestaurantSchemaRequest,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.delete_restaurant_by_admin import (
+    DeleteRestaurantByAdminSchemaRequest,
 )
 from app.domains.users.domain import User
 
@@ -43,7 +43,7 @@ audit trail while keeping the active database clean and performant.
 **Required Role**: ADMIN
 """,
 )
-async def handle_delete_restaurant(
+async def handle_delete_restaurant_by_admin(
     restaurant_id: Annotated[
         ULID,
         Path(
@@ -56,9 +56,9 @@ async def handle_delete_restaurant(
     ],
     admin_user: Annotated[User, Depends(require_admin_dependency)],
     request_body: Annotated[
-        DeleteRestaurantSchemaRequest,
+        DeleteRestaurantByAdminSchemaRequest,
         Body(description="Optional deletion metadata (note explaining why)"),
-    ] = DeleteRestaurantSchemaRequest(),
+    ] = DeleteRestaurantByAdminSchemaRequest(),
 ) -> None:
     """Delete a restaurant permanently with archiving.
 

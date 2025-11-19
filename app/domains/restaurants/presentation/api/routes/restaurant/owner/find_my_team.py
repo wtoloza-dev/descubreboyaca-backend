@@ -6,7 +6,6 @@ This module provides an endpoint for restaurant owners to find their team member
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, status
-from pydantic import BaseModel, ConfigDict
 
 from app.domains.auth.infrastructure.dependencies.auth import require_owner_dependency
 from app.domains.restaurants.application.use_cases.restaurant_owner import (
@@ -17,28 +16,14 @@ from app.domains.restaurants.infrastructure.dependencies import (
     get_get_owners_by_restaurant_use_case_dependency,
     get_require_ownership_use_case_dependency,
 )
+from app.domains.restaurants.presentation.api.schemas.restaurant.owner.find_my_team import (
+    FindMyTeamSchemaItem,
+    FindMyTeamSchemaResponse,
+)
 from app.domains.users.domain import User
 
 
 router = APIRouter()
-
-
-class TeamMemberResponse(BaseModel):
-    """Response schema for a team member."""
-
-    owner_id: str
-    role: str
-    is_primary: bool
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class TeamListResponse(BaseModel):
-    """Response schema for team list."""
-
-    restaurant_id: str
-    team: list[TeamMemberResponse]
-    total: int
 
 
 @router.get(
@@ -57,7 +42,7 @@ async def handle_find_my_team(
         Depends(get_get_owners_by_restaurant_use_case_dependency),
     ],
     current_user: Annotated[User, Depends(require_owner_dependency)],
-) -> TeamListResponse:
+) -> FindMyTeamSchemaResponse:
     """Find all team members of a restaurant owned/managed by the current user.
 
     **Authentication required**: Only users with OWNER role can access.
@@ -76,7 +61,7 @@ async def handle_find_my_team(
         current_user: Authenticated user (injected)
 
     Returns:
-        TeamListResponse: List of team members
+        FindMyTeamSchemaResponse: List of team members
 
     Raises:
         InsufficientPermissionsException: If not owner of this restaurant
@@ -91,8 +76,8 @@ async def handle_find_my_team(
     # Get team members
     team_members = await get_owners_use_case.execute(restaurant_id)
 
-    return TeamListResponse(
+    return FindMyTeamSchemaResponse(
         restaurant_id=restaurant_id,
-        team=[TeamMemberResponse.model_validate(member) for member in team_members],
+        team=[FindMyTeamSchemaItem.model_validate(member) for member in team_members],
         total=len(team_members),
     )

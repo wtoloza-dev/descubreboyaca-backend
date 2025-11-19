@@ -335,6 +335,124 @@ class SQLDishRepository:
         result = await self.session.exec(statement)
         return result.one()
 
+    async def find_with_count(
+        self,
+        filters: dict[str, Any] | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> tuple[list[Dish], int]:
+        """Find dishes with filters and pagination, including total count.
+
+        This method returns both the paginated results and the total count
+        in a single operation, ensuring consistency between the two queries.
+
+        Args:
+            filters: Dictionary of field names and their values to filter by.
+                    Keys should match DishModel attribute names.
+                    Example: {"category": "appetizer", "is_available": True}
+            offset: Number of records to offset (skip)
+            limit: Maximum number of records to return
+
+        Returns:
+            Tuple of (list of dishes, total count)
+
+        Raises:
+            AttributeError: If a filter key doesn't match any model attribute
+
+        Example:
+            >>> dishes, total = await repo.find_with_count()
+            >>> dishes, total = await repo.find_with_count({"category": "dessert"})
+            >>> dishes, total = await repo.find_with_count(
+            ...     {"is_available": True, "is_featured": True}, offset=0, limit=10
+            ... )
+        """
+        statement = select(DishModel)
+
+        # Apply dynamic filters if provided
+        if filters:
+            for field_name, value in filters.items():
+                # Get the model attribute dynamically
+                if not hasattr(DishModel, field_name):
+                    raise AttributeError(f"DishModel has no attribute '{field_name}'")
+
+                model_field = getattr(DishModel, field_name)
+                statement = statement.where(model_field == value)
+
+        # Count total using the same base query
+        count_statement = select(func.count()).select_from(statement.subquery())
+        count_result = await self.session.exec(count_statement)
+        total = count_result.one()
+
+        # Order by display_order, then by name
+        statement = statement.order_by(DishModel.display_order, DishModel.name)
+
+        # Apply pagination
+        statement = statement.offset(offset).limit(limit)
+
+        # Execute data query
+        result = await self.session.exec(statement)
+        models = result.all()
+
+        # Convert to domain entities
+        dishes = [self._model_to_entity(model) for model in models]
+
+        return dishes, total
+
+    async def find_with_count_by_restaurant_id(
+        self,
+        restaurant_id: str,
+        filters: dict[str, Any] | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> tuple[list[Dish], int]:
+        """Find dishes for a restaurant with pagination, including total count.
+
+        This method returns both the paginated results and the total count
+        in a single operation, ensuring consistency between the two queries.
+
+        Args:
+            restaurant_id: ULID of the restaurant
+            filters: Optional additional filters (category, is_available, etc.)
+            offset: Number of records to offset (skip)
+            limit: Maximum number of records to return
+
+        Returns:
+            Tuple of (list of dishes, total count)
+
+        Raises:
+            AttributeError: If a filter key doesn't match any model attribute
+        """
+        statement = select(DishModel).where(DishModel.restaurant_id == restaurant_id)
+
+        # Apply additional filters if provided
+        if filters:
+            for field_name, value in filters.items():
+                if not hasattr(DishModel, field_name):
+                    raise AttributeError(f"DishModel has no attribute '{field_name}'")
+
+                model_field = getattr(DishModel, field_name)
+                statement = statement.where(model_field == value)
+
+        # Count total using the same base query
+        count_statement = select(func.count()).select_from(statement.subquery())
+        count_result = await self.session.exec(count_statement)
+        total = count_result.one()
+
+        # Order by display_order, then by name
+        statement = statement.order_by(DishModel.display_order, DishModel.name)
+
+        # Apply pagination
+        statement = statement.offset(offset).limit(limit)
+
+        # Execute data query
+        result = await self.session.exec(statement)
+        models = result.all()
+
+        # Convert to domain entities
+        dishes = [self._model_to_entity(model) for model in models]
+
+        return dishes, total
+
     async def commit(self) -> None:
         """Commit the current transaction.
 

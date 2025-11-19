@@ -30,13 +30,13 @@ class TestRestaurantOwnershipLifecycle:
 
     Endpoints tested (5 admin + 3 owner):
     - POST /admin/restaurants/{id}/owners (assign_owner)
-    - GET /admin/restaurants/{id}/owners (list_owners)
+    - GET /admin/restaurants/{id}/owners (find_owners)
     - PATCH /admin/restaurants/{id}/owners/{owner_id}/role (update_owner_role)
     - POST /admin/restaurants/{id}/owners/{owner_id}/transfer (transfer_ownership)
     - DELETE /admin/restaurants/{id}/owners/{owner_id} (remove_owner)
-    - GET /owner/my-restaurants (list_my_restaurants)
-    - GET /owner/my-restaurants/{id} (get_my_restaurant)
-    - GET /owner/my-restaurants/{id}/team (list_my_team)
+    - GET /owner/my-restaurants (find_my_restaurants)
+    - GET /owner/my-restaurants/{id} (find_my_restaurant)
+    - GET /owner/my-restaurants/{id}/team (find_my_team)
 
     Total: 8 unique endpoint patterns tested with 1 restaurant + 2 users
     """

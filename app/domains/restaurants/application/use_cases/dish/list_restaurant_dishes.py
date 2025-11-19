@@ -65,14 +65,7 @@ class ListRestaurantDishesUseCase:
         if not restaurant:
             raise RestaurantNotFoundException(restaurant_id)
 
-        # Get dishes
-        dishes = await self.dish_repository.get_by_restaurant_id(
+        # Get dishes with count in single operation
+        return await self.dish_repository.find_with_count_by_restaurant_id(
             restaurant_id, filters=filters, offset=offset, limit=limit
         )
-
-        # Get total count
-        total_count = await self.dish_repository.count_by_restaurant_id(
-            restaurant_id, filters=filters
-        )
-
-        return dishes, total_count

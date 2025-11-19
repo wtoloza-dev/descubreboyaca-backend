@@ -61,6 +61,65 @@ class FavoriteRepositoryInterface(Protocol):
         """
         ...
 
+    async def find(
+        self,
+        user_id: str,
+        entity_type: EntityType | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> list[Favorite]:
+        """Find favorites with filters and pagination.
+
+        Args:
+            user_id: ULID of the user
+            entity_type: Optional filter by entity type
+            offset: Number of records to skip
+            limit: Maximum number of records to return
+
+        Returns:
+            List of favorites matching the filters
+        """
+        ...
+
+    async def count(
+        self,
+        user_id: str,
+        entity_type: EntityType | None = None,
+    ) -> int:
+        """Count favorites with filters.
+
+        Args:
+            user_id: ULID of the user
+            entity_type: Optional filter by entity type
+
+        Returns:
+            Count of favorites matching the filters
+        """
+        ...
+
+    async def find_with_count(
+        self,
+        user_id: str,
+        entity_type: EntityType | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> tuple[list[Favorite], int]:
+        """Find favorites with filters and pagination, including total count.
+
+        This method returns both the paginated results and the total count
+        in a single operation, ensuring consistency between the two queries.
+
+        Args:
+            user_id: ULID of the user
+            entity_type: Optional filter by entity type
+            offset: Number of records to skip
+            limit: Maximum number of records to return
+
+        Returns:
+            Tuple of (list of favorites, total count)
+        """
+        ...
+
     async def get_by_user(
         self,
         user_id: str,
@@ -69,6 +128,8 @@ class FavoriteRepositoryInterface(Protocol):
         limit: int = 20,
     ) -> tuple[list[Favorite], int]:
         """Get favorites for a user with pagination.
+
+        Deprecated: Use find_with_count() instead for consistency.
 
         Args:
             user_id: ULID of the user

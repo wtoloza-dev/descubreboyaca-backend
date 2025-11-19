@@ -1,7 +1,11 @@
-"""Common ownership schemas.
+"""Common ownership schemas - BASE CLASSES ONLY.
 
-This module contains base schemas for ownership operations that are shared
-across admin and owner routes.
+This module contains BASE schemas for ownership operations.
+These are meant to be INHERITED by layer-specific schemas, NOT used directly.
+
+WARNING: Do not import these directly in routes or other modules.
+         Each layer (admin, owner, public) should define its own schemas
+         that inherit from these base classes.
 """
 
 from datetime import datetime
@@ -9,10 +13,11 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class OwnershipSchemaResponse(BaseModel):
-    """Response schema for restaurant ownership information.
+class BaseOwnershipSchema(BaseModel):
+    """Base schema for restaurant ownership information.
 
-    This is a shared schema used across multiple ownership-related endpoints.
+    This is a BASE class meant to be inherited by layer-specific schemas.
+    Do NOT use this directly in routes or endpoints.
 
     Attributes:
         restaurant_id: Restaurant ULID
@@ -23,16 +28,6 @@ class OwnershipSchemaResponse(BaseModel):
         updated_at: Last update timestamp
         created_by: Creator user ID
         updated_by: Last updater user ID
-
-    Example:
-        {
-            "restaurant_id": "01HKJZW8X...",
-            "owner_id": "01HKJZW8Y...",
-            "role": "owner",
-            "is_primary": true,
-            "created_at": "2025-10-23T09:37:35Z",
-            "created_by": "01HKJZW8Z..."
-        }
     """
 
     model_config = ConfigDict(from_attributes=True)

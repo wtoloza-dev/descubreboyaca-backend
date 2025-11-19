@@ -1,4 +1,4 @@
-"""Remove owner endpoint.
+"""Remove restaurant owner by admin endpoint.
 
 This module provides an endpoint for administrators to remove owners from restaurants.
 """
@@ -27,7 +27,7 @@ router = APIRouter()
     summary="Remove an owner from a restaurant",
     description="Remove a user's ownership/management rights from a restaurant. Only administrators can perform this action.",
 )
-async def handle_remove_owner(
+async def handle_remove_restaurant_owner_by_admin(
     restaurant_id: Annotated[
         ULID,
         Path(

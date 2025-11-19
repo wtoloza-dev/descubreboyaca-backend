@@ -155,6 +155,51 @@ class DishRepositoryInterface(Protocol):
         """
         ...
 
+    async def find_with_count(
+        self,
+        filters: dict[str, Any] | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> tuple[list[Dish], int]:
+        """Find dishes with filters and pagination, including total count.
+
+        This method returns both the paginated results and the total count
+        in a single operation, ensuring consistency between the two queries.
+
+        Args:
+            filters: Dictionary of field names and their values to filter by.
+                    Keys should match model attribute names.
+            offset: Number of records to offset (skip)
+            limit: Maximum number of records to return
+
+        Returns:
+            Tuple of (list of dishes, total count)
+        """
+        ...
+
+    async def find_with_count_by_restaurant_id(
+        self,
+        restaurant_id: str,
+        filters: dict[str, Any] | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> tuple[list[Dish], int]:
+        """Find dishes for a restaurant with pagination, including total count.
+
+        This method returns both the paginated results and the total count
+        in a single operation, ensuring consistency between the two queries.
+
+        Args:
+            restaurant_id: ULID of the restaurant
+            filters: Optional additional filters (category, is_available, etc.)
+            offset: Number of records to offset (skip)
+            limit: Maximum number of records to return
+
+        Returns:
+            Tuple of (list of dishes, total count)
+        """
+        ...
+
     async def commit(self) -> None:
         """Commit the current transaction.
 

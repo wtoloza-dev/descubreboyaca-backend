@@ -1,4 +1,4 @@
-"""Assign owner endpoint.
+"""Assign restaurant owner by admin endpoint.
 
 This module provides an endpoint for administrators to assign owners to restaurants.
 """
@@ -15,11 +15,9 @@ from app.domains.restaurants.application.use_cases.restaurant_owner import (
 from app.domains.restaurants.infrastructure.dependencies import (
     get_assign_owner_use_case_dependency,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.admin.assign_owner import (
-    AssignOwnerSchemaRequest,
-)
-from app.domains.restaurants.presentation.api.schemas.restaurant.common.ownership import (
-    OwnershipSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.assign_restaurant_owner_by_admin import (
+    AssignRestaurantOwnerByAdminSchemaRequest,
+    AssignRestaurantOwnerByAdminSchemaResponse,
 )
 from app.domains.users.domain import User
 
@@ -33,7 +31,7 @@ router = APIRouter()
     summary="Assign an owner to a restaurant",
     description="Assign a user as owner/manager/staff of a restaurant. Only administrators can perform this action.",
 )
-async def handle_assign_owner(
+async def handle_assign_restaurant_owner_by_admin(
     restaurant_id: Annotated[
         ULID,
         Path(
@@ -41,12 +39,12 @@ async def handle_assign_owner(
             examples=["01HQZX123456789ABCDEFGHIJK"],
         ),
     ],
-    request: AssignOwnerSchemaRequest,
+    request: AssignRestaurantOwnerByAdminSchemaRequest,
     use_case: Annotated[
         AssignOwnerUseCase, Depends(get_assign_owner_use_case_dependency)
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
-) -> OwnershipSchemaResponse:
+) -> AssignRestaurantOwnerByAdminSchemaResponse:
     """Assign an owner to a restaurant.
 
     **Authentication required**: Only administrators (ADMIN) can assign owners.
@@ -62,7 +60,7 @@ async def handle_assign_owner(
         current_user: Authenticated user (injected)
 
     Returns:
-        OwnershipSchemaResponse: Created ownership relationship
+        AssignRestaurantOwnerByAdminSchemaResponse: Created ownership relationship
 
     Raises:
         HTTPException: 401 if not authenticated
@@ -78,4 +76,4 @@ async def handle_assign_owner(
         assigned_by=current_user.id,
     )
 
-    return OwnershipSchemaResponse.model_validate(ownership)
+    return AssignRestaurantOwnerByAdminSchemaResponse.model_validate(ownership)

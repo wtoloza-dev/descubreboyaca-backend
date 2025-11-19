@@ -51,8 +51,6 @@ class FindRestaurantsUseCase:
             ...     {"city": "Tunja", "price_level": 2}, offset=0, limit=10
             ... )
         """
-        restaurants = await self.repository.find(
+        return await self.repository.find_with_count(
             filters=filters, offset=offset, limit=limit
         )
-        total = await self.repository.count(filters=filters)
-        return restaurants, total

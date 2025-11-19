@@ -1,4 +1,4 @@
-"""Transfer ownership endpoint.
+"""Transfer restaurant ownership by admin endpoint.
 
 This module provides an endpoint for administrators to transfer primary ownership.
 """
@@ -15,8 +15,8 @@ from app.domains.restaurants.application.use_cases.restaurant_owner import (
 from app.domains.restaurants.infrastructure.dependencies import (
     get_transfer_primary_ownership_use_case_dependency,
 )
-from app.domains.restaurants.presentation.api.schemas.restaurant.common.ownership import (
-    OwnershipSchemaResponse,
+from app.domains.restaurants.presentation.api.schemas.restaurant.admin.transfer_restaurant_ownership_by_admin import (
+    TransferRestaurantOwnershipByAdminSchemaResponse,
 )
 from app.domains.users.domain import User
 
@@ -30,7 +30,7 @@ router = APIRouter()
     summary="Transfer primary ownership",
     description="Transfer primary ownership of a restaurant to another owner. The new owner must already be assigned to the restaurant. Only administrators can perform this action.",
 )
-async def handle_transfer_ownership(
+async def handle_transfer_restaurant_ownership_by_admin(
     restaurant_id: Annotated[
         ULID,
         Path(
@@ -50,7 +50,7 @@ async def handle_transfer_ownership(
         Depends(get_transfer_primary_ownership_use_case_dependency),
     ],
     current_user: Annotated[User, Depends(require_admin_dependency)],
-) -> OwnershipSchemaResponse:
+) -> TransferRestaurantOwnershipByAdminSchemaResponse:
     """Transfer primary ownership to another owner.
 
     **Requiere autenticación**: Solo administradores (ADMIN) pueden transferir ownership.
@@ -66,7 +66,7 @@ async def handle_transfer_ownership(
         current_user: Authenticated user (injected)
 
     Returns:
-        OwnershipSchemaResponse: Updated ownership relationship of the new primary owner
+        TransferRestaurantOwnershipByAdminSchemaResponse: Updated ownership relationship of the new primary owner
 
     Raises:
         HTTPException: 401 if not authenticated
@@ -80,4 +80,4 @@ async def handle_transfer_ownership(
         transferred_by=current_user.id,
     )
 
-    return OwnershipSchemaResponse.model_validate(ownership)
+    return TransferRestaurantOwnershipByAdminSchemaResponse.model_validate(ownership)

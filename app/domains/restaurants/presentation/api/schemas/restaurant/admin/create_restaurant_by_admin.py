@@ -1,7 +1,7 @@
-"""Restaurant schemas for create endpoint.
+"""Restaurant schemas for create restaurant by admin endpoint.
 
-This module defines schemas for creating restaurants and their responses.
-Corresponds to: routes/restaurant/admin/create.py
+This module defines schemas for creating restaurants by administrators.
+Corresponds to: routes/restaurant/admin/create_restaurant_by_admin.py
 """
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -10,8 +10,8 @@ from app.shared.domain import GeoLocation, SocialMedia
 from app.shared.schemas import AuditSchema
 
 
-class CreateRestaurantSchemaRequest(BaseModel):
-    """Simplified request schema for creating a new restaurant.
+class CreateRestaurantByAdminSchemaRequest(BaseModel):
+    """Simplified request schema for creating a new restaurant by admin.
 
     This schema includes only the essential fields needed to create a restaurant.
     Additional details can be added later through update operations.
@@ -84,8 +84,8 @@ class CreateRestaurantSchemaRequest(BaseModel):
     )
 
 
-class CreateRestaurantSchemaResponse(AuditSchema, BaseModel):
-    """Response schema for create restaurant endpoint.
+class CreateRestaurantByAdminSchemaResponse(AuditSchema, BaseModel):
+    """Response schema for create restaurant by admin endpoint.
 
     Audit fields (id, created_at, updated_at, created_by, updated_by) are inherited from AuditSchema.
     """
