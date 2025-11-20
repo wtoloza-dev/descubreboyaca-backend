@@ -9,6 +9,7 @@ from app.domains.restaurants.presentation.api.routes.dish import router as dishe
 from app.domains.restaurants.presentation.api.routes.restaurant import (
     router as restaurants_router,
 )
+from app.domains.restaurants.presentation.graphql import create_graphql_router
 
 
 # Main router combines all restaurant endpoints
@@ -42,6 +43,12 @@ router.include_router(restaurants_router)
 # - PATCH /restaurants/owner/dishes/{dish_id}
 # - DELETE /restaurants/owner/dishes/{dish_id}
 router.include_router(dishes_router)
+
+# GraphQL endpoint
+# - POST /restaurants/graphql (GraphQL queries/mutations)
+# - GET /restaurants/graphql (GraphiQL interface in browser)
+graphql_router = create_graphql_router()
+router.include_router(graphql_router)
 
 
 __all__ = ["router"]
