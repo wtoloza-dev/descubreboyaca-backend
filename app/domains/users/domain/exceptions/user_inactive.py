@@ -2,10 +2,10 @@
 
 from typing import Any
 
-from app.domains.auth.domain.exceptions.authentication import AuthenticationException
+from app.shared.domain.exceptions import ForbiddenException
 
 
-class UserInactiveException(AuthenticationException):
+class UserInactiveException(ForbiddenException):
     """Exception raised when attempting to authenticate an inactive user.
 
     Raised when a user account has been deactivated or suspended and

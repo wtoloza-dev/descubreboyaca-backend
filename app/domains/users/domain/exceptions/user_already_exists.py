@@ -2,10 +2,10 @@
 
 from typing import Any
 
-from app.domains.auth.domain.exceptions.authentication import AuthenticationException
+from app.shared.domain.exceptions import AlreadyExistsException
 
 
-class UserAlreadyExistsException(AuthenticationException):
+class UserAlreadyExistsException(AlreadyExistsException):
     """Exception raised when attempting to create a user that already exists.
 
     Raised when registering with an email address that's already registered

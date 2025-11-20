@@ -2,10 +2,10 @@
 
 from typing import Any
 
-from app.domains.auth.domain.exceptions.authentication import AuthenticationException
+from app.shared.domain.exceptions import NotFoundException
 
 
-class UserNotFoundException(AuthenticationException):
+class UserNotFoundException(NotFoundException):
     """Exception raised when a user is not found.
 
     Raised when attempting to access or authenticate a user that doesn't exist

@@ -8,10 +8,12 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, status
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.users.application.services import UserService
+from app.domains.users.application.use_cases import CreateUserUseCase
 from app.domains.users.domain import User
 from app.domains.users.domain.value_objects import CreateUserData
-from app.domains.users.infrastructure.dependencies import get_user_service_dependency
+from app.domains.users.infrastructure.dependencies import (
+    get_create_user_use_case_dependency,
+)
 from app.domains.users.presentation.api.schemas.admin import (
     CreateUserSchemaRequest,
     CreateUserSchemaResponse,
@@ -30,7 +32,9 @@ router = APIRouter()
 )
 async def handle_create_user(
     request: Annotated[CreateUserSchemaRequest, Body()],
-    service: Annotated[UserService, Depends(get_user_service_dependency)],
+    use_case: Annotated[
+        CreateUserUseCase, Depends(get_create_user_use_case_dependency)
+    ],
     admin_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> CreateUserSchemaResponse:
     """Create a new user.
@@ -43,12 +47,12 @@ async def handle_create_user(
     Following DDD patterns, the route handler:
     1. Receives the request schema (API contract)
     2. Converts it to a domain value object (CreateUserData)
-    3. Passes the value object to the service for business logic
+    3. Passes the value object to the use case for business logic
     4. Returns a properly formatted response
 
     Args:
         request: User creation request schema (API layer)
-        service: User service dependency
+        use_case: Create user use case dependency
         admin_user: Authenticated admin user from dependency
 
     Returns:
@@ -60,8 +64,8 @@ async def handle_create_user(
     # Convert request schema to domain value object
     user_data = CreateUserData(**request.model_dump())
 
-    # Pass domain value object to service for entity construction
-    user = await service.create(user_data=user_data, created_by=admin_user.id)
+    # Execute use case
+    user = await use_case.execute(user_data=user_data, created_by=admin_user.id)
 
     # Build response from entity
     return CreateUserSchemaResponse(

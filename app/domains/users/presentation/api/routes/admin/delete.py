@@ -8,9 +8,11 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, Path, status
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.users.application.services import UserService
+from app.domains.users.application.use_cases import DeleteUserUseCase
 from app.domains.users.domain import User
-from app.domains.users.infrastructure.dependencies import get_user_service_dependency
+from app.domains.users.infrastructure.dependencies import (
+    get_delete_user_use_case_dependency,
+)
 from app.domains.users.presentation.api.schemas.admin import DeleteUserSchemaRequest
 
 
@@ -28,7 +30,9 @@ router = APIRouter()
 async def handle_delete_user(
     user_id: Annotated[str, Path(description="ULID of the user to delete")],
     request: Annotated[DeleteUserSchemaRequest, Body()],
-    service: Annotated[UserService, Depends(get_user_service_dependency)],
+    use_case: Annotated[
+        DeleteUserUseCase, Depends(get_delete_user_use_case_dependency)
+    ],
     admin_user: Annotated[User, Depends(require_admin_dependency)],
 ) -> None:
     """Delete a user with archiving.
@@ -45,13 +49,13 @@ async def handle_delete_user(
     Args:
         user_id: ULID of the user to delete
         request: Delete request with optional note
-        service: User service dependency
+        use_case: Delete user use case dependency
         admin_user: Authenticated admin user from dependency
 
     Raises:
         UserNotFoundException: If user doesn't exist (HTTP 404)
     """
-    await service.delete(
+    await use_case.execute(
         user_id=user_id,
         deleted_by=admin_user.id,
         note=request.note,

@@ -3,7 +3,7 @@
 This module defines the interface contract for User repository operations.
 """
 
-from typing import Protocol
+from typing import Any, Protocol
 
 from app.domains.users.domain.entities import User, UserData
 
@@ -63,6 +63,37 @@ class UserRepositoryInterface(Protocol):
 
         Returns:
             User if found, None otherwise
+        """
+        ...
+
+    async def find(
+        self,
+        filters: dict[str, Any] | None = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> list[User]:
+        """Find users with dynamic filters and pagination.
+
+        Args:
+            filters: Dictionary of field names and their values to filter by.
+                    Example: {"role": "admin", "is_active": True}
+            offset: Number of records to offset (skip)
+            limit: Maximum number of records to return
+
+        Returns:
+            List of users matching the filters
+        """
+        ...
+
+    async def count(self, filters: dict[str, Any] | None = None) -> int:
+        """Count users with dynamic filters.
+
+        Args:
+            filters: Dictionary of field names and their values to filter by.
+                    Example: {"role": "admin", "is_active": True}
+
+        Returns:
+            Count of users matching the filters
         """
         ...
 

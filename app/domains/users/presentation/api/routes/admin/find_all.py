@@ -8,9 +8,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 
 from app.domains.auth.infrastructure.dependencies.auth import require_admin_dependency
-from app.domains.users.application.services import UserService
+from app.domains.users.application.use_cases import FindUsersUseCase
 from app.domains.users.domain import User
-from app.domains.users.infrastructure.dependencies import get_user_service_dependency
+from app.domains.users.infrastructure.dependencies import (
+    get_find_users_use_case_dependency,
+)
 from app.domains.users.presentation.api.schemas.admin import (
     FindAllUsersSchemaResponse,
     UserSchemaItem,
@@ -31,7 +33,7 @@ router = APIRouter()
     "Only administrators can perform this action.",
 )
 async def handle_find_all_users(
-    service: Annotated[UserService, Depends(get_user_service_dependency)],
+    use_case: Annotated[FindUsersUseCase, Depends(get_find_users_use_case_dependency)],
     admin_user: Annotated[User, Depends(require_admin_dependency)],
     pagination: Annotated[Pagination, Depends(get_pagination_dependency)],
 ) -> FindAllUsersSchemaResponse:
@@ -43,14 +45,14 @@ async def handle_find_all_users(
     Useful for user management, auditing, and administrative tasks.
 
     Args:
-        service: User service dependency
+        use_case: Find users use case dependency
         admin_user: Authenticated admin user from dependency
         pagination: Pagination parameters (offset, limit)
 
     Returns:
         FindAllUsersSchemaResponse with list of users and pagination metadata
     """
-    users, total = await service.find_all(
+    users, total = await use_case.execute(
         offset=pagination.offset, limit=pagination.limit
     )
 
