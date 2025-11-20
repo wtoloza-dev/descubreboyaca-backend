@@ -8,13 +8,13 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.lifespan import lifespan
-from app.core.routes import router as core_router
 from app.core.settings import settings
 from app.domains.audit.presentation.api.routes import router as audit_router
 from app.domains.auth.presentation.api.routes import router as auth_router
 from app.domains.favorites.presentation.api.routes import router as favorites_router
 from app.domains.restaurants.presentation.api.routes import router as restaurants_router
 from app.domains.reviews.presentation.api.routes import router as reviews_router
+from app.domains.status.presentation.api.routes import router as status_router
 from app.domains.users.presentation.api.routes import router as users_router
 
 
@@ -26,8 +26,8 @@ def register_routers(app: FastAPI) -> None:
     Args:
         app: FastAPI application instance
     """
-    # Core routers
-    app.include_router(core_router, include_in_schema=settings.DEBUG)
+    # Status and auth routers
+    app.include_router(status_router, include_in_schema=settings.DEBUG)
     app.include_router(auth_router)
 
     # API v1 routers

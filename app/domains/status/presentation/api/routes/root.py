@@ -1,23 +1,11 @@
-"""Main routes."""
+"""Root endpoint routes."""
 
 from fastapi import APIRouter, status
-from pydantic import BaseModel
 
-from app.core.settings import settings
+from app.domains.status.presentation.api.schemas.root import RootResponse
 
 
 router = APIRouter()
-
-
-class RootResponse(BaseModel):
-    """Root response model.
-
-    Returns a welcome message for the API.
-    """
-
-    message: str = "Welcome to Descubre Boyacá API"
-    version: str = settings.APP_VERSION
-    scope: str = settings.SCOPE
 
 
 @router.get(
@@ -30,5 +18,8 @@ async def root() -> RootResponse:
     """Root endpoint.
 
     Returns a welcome message for the API.
+
+    Returns:
+        RootResponse: Welcome message with API information
     """
     return RootResponse()
