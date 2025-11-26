@@ -15,12 +15,14 @@ class EntityType(StrEnum):
 
     Attributes:
         RESTAURANT: Restaurant entities
+        DISH: Dish entities (restaurant dishes/menu items)
         EVENT: Event entities
         PLACE: Tourist place/attraction entities
         ACTIVITY: Activity entities
     """
 
     RESTAURANT = "restaurant"
+    DISH = "dish"
     EVENT = "event"
     PLACE = "place"
     ACTIVITY = "activity"

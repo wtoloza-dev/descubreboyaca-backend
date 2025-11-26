@@ -1,20 +1,19 @@
-"""Review domain schemas.
+"""Public review schemas.
 
-This module provides Pydantic schemas for API request/response validation.
+Schemas for public review endpoints (no authentication required).
 """
 
-from .public import (
+from .list_dish_reviews import (
     ListDishReviewsSchemaItem,
     ListDishReviewsSchemaResponse,
+)
+from .list_restaurant_reviews import (
     ListRestaurantReviewsSchemaItem,
     ListRestaurantReviewsSchemaResponse,
 )
-from .user import ListMyReviewsSchemaItem, ListMyReviewsSchemaResponse
 
 
 __all__ = [
-    "ListMyReviewsSchemaItem",
-    "ListMyReviewsSchemaResponse",
     "ListRestaurantReviewsSchemaItem",
     "ListRestaurantReviewsSchemaResponse",
     "ListDishReviewsSchemaItem",
