@@ -18,6 +18,7 @@ from app.clients.sql.dependencies import (
     create_sqlite_adapter,
 )
 from app.core.settings import settings
+from app.shared.dependencies import get_metrics_client_dependency
 
 
 @asynccontextmanager
@@ -34,7 +35,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     Yields:
         None: Control returns to the application runtime
     """
-    # STARTUP: Create adapters with connection pools
+    # STARTUP: Initialize clients and adapters
+    # Initialize metrics client
+    app.state.metrics_client = get_metrics_client_dependency()
+
+    # Create database adapters with connection pools
     if settings.SCOPE == "local":
         # Use SQLite for local development
         sync_driver = "sqlite"
