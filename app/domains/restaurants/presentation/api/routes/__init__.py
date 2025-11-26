@@ -48,7 +48,7 @@ router.include_router(dishes_router)
 # - POST /restaurants/graphql (GraphQL queries/mutations)
 # - GET /restaurants/graphql (GraphiQL interface in browser)
 graphql_router = create_graphql_router()
-router.include_router(graphql_router)
+router.include_router(graphql_router, tags=["GraphQL", "Restaurants - Public"])
 
 
 __all__ = ["router"]
