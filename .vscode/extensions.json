@@ -2,7 +2,7 @@
   "recommendations": [
     // Python development
     "ms-python.python",
-    "ms-python.vscode-pylance",
+    // "ms-python.vscode-pylance", // Removed to use Cursor's Anywhere Python
     
     // Linting and formatting
     "charliermarsh.ruff",
@@ -17,7 +17,8 @@
   ],
   "unwantedRecommendations": [
     "ms-python.pylint",
-    "ms-python.flake8"
+    "ms-python.flake8",
+    "ms-python.vscode-pylance" // Conflicts with Cursor's Anywhere Python
   ]
 }
 
